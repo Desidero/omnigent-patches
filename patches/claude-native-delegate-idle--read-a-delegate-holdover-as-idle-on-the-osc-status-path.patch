@@ -16,18 +16,22 @@ submits a prompt of its own, or the report changes. reports_busy still
 says working, so the idle pane reaper and idle shutdown keep the delegate
 alive.
 
+[Desidero: release the holdover only on a state change, so a message clear
+that arrives after Stop doesn't end it]
+
 Not upstream yet: extends upstream PR #10849 to the OSC status path.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
+Signed-off-by: Desidero <desidero@gmail.com>
 ---
- .../harnesses/claude_native/program_status.py | 112 +++++++++++++++--
+ .../harnesses/claude_native/program_status.py | 113 ++++++++++++++--
  omnigent/runner/resource_registry.py          |   8 +-
- .../test_claude_native_program_status.py      | 118 ++++++++++++++++++
- 3 files changed, 225 insertions(+), 13 deletions(-)
+ .../test_claude_native_program_status.py      | 127 ++++++++++++++++++
+ 3 files changed, 235 insertions(+), 13 deletions(-)
 
 diff --git a/omnigent/harnesses/claude_native/program_status.py b/omnigent/harnesses/claude_native/program_status.py
-index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9de9281a17 100644
+index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b93812eaaaea 100644
 --- a/omnigent/harnesses/claude_native/program_status.py
 +++ b/omnigent/harnesses/claude_native/program_status.py
 @@ -2,6 +2,7 @@
@@ -38,7 +42,7 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9d
  import threading
  from collections.abc import Callable
  
-@@ -12,24 +13,45 @@ from omnigent.terminals.program_status import (
+@@ -12,24 +13,46 @@ from omnigent.terminals.program_status import (
      blocked_reason,
  )
  
@@ -53,7 +57,8 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9d
 +    outlives its turn. After a ``Stop`` that left such a delegate running, the
 +    ``working`` report seen when the ``Stop`` arrives reads as idle until a turn
 +    starts again: the runner delivers one, Claude submits a prompt of its own,
-+    or any other report (or none) replaces it.
++    or the report leaves ``working``. A message-only change does not end it,
++    since Claude may clear the turn's message after the ``Stop`` is noted.
 +    """
  
      def __init__(
@@ -85,7 +90,7 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9d
  
      @property
      def active(self) -> bool:
-@@ -44,6 +66,16 @@ class ClaudeProgramStatusPoller:
+@@ -44,6 +67,16 @@ class ClaudeProgramStatusPoller:
          report = self._reader.status
          return blocked_reason(report) if report is not None else self._fallback.blocked_on
  
@@ -102,7 +107,7 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9d
      def tick(self) -> None:
          """Publish changed reports; never interpret silence as completion."""
          if self._retired:
-@@ -54,23 +86,24 @@ class ClaudeProgramStatusPoller:
+@@ -54,23 +87,24 @@ class ClaudeProgramStatusPoller:
          if requested:
              self._last = None
          report = self._reader.status
@@ -136,7 +141,7 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9d
              self._fallback.tick()
  
      def resync(self) -> None:
-@@ -79,7 +112,66 @@ class ClaudeProgramStatusPoller:
+@@ -79,7 +113,66 @@ class ClaudeProgramStatusPoller:
              self._resync_requested = True
          self._fallback.resync()
  
@@ -166,14 +171,14 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..c1c86ff4f235b66fa45776817c41ba9d
          self._fallback.retire()
 +
 +    def _track_holdover(self, report: ProgramStatus | None) -> None:
-+        """Start a holdover on a new Stop, and end it once the held report is replaced."""
++        """Start a holdover on a new Stop, and end it once the report leaves ``working``."""
 +        with self._resync_lock:
 +            ended_at_ms = self._turn_ended_at_ms
 +        if ended_at_ms is not None and ended_at_ms != self._held_for_ms:
 +            self._held_for_ms = ended_at_ms
 +            self._held_report = self._observed if self._observed is not None else report
 +            self._released = self._held_report is None or self._held_report.state != "working"
-+        if report != self._held_report:
++        if report is None or self._held_report is None or report.state != self._held_report.state:
 +            self._released = True
 +
 +    def _osc_status(self, report: ProgramStatus) -> str:
@@ -232,10 +237,10 @@ index 26a6fcef88a7560a89b8498fdcf155088e66ca58..327809ed5839a0d15e9c197979946efb
  
      async def _handle_terminal_exit(
 diff --git a/tests/harnesses/claude_native/test_claude_native_program_status.py b/tests/harnesses/claude_native/test_claude_native_program_status.py
-index f0f48afc06548f46f40ed0d6ebee538ef642c2ed..a4643544f722d2c1ec6657a9241ab5c6eda75cf1 100644
+index f0f48afc06548f46f40ed0d6ebee538ef642c2ed..d84055dab4c532a3475a2bdf033865db41b1dbdb 100644
 --- a/tests/harnesses/claude_native/test_claude_native_program_status.py
 +++ b/tests/harnesses/claude_native/test_claude_native_program_status.py
-@@ -62,3 +62,121 @@ def test_resync_during_tick_survives_the_in_flight_read(tmp_path: Path, monkeypa
+@@ -62,3 +62,130 @@ def test_resync_during_tick_survives_the_in_flight_read(tmp_path: Path, monkeypa
      assert published == ["idle", "running", "running"]
      poller.tick()
      assert published == ["idle", "running", "running"]
@@ -299,15 +304,19 @@ index f0f48afc06548f46f40ed0d6ebee538ef642c2ed..a4643544f722d2c1ec6657a9241ab5c6
 +    assert published == ["running", "idle", "running"]
 +
 +
-+def test_changed_report_ends_the_delegate_holdover(tmp_path: Path) -> None:
-+    """A new report means Claude moved on, even if it later repeats the held one."""
-+    poller, path, published = _delegate_poller(tmp_path, [None])
++def test_message_change_keeps_the_delegate_holdover_until_a_prompt(tmp_path: Path) -> None:
++    """Only a new turn or a state change ends the holdover, not a new message."""
++    prompt_at_ms: list[int | None] = [1000]
++    poller, path, published = _delegate_poller(tmp_path, prompt_at_ms)
 +
++    _write_report(path, "working", "Waiting on the delegate")
++    poller.tick()
++    assert published == ["running", "idle", "idle"]
++
++    prompt_at_ms[0] = 3000
 +    _write_report(path, "working", "Reading the delegate's result")
 +    poller.tick()
-+    _write_report(path, "working")
-+    poller.tick()
-+    assert published == ["running", "idle", "running", "running"]
++    assert published == ["running", "idle", "idle", "running"]
 +
 +
 +def test_other_report_ends_the_delegate_holdover(tmp_path: Path) -> None:
@@ -321,8 +330,8 @@ index f0f48afc06548f46f40ed0d6ebee538ef642c2ed..a4643544f722d2c1ec6657a9241ab5c6
 +    assert published == ["running", "idle", "running", "running"]
 +
 +
-+def test_report_changed_before_the_stop_tick_is_not_held(tmp_path: Path) -> None:
-+    """The holdover keeps the report seen before the Stop, not a newer one."""
++def test_message_cleared_after_the_stop_is_noted_stays_held(tmp_path: Path) -> None:
++    """Claude may clear the turn's message after the Stop reaches the poller."""
 +    path = tmp_path / "program-status.json"
 +    _write_report(path, "working")
 +    published: list[str] = []
@@ -339,13 +348,18 @@ index f0f48afc06548f46f40ed0d6ebee538ef642c2ed..a4643544f722d2c1ec6657a9241ab5c6
 +            config_dir=tmp_path,
 +        ),
 +        on_status,
-+        prompt_submitted_at_getter=lambda: None,
++        prompt_submitted_at_getter=lambda: 1000,
 +    )
++    poller.note_turn_started(1000)
++    poller.tick()
++    _write_report(path, "working", "Running a long command")
 +    poller.tick()
 +    poller.note_turn_ended(2000)
-+    _write_report(path, "working", "Starting a new turn")
++    _write_report(path, "working")
 +    poller.tick()
-+    assert published == ["running", "running"]
++    poller.tick()
++    assert published == ["running", "running", "idle"]
++    assert poller.reports_busy is True
 +
 +
 +def test_osc_returning_after_a_gap_does_not_resume_the_holdover(tmp_path: Path) -> None:
