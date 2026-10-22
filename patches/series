@@ -103,3 +103,6 @@ claude-native-delegate-idle--settle-a-turn-while-a-background-agent-keeps-claude
 claude-native-delegate-idle--read-a-delegate-holdover-as-idle-on-the-osc-status-path.patch
 claude-native-delegate-idle--count-agent-team-teammates-as-background-agents.patch
 claude-native-delegate-idle--read-a-teammate-s-message-as-the-start-of-a-lead-turn.patch
+
+# series: delete-stops-runner
+delete-stops-runner--stop-a-deleted-session-s-host-launched-runner.patch
