@@ -685,7 +685,7 @@ index 4ba5a019509af6a99477efb87145498f83c7b7dd..1d0c9398742007687b8d5406ed8fd8a5
      # Sandbox-override regression: the launched Codex terminal must inherit
      # the agent's sandbox: none rather than falling back to the platform
 diff --git a/tests/runner/test_runner_dispatch.py b/tests/runner/test_runner_dispatch.py
-index b4b2b83b4acd8d9dd6d283055a8461e2a6eabfcc..aa754d8a0cef49216b2a4fbcabb15b4893476173 100644
+index 143139370bccc95ba543f3f0484b3ce8076093d1..6cc2db9fbde45706f287babd5c8341c0712a5f71 100644
 --- a/tests/runner/test_runner_dispatch.py
 +++ b/tests/runner/test_runner_dispatch.py
 @@ -96,7 +96,10 @@ from omnigent.runtime.harnesses._executor_adapter import (

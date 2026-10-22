@@ -5,7 +5,7 @@ Subject: [PATCH] fix(claude-native): follow CLAUDE_CONFIG_DIR instead of
  ~/.claude
 
 Carried on custom until upstream PR #9617 (CLAUDE_CONFIG_DIR) merges; the
-account work below needs it. Read in full for security before use.
+account work below needs it.
 
 Claude Code takes its profile from CLAUDE_CONFIG_DIR. The runner env
 forwards it and trust seeding follows it, but the rest of what Omnigent

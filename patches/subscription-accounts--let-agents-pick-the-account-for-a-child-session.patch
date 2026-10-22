@@ -63,7 +63,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  create mode 100644 omnigent/runner/child_account.py
 
 diff --git a/docs/providers.md b/docs/providers.md
-index 75a557bb01e2266c804d7d899a39cdf9d0fe74bc..a98b261ab44454fafe3865af99d1d44fda08d34d 100644
+index aab5b61f7e379140766ee392e6d102f962c91914..168804089f68bb1b8dd344f3c49c58385ee92bcc 100644
 --- a/docs/providers.md
 +++ b/docs/providers.md
 @@ -131,6 +131,35 @@ How the choice applies:
@@ -192,7 +192,7 @@ index 9b24a7b5ab01623392d31f3a45da92a2d6bc5cf8..77938f49509241d2400d167c7b70217e
                      # entry stays terminal and undelivered; it is handed over
 diff --git a/omnigent/runner/child_account.py b/omnigent/runner/child_account.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..7b4a73b126a9edd22c5b7311e356c37e74b1017f
+index 0000000000000000000000000000000000000000..86467dd72475ebbf165fc3a13611aa6fb81c3172
 --- /dev/null
 +++ b/omnigent/runner/child_account.py
 @@ -0,0 +1,130 @@
@@ -249,7 +249,7 @@ index 0000000000000000000000000000000000000000..7b4a73b126a9edd22c5b7311e356c37e
 +class ChildAccount:
 +    """Where a child on *provider* runs.
 +
-+    :param provider: The ``providers:`` entry name, e.g. ``"claude-work"``.
++    :param provider: The ``providers:`` entry name, e.g. ``"claude-alt"``.
 +    :param own_runner: Whether the child needs its own runner because the
 +        parent's runner runs another account for the provider's families.
 +    """
@@ -327,7 +327,7 @@ index 0000000000000000000000000000000000000000..7b4a73b126a9edd22c5b7311e356c37e
 +        f"Providers for {harness!r} on this host: {valid}.",
 +    )
 diff --git a/omnigent/runner/tool_dispatch.py b/omnigent/runner/tool_dispatch.py
-index 7cc91979f7e14a5411501025e1382b1b942bea09..0de893af25680fa92b8abdd5571d06db899cd539 100644
+index 7cc91979f7e14a5411501025e1382b1b942bea09..fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57 100644
 --- a/omnigent/runner/tool_dispatch.py
 +++ b/omnigent/runner/tool_dispatch.py
 @@ -2419,13 +2419,14 @@ async def _execute_list_models_tool(*, agent_spec: AgentSpec | None) -> str:
@@ -409,7 +409,7 @@ index 7cc91979f7e14a5411501025e1382b1b942bea09..0de893af25680fa92b8abdd5571d06db
 +    account.
 +
 +    :param agent_id: The existing agent to launch, e.g. ``"ag_abc123"``.
-+    :param provider: The ``providers:`` entry name, e.g. ``"claude-work"``.
++    :param provider: The ``providers:`` entry name, e.g. ``"claude-alt"``.
 +    :param args: Parsed tool arguments.
 +    :param server_client: HTTP client pointed at the Omnigent server.
 +    :param conversation_id: The caller's session id — the forced parent.
@@ -694,7 +694,7 @@ index 70d9853effe87068e922795042364f0c4200b75f..3061be29e76539d1ca1dd949c8e2de4d
 -        return json.dumps(catalog_for_spec(self._spec))
 +        return json.dumps(list_models_payload(self._spec))
 diff --git a/omnigent/tools/builtins/spawn.py b/omnigent/tools/builtins/spawn.py
-index df9848f72033dbc590a39d6b98c446d3af3743be..29b14b4c0f25f0d177f54e6a340ca81e81bbc9ea 100644
+index df9848f72033dbc590a39d6b98c446d3af3743be..2548311b9c2b12d9ce7fbca758fdeae934eeeca5 100644
 --- a/omnigent/tools/builtins/spawn.py
 +++ b/omnigent/tools/builtins/spawn.py
 @@ -888,7 +888,9 @@ class SysSessionCreateTool(Tool):
@@ -717,7 +717,7 @@ index df9848f72033dbc590a39d6b98c446d3af3743be..29b14b4c0f25f0d177f54e6a340ca81e
 +                            "description": (
 +                                "Optional account for the child: the name "
 +                                "of a providers: entry on this host, e.g. "
-+                                "'claude-work' (a Claude subscription) or "
++                                "'claude-alt' (a Claude subscription) or "
 +                                "'chatgpt' (a Codex subscription). Omit to "
 +                                "use your own provider when it serves the "
 +                                "child's CLI, else the host default. "
@@ -734,7 +734,7 @@ index df9848f72033dbc590a39d6b98c446d3af3743be..29b14b4c0f25f0d177f54e6a340ca81e
                      # Only the always-optional fields are listed in
                      # ``required`` (none): the agent_id-vs-config_path
 diff --git a/tests/onboarding/test_subscription_accounts.py b/tests/onboarding/test_subscription_accounts.py
-index 4d814e221932801c03698bf26e9cc6924f81ddb0..533e52331e59221404ef98caeb210dfa6d7099a8 100644
+index 539225e50fc92cbe78b0c0302c54425fa00e3eb8..2df4555e74eac285cca29f1dc79d6a85d4abff8d 100644
 --- a/tests/onboarding/test_subscription_accounts.py
 +++ b/tests/onboarding/test_subscription_accounts.py
 @@ -23,6 +23,7 @@ from omnigent.onboarding.subscription_accounts import (
@@ -846,7 +846,7 @@ index 58563b6d873f19223a6231f4b49909922623fd7d..4db0eb352efa608afc66383a3a957656
  async def test_retained_result_is_delivered_when_parent_inbox_is_created(
      _clean_subagent_registry: None,
 diff --git a/tests/runner/test_runner_dispatch.py b/tests/runner/test_runner_dispatch.py
-index 110194521293d07ab6d66066d5636ba72fb8c773..553d113295da10a8bbc706f9551189cca69d0750 100644
+index 110194521293d07ab6d66066d5636ba72fb8c773..0054b62e906dfb85135c22488cb06fd10ef532e9 100644
 --- a/tests/runner/test_runner_dispatch.py
 +++ b/tests/runner/test_runner_dispatch.py
 @@ -4868,7 +4868,14 @@ async def test_sys_list_models_dispatches_locally_with_static_provider(
@@ -897,7 +897,7 @@ index 110194521293d07ab6d66066d5636ba72fb8c773..553d113295da10a8bbc706f9551189cc
 +        "max1": {"kind": "subscription", "cli": "claude", "default": True},
 +        "max2": {"kind": "subscription", "cli": "claude", "config_dir": str(tmp_path / "m2")},
 +        "codex_b": {"kind": "subscription", "cli": "codex", "default": True},
-+        "dbx": {"kind": "databricks", "profile": "work"},
++        "dbx": {"kind": "databricks", "profile": "alt"},
 +    }
 +    (config_home / "config.yaml").write_text(yaml.safe_dump({"providers": providers}))
 +    for login_dir in (tmp_path / "home" / ".claude", tmp_path / "m2"):
@@ -1131,7 +1131,7 @@ index abc565ff31d896fec6c33942aa5b13ffb995f8ce..59280e0b4385cea58f7d5bf5190d109d
      "payload,capabilities,detail",
      [
 diff --git a/tests/server/routes/test_subagent_status_forward_recovery.py b/tests/server/routes/test_subagent_status_forward_recovery.py
-index c348e80e00604c816afd41b6cf523672c2aba2a3..551f945a8fcf4644613a32afb9d30d54eff0bf05 100644
+index c348e80e00604c816afd41b6cf523672c2aba2a3..500bcf4bf1af00d39abdf06b909b362e0422ec39 100644
 --- a/tests/server/routes/test_subagent_status_forward_recovery.py
 +++ b/tests/server/routes/test_subagent_status_forward_recovery.py
 @@ -30,6 +30,8 @@ def _conv(
@@ -1168,7 +1168,7 @@ index c348e80e00604c816afd41b6cf523672c2aba2a3..551f945a8fcf4644613a32afb9d30d54
 +        runner_id="runner_child",
 +        parent_id="conv_parent",
 +        host_id="host_1",
-+        provider_override="claude-work",
++        provider_override="claude-alt",
 +    )
 +    store = _FakeStore(_conv("conv_parent", runner_id="runner_parent"))
 +
@@ -1189,7 +1189,7 @@ index c348e80e00604c816afd41b6cf523672c2aba2a3..551f945a8fcf4644613a32afb9d30d54
      _patch_forward_and_wait: dict[str, Any],
  ) -> None:
 diff --git a/tests/tools/builtins/test_list_models.py b/tests/tools/builtins/test_list_models.py
-index bb9f0b941f977b2a57a41f73bc345611d0b28299..2e0ce9f26bcf9bebe01d7555be5ff7ecec387c72 100644
+index bb9f0b941f977b2a57a41f73bc345611d0b28299..aee9c809a053afb7f5f109fa15b3c31b0ba9f72a 100644
 --- a/tests/tools/builtins/test_list_models.py
 +++ b/tests/tools/builtins/test_list_models.py
 @@ -110,3 +110,45 @@ def test_invoke_lists_acp_curated_models_without_gateway_credentials(
@@ -1207,7 +1207,7 @@ index bb9f0b941f977b2a57a41f73bc345611d0b28299..2e0ce9f26bcf9bebe01d7555be5ff7ec
 +        "providers:\n"
 +        "  dbx:\n"
 +        "    kind: databricks\n"
-+        "    profile: work\n"
++        "    profile: alt\n"
 +        "    default: true\n"
 +        "  gateway:\n"
 +        "    kind: gateway\n"
@@ -1223,7 +1223,7 @@ index bb9f0b941f977b2a57a41f73bc345611d0b28299..2e0ce9f26bcf9bebe01d7555be5ff7ec
 +        {
 +            "name": "dbx",
 +            "kind": "databricks",
-+            "label": "Databricks profile work",
++            "label": "Databricks profile alt",
 +            "clis": ["claude", "codex"],
 +            "default_for": ["claude", "codex"],
 +            "ready": True,

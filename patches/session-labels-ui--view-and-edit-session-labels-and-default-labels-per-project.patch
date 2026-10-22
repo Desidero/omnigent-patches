@@ -2176,7 +2176,7 @@ index 34535fa8050e5c265ac7af804bb9fbb9df939b16..87e217f7b72b2f0a30bfed923d009e39
    );
  }
 diff --git a/web/src/shell/ProjectSettingsDialog.test.tsx b/web/src/shell/ProjectSettingsDialog.test.tsx
-index ed2acb7bf3d9cb8e49db702385fd8bbdb58fd0f5..2d9b323b0c572fe87f0c5f7372e6f23bdce8da2a 100644
+index 0579f5df75942b7ef6b2f9cc71aed9e516544ef6..7efff875cd4eb03ada48b2db8610c3d0e9b883a1 100644
 --- a/web/src/shell/ProjectSettingsDialog.test.tsx
 +++ b/web/src/shell/ProjectSettingsDialog.test.tsx
 @@ -1,4 +1,4 @@

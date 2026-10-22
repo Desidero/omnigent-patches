@@ -33,10 +33,9 @@ default-off `pr_watch` feature.
 - State lives in server-reserved session labels, so it survives a restart
   without a migration: `omnigent.pr_watch.mode` for "all", and a URL and a
   state label per PR keyed by a hash of its URL (values are capped at 256
-  characters). The first version's single-PR labels are read as one entry
-  and rewritten on the next poll or change. Forks drop the whole family,
-  and clients cannot write it except through GET/PUT/PATCH/DELETE
-  /v1/sessions/{id}/pr-watch, which needs edit access to change.
+  characters). Forks drop the whole family, and clients cannot write it
+  except through GET/PUT/PATCH/DELETE /v1/sessions/{id}/pr-watch, which
+  needs edit access to change.
 - The GitHub payload gains `mergeable`, each reviewer's `submitted_at`,
   and comment and review `author_association`, so conflicts, repeat
   reviews and trusted authors are detectable.
@@ -48,16 +47,16 @@ Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---
  feature-map/README.md                         |   4 +
- feature-map/pr-watch.md                       | 104 ++
+ feature-map/pr-watch.md                       | 102 ++
  omnigent/runner/git_providers/__init__.py     |   4 +
  omnigent/runner/github_resource.py            |  35 +-
  omnigent/server/app.py                        |  11 +
  omnigent/server/feature_flags.py              |   7 +
- omnigent/server/pr_watch.py                   | 995 ++++++++++++++++++
+ omnigent/server/pr_watch.py                   | 974 ++++++++++++++++++
  omnigent/server/routes/_sessions/helpers.py   |   9 +
  omnigent/server/routes/sessions/__init__.py   |  14 +
  .../server/routes/sessions/routes_events.py   |  46 +-
- .../server/routes/sessions/routes_pr_watch.py | 245 +++++
+ .../server/routes/sessions/routes_pr_watch.py | 241 +++++
  .../routes/sessions/routes_resources.py       |  17 +
  .../stores/conversation_store/__init__.py     |  23 +
  .../conversation_store/sqlalchemy_store.py    |  24 +
@@ -66,20 +65,20 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  tests/runner/test_github_reviewers.py         |  27 +-
  .../test_policy_deny_lifecycle_e2e.py         |  21 +
  .../integration/test_utility_endpoints.py     |   1 +
- tests/server/routes/test_session_pr_watch.py  | 233 ++++
+ tests/server/routes/test_session_pr_watch.py  | 207 ++++
  tests/server/test_feature_flags.py            |   1 +
- tests/server/test_pr_watch.py                 | 525 +++++++++
+ tests/server/test_pr_watch.py                 | 505 +++++++++
  tests/stores/test_conversation_store.py       |  15 +-
  .../composer/ComposerPrWatch.test.tsx         | 206 ++++
  .../components/composer/ComposerPrWatch.tsx   | 243 +++++
- web/src/hooks/usePullRequestWatch.ts          | 115 ++
+ web/src/hooks/usePullRequestWatch.ts          | 115 +++
  web/src/hooks/usePullRequests.ts              |   2 +-
  web/src/lib/capabilities.ts                   |   3 +-
  web/src/pages/ChatPage.tsx                    |   3 +
  web/src/shell/PullRequestPanel.tsx            |  10 +
  web/src/shell/PullRequestWatch.test.tsx       | 107 ++
  web/src/shell/PullRequestWatch.tsx            |  56 +
- 32 files changed, 3471 insertions(+), 14 deletions(-)
+ 32 files changed, 3398 insertions(+), 14 deletions(-)
  create mode 100644 feature-map/pr-watch.md
  create mode 100644 omnigent/server/pr_watch.py
  create mode 100644 omnigent/server/routes/sessions/routes_pr_watch.py
@@ -108,10 +107,10 @@ index 52059f4cd4b3f297e0ff1803f6db2df97e3a03b9..034eb0c190c01738891f341b7588d22d
  The original five recipes form the seed set. Completing this set means checking
 diff --git a/feature-map/pr-watch.md b/feature-map/pr-watch.md
 new file mode 100644
-index 0000000000000000000000000000000000000000..109265fb286c95ad780f9b9e153bba86e2bc8568
+index 0000000000000000000000000000000000000000..d2d380faef61c53d9d29404658622dda07eeae2f
 --- /dev/null
 +++ b/feature-map/pr-watch.md
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,102 @@
 +# Watch pull requests until they're green
 +
 +A user picks which of a session's pull requests to watch from **Watch PRs** in
@@ -178,7 +177,7 @@ index 0000000000000000000000000000000000000000..109265fb286c95ad780f9b9e153bba86
 +  `web/src/components/composer/ComposerPrWatch.test.tsx`.
 +- Panel switch and refusal: `web/src/shell/PullRequestWatch.test.tsx`.
 +- Event detection, dedupe, coalescing across PRs, "all" pick-up, idle-only
-+  delivery, stop rules and migration of the first version's labels:
++  delivery and stop rules:
 +  `tests/server/test_pr_watch.py`.
 +- Route permissions, feature gate, modes, baseline and reserved labels:
 +  `tests/server/routes/test_session_pr_watch.py`.
@@ -214,8 +213,6 @@ index 0000000000000000000000000000000000000000..109265fb286c95ad780f9b9e153bba86
 +- Polls go through the session's runner, or its host when the runner is offline,
 +  and are skipped while the host is disconnected from this server replica.
 +- Forking a session does not copy its watches.
-+- Sessions watching through the first version's single-PR labels keep working;
-+  the next poll or change rewrites them in the per-PR form.
 diff --git a/omnigent/runner/git_providers/__init__.py b/omnigent/runner/git_providers/__init__.py
 index 55c67063dcccecaa4d4da6c3f894b7a34d91605f..479c41b9afb455aa8a1b311b6b7eb404363c52e1 100644
 --- a/omnigent/runner/git_providers/__init__.py
@@ -391,10 +388,10 @@ index 17e3d9ef927c7b5faf99ae46f10de85f39c00b74..86b41d786b9cb34fe552b9e20ba31794
  
 diff --git a/omnigent/server/pr_watch.py b/omnigent/server/pr_watch.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8047cb778
+index 0000000000000000000000000000000000000000..50d28544813cbdf547570d414b38ca2936389824
 --- /dev/null
 +++ b/omnigent/server/pr_watch.py
-@@ -0,0 +1,995 @@
+@@ -0,0 +1,974 @@
 +"""Keep a session on its pull requests until CI passes and review is clear.
 +
 +A session opts in with ``PUT``/``PATCH /v1/sessions/{id}/pr-watch``, either for
@@ -411,8 +408,7 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +Watch state lives in server-reserved session labels, so it survives a restart
 +without a migration: :data:`MODE_LABEL_KEY` marks "all" mode, and each PR has
 +a URL label and a state label keyed by a digest of its URL (see
-+:func:`entry_label_keys`). Sessions that still carry the single-PR labels of
-+the first version are read as one watched PR and rewritten on the next poll.
++:func:`entry_label_keys`).
 +
 +A PR's watch ends with a short note in the session when it is green, merged or
 +closed, when its wake-up budget is spent, when its CI checks cannot be read, or
@@ -457,9 +453,6 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +
 +# "All" mode: the value is ``all``, or ``all:<n>`` with a wake-up budget for each PR.
 +MODE_LABEL_KEY = f"{PR_WATCH_LABEL_PREFIX}.mode"
-+# The first version's single watch: the PR URL and its state.
-+LEGACY_URL_LABEL_KEY = PR_WATCH_LABEL_PREFIX
-+LEGACY_STATE_LABEL_KEY = f"{PR_WATCH_LABEL_PREFIX}.state"
 +_ENTRY_ID_CHARS = 12
 +_ENTRY_LABEL = re.compile(
 +    rf"^{re.escape(PR_WATCH_LABEL_PREFIX)}\.([0-9a-f]{{{_ENTRY_ID_CHARS}}})\.(url|state)$"
@@ -914,13 +907,11 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +    :param all_prs: Whether every PR the session tracks is watched, including later ones.
 +    :param all_max_wakes: The per-PR budget "all" mode was turned on with, if any.
 +    :param prs: Each recorded PR's state by URL; an ended state means not watching.
-+    :param legacy: Whether the first version's single-PR labels were read.
 +    """
 +
 +    all_prs: bool = False
 +    all_max_wakes: int | None = None
 +    prs: dict[str, WatchState] = field(default_factory=dict)
-+    legacy: bool = False
 +
 +    @property
 +    def watching(self) -> list[str]:
@@ -938,7 +929,7 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +
 +
 +def read_session_watch(labels: Mapping[str, str]) -> SessionWatch:
-+    """Parse a session's watch labels, including the first version's single-PR pair."""
++    """Parse a session's watch labels."""
 +    watch = SessionWatch()
 +    mode = labels.get(MODE_LABEL_KEY, "")
 +    if mode == "all" or mode.startswith("all:"):
@@ -953,10 +944,6 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +            (urls if match.group(2) == "url" else states)[match.group(1)] = value
 +    for entry_id, url in sorted(urls.items(), key=lambda item: item[1]):
 +        watch.prs[url] = WatchState.decode(states.get(entry_id))
-+    legacy_url = labels.get(LEGACY_URL_LABEL_KEY)
-+    if legacy_url:
-+        watch.legacy = True
-+        watch.prs.setdefault(legacy_url, WatchState.decode(labels.get(LEGACY_STATE_LABEL_KEY)))
 +    watch.prs = dict(sorted(watch.prs.items(), key=lambda item: (item[1].started_at, item[0])))
 +    return watch
 +
@@ -975,15 +962,6 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +    """Forget *pr_url*'s watch."""
 +    for key in entry_label_keys(pr_url):
 +        await asyncio.to_thread(store.delete_label, session_id, key)
-+
-+
-+async def migrate_legacy(store: ConversationStore, session_id: str, watch: SessionWatch) -> None:
-+    """Rewrite the first version's single-PR labels as a per-PR entry."""
-+    for pr_url, state in watch.prs.items():
-+        await save_entry(store, session_id, pr_url, state)
-+    for key in (LEGACY_URL_LABEL_KEY, LEGACY_STATE_LABEL_KEY):
-+        await asyncio.to_thread(store.delete_label, session_id, key)
-+    watch.legacy = False
 +
 +
 +async def set_all_mode(
@@ -1170,8 +1148,6 @@ index 0000000000000000000000000000000000000000..d4f26a7924e9cd8d69c997fad0ae1fe8
 +        if conv is None:
 +            return
 +        watch = read_session_watch(conv.labels)
-+        if watch.legacy:
-+            await migrate_legacy(self._store, session_id, watch)
 +        if not watch.active:
 +            self._listed.pop(session_id, None)
 +            return
@@ -1577,10 +1553,10 @@ index f5cfb31d09e1deb8d7fe911fbd9653b885acac10..b1055bf37da00b403f9149ee39be7f28
      # Live-tail only. Clients reconnect via GET /v1/sessions/{id}
 diff --git a/omnigent/server/routes/sessions/routes_pr_watch.py b/omnigent/server/routes/sessions/routes_pr_watch.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..fe423001c5c5b74f6639ffa56a3b3e66be705f27
+index 0000000000000000000000000000000000000000..492c5a0f213eb5ba8363ae06a2acc4e97a2decbf
 --- /dev/null
 +++ b/omnigent/server/routes/sessions/routes_pr_watch.py
-@@ -0,0 +1,245 @@
+@@ -0,0 +1,241 @@
 +"""Choose which of a session's pull requests to watch (see :mod:`omnigent.server.pr_watch`)."""
 +
 +from __future__ import annotations
@@ -1605,7 +1581,6 @@ index 0000000000000000000000000000000000000000..fe423001c5c5b74f6639ffa56a3b3e66
 +    baseline_state,
 +    clear_watch,
 +    configured_max_wakes,
-+    migrate_legacy,
 +    read_session_watch,
 +    remove_entry,
 +    save_entry,
@@ -1723,10 +1698,7 @@ index 0000000000000000000000000000000000000000..fe423001c5c5b74f6639ffa56a3b3e66
 +        request: Request, session_id: str
 +    ) -> tuple[Conversation, SessionWatch]:
 +        conv = await _authorized(request, session_id, LEVEL_EDIT)
-+        watch = read_session_watch(conv.labels)
-+        if watch.legacy:
-+            await migrate_legacy(conversation_store, session_id, watch)
-+        return conv, watch
++        return conv, read_session_watch(conv.labels)
 +
 +    async def _baseline(
 +        request: Request, session_id: str, conv: Conversation, pr_url: str, max_wakes: int | None
@@ -2469,11 +2441,11 @@ index fe36d22551ba5c5f40794c779da7abb1876d481e..0195bda251ff3f137f70741479844c4f
      assert data["harness_install_enabled"] is False
 diff --git a/tests/server/routes/test_session_pr_watch.py b/tests/server/routes/test_session_pr_watch.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..0c8bc6eabf8de5b89971e77f3b521f9b8b5d4484
+index 0000000000000000000000000000000000000000..5aed4b80ec5834d500920106901cef95a54e53c3
 --- /dev/null
 +++ b/tests/server/routes/test_session_pr_watch.py
-@@ -0,0 +1,233 @@
-+"""``/v1/sessions/{id}/pr-watch``: feature gate, permissions, modes, baseline and migration."""
+@@ -0,0 +1,207 @@
++"""``/v1/sessions/{id}/pr-watch``: feature gate, permissions, modes and baseline."""
 +
 +from __future__ import annotations
 +
@@ -2492,8 +2464,6 @@ index 0000000000000000000000000000000000000000..0c8bc6eabf8de5b89971e77f3b521f9b
 +from omnigent.server.auth import LEVEL_OWNER, LEVEL_READ, UnifiedAuthProvider
 +from omnigent.server.feature_flags import Feature, FeatureFlags
 +from omnigent.server.pr_watch import (
-+    LEGACY_STATE_LABEL_KEY,
-+    LEGACY_URL_LABEL_KEY,
 +    MODE_LABEL_KEY,
 +    WatchState,
 +    entry_label_keys,
@@ -2649,30 +2619,6 @@ index 0000000000000000000000000000000000000000..0c8bc6eabf8de5b89971e77f3b521f9b
 +    assert [pr["pr_url"] for pr in every.json()["prs"]] == [PR_URL]
 +
 +
-+async def test_legacy_single_pr_watch_reads_and_migrates(
-+    watch_app: FastAPI, client: httpx.AsyncClient, session: Conversation, db_uri: str
-+) -> None:
-+    _serve_pr(watch_app)
-+    url = f"/v1/sessions/{session.id}/pr-watch"
-+    SqlAlchemyConversationStore(db_uri).set_labels(
-+        session.id,
-+        {
-+            LEGACY_URL_LABEL_KEY: PR_URL,
-+            LEGACY_STATE_LABEL_KEY: WatchState(wakes=2, max_wakes=5, started_at=9).encode(),
-+        },
-+    )
-+
-+    status = (await client.get(url, headers=VIEWER)).json()
-+    assert status["mode"] == "selected"
-+    assert [(pr["pr_url"], pr["wakes"]) for pr in status["prs"]] == [(PR_URL, 2)]
-+
-+    added = await client.patch(url, json={"pr_url": PR_9, "watch": True}, headers=OWNER)
-+
-+    assert [(pr["pr_url"], pr["wakes"]) for pr in added.json()["prs"]] == [(PR_URL, 2), (PR_9, 0)]
-+    labels = _labels(db_uri, session.id)
-+    assert LEGACY_URL_LABEL_KEY not in labels and LEGACY_STATE_LABEL_KEY not in labels
-+
-+
 +async def test_watch_needs_edit_access_an_open_pr_and_the_feature(
 +    watch_app: FastAPI, client: httpx.AsyncClient, session: Conversation
 +) -> None:
@@ -2696,7 +2642,7 @@ index 0000000000000000000000000000000000000000..0c8bc6eabf8de5b89971e77f3b521f9b
 +    assert (await client.get(url, headers=OWNER)).status_code == 404
 +
 +
-+@pytest.mark.parametrize("key", [LEGACY_URL_LABEL_KEY, MODE_LABEL_KEY, "omnigent.pr_watch.x.url"])
++@pytest.mark.parametrize("key", ["omnigent.pr_watch", MODE_LABEL_KEY, "omnigent.pr_watch.x.url"])
 +async def test_clients_cannot_write_watch_labels_directly(
 +    client: httpx.AsyncClient, session: Conversation, key: str
 +) -> None:
@@ -2720,10 +2666,10 @@ index 0ab7fada1f25ea2dc7536fb4ce53f0fc82c953f2..abbfc06a4a9e8fa48ce68a5177e47798
  
 diff --git a/tests/server/test_pr_watch.py b/tests/server/test_pr_watch.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..9976a687957c2673c988099fc6020bab1d5ebf80
+index 0000000000000000000000000000000000000000..4fedac51b0936393636d2f09964cff162b6b8bde
 --- /dev/null
 +++ b/tests/server/test_pr_watch.py
-@@ -0,0 +1,525 @@
+@@ -0,0 +1,505 @@
 +"""Pull request watch: event detection, dedupe, stop rules, label storage and the poll loop."""
 +
 +from __future__ import annotations
@@ -2735,8 +2681,6 @@ index 0000000000000000000000000000000000000000..9976a687957c2673c988099fc6020bab
 +
 +from omnigent.entities import Conversation
 +from omnigent.server.pr_watch import (
-+    LEGACY_STATE_LABEL_KEY,
-+    LEGACY_URL_LABEL_KEY,
 +    MODE_LABEL_KEY,
 +    PR_WATCH_INSTRUCTIONS,
 +    PullRequestWatcher,
@@ -2935,18 +2879,19 @@ index 0000000000000000000000000000000000000000..9976a687957c2673c988099fc6020bab
 +    assert WatchState.decode("not json") == WatchState()
 +
 +
-+def test_labels_round_trip_with_the_legacy_pair_read_as_one_entry() -> None:
-+    url_key, state_key = entry_label_keys(PR_9)
++def test_labels_round_trip_per_pr_entries_in_start_order() -> None:
++    ended_url, ended_state = entry_label_keys(PR_9)
++    open_url, open_state = entry_label_keys(PR_URL)
 +    labels = {
 +        MODE_LABEL_KEY: "all:3",
-+        url_key: PR_9,
-+        state_key: WatchState(wakes=2, started_at=2, ended="green").encode(),
-+        LEGACY_URL_LABEL_KEY: PR_URL,
-+        LEGACY_STATE_LABEL_KEY: WatchState(wakes=1, started_at=1).encode(),
++        ended_url: PR_9,
++        ended_state: WatchState(wakes=2, started_at=2, ended="green").encode(),
++        open_url: PR_URL,
++        open_state: WatchState(wakes=1, started_at=1).encode(),
 +        "omnigent.pr_watch.unrelated": "x",
 +    }
 +    watch = read_session_watch(labels)
-+    assert (watch.all_prs, watch.all_max_wakes, watch.legacy) == (True, 3, True)
++    assert (watch.all_prs, watch.all_max_wakes) == (True, 3)
 +    assert list(watch.prs) == [PR_URL, PR_9]
 +    assert watch.watching == [PR_URL]
 +    assert watch.prs[PR_9].ended == "green" and watch.prs[PR_URL].wakes == 1
@@ -3149,25 +3094,6 @@ index 0000000000000000000000000000000000000000..9976a687957c2673c988099fc6020bab
 +    await harness.watcher.poll_once()
 +    assert harness.reads == [None, None]
 +    assert harness.state(session_id).all_prs
-+
-+
-+async def test_legacy_single_pr_labels_keep_working(store: SqlAlchemyConversationStore) -> None:
-+    harness = _Harness(store)
-+    harness.info = _info(**_failing("lint"))
-+    session_id = store.create_conversation().id
-+    state = baseline_state(harness.info, max_wakes=4, now=1)
-+    store.set_labels(
-+        session_id, {LEGACY_URL_LABEL_KEY: PR_URL, LEGACY_STATE_LABEL_KEY: state.encode()}
-+    )
-+
-+    await harness.watcher.poll_once()
-+
-+    assert len(harness.messages) == 1
-+    conv = store.get_conversation(session_id)
-+    assert conv is not None
-+    assert LEGACY_URL_LABEL_KEY not in conv.labels and LEGACY_STATE_LABEL_KEY not in conv.labels
-+    migrated = read_session_watch(conv.labels).prs[PR_URL]
-+    assert (migrated.wakes, migrated.max_wakes) == (1, 4)
 +
 +
 +async def test_watcher_stops_with_a_note_when_green(store: SqlAlchemyConversationStore) -> None:

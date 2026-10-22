@@ -879,7 +879,7 @@ index 80c700795cbc20cbe224906ee837a3478496cae7..0ec87579298d07c1df0ea535cd6996b5
  
  def test_mcp_servers_result_keeps_only_allow_listed_fields() -> None:
 diff --git a/tests/onboarding/test_subscription_accounts.py b/tests/onboarding/test_subscription_accounts.py
-index d8aed8c5040ccd835c14ad8f2bb2caede8444933..4d814e221932801c03698bf26e9cc6924f81ddb0 100644
+index b02658a8006cba624ee5d4dd4accb12b3dde3f83..539225e50fc92cbe78b0c0302c54425fa00e3eb8 100644
 --- a/tests/onboarding/test_subscription_accounts.py
 +++ b/tests/onboarding/test_subscription_accounts.py
 @@ -372,10 +372,11 @@ def test_token_account_signs_in_with_its_token(monkeypatch: pytest.MonkeyPatch)
@@ -931,7 +931,7 @@ index 9804d0669fa7f3e7a3106f5be44b011fd42d7bd4..54f7923546ecfb89eaedf4cf77adc20a
  
 diff --git a/tests/server/routes/test_session_provider_switch.py b/tests/server/routes/test_session_provider_switch.py
 new file mode 100644
-index 0000000000000000000000000000000000000000..bcb9f81608cd38a5f303a8401e02977343d6cc80
+index 0000000000000000000000000000000000000000..24f8a4df3142f347497a8b1708b71684642b98c8
 --- /dev/null
 +++ b/tests/server/routes/test_session_provider_switch.py
 @@ -0,0 +1,194 @@
@@ -956,7 +956,7 @@ index 0000000000000000000000000000000000000000..bcb9f81608cd38a5f303a8401e029773
 +    {"name": "max1", "ready": True, "default": True, "switch_group": _SHARED},
 +    {"name": "max2", "ready": True, "default": False, "switch_group": _SHARED},
 +    {"name": "dbx", "ready": True, "default": False, "switch_group": _SHARED},
-+    {"name": "work", "ready": True, "default": False, "switch_group": "9d8e7f6a5b4c"},
++    {"name": "alt", "ready": True, "default": False, "switch_group": "9d8e7f6a5b4c"},
 +    {"name": "max3", "ready": False, "default": False, "switch_group": _SHARED},
 +]
 +
@@ -1105,12 +1105,12 @@ index 0000000000000000000000000000000000000000..bcb9f81608cd38a5f303a8401e029773
 +@pytest.mark.parametrize(
 +    "conv_overrides,provider,online,message",
 +    [
-+        ({}, "work", True, "keeps a separate login"),
++        ({}, "alt", True, "keeps a separate login"),
 +        ({}, "max3", True, "not signed in"),
 +        ({}, "gone", True, "not configured"),
 +        ({"harness_override": "codex-native"}, "max2", True, "Only Claude sessions"),
 +        ({}, "max2", False, "host is offline"),
-+        ({"provider_override": "work"}, "max2", True, "keeps a separate login"),
++        ({"provider_override": "alt"}, "max2", True, "keeps a separate login"),
 +    ],
 +)
 +async def test_switch_refuses_providers_it_cannot_resume_on(

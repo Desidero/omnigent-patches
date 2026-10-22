@@ -40,7 +40,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  10 files changed, 772 insertions(+), 77 deletions(-)
 
 diff --git a/omnigent/runner/tool_dispatch.py b/omnigent/runner/tool_dispatch.py
-index 0de893af25680fa92b8abdd5571d06db899cd539..87eb8945d6a8cbcfb20ff435649c4e3f3a52238d 100644
+index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f12042c5d3 100644
 --- a/omnigent/runner/tool_dispatch.py
 +++ b/omnigent/runner/tool_dispatch.py
 @@ -32,6 +32,7 @@ import uuid
@@ -456,7 +456,7 @@ index bb8dd3adc3ebb9ef3b756458dd153fa98f1d8900..aa8de296bfaa20042204a8638e3b8830
                  pattern = f"%{search_query.lower()}%"
                  title_match = func.lower(SqlConversation.title).like(pattern)
 diff --git a/omnigent/tools/builtins/spawn.py b/omnigent/tools/builtins/spawn.py
-index 29b14b4c0f25f0d177f54e6a340ca81e81bbc9ea..a1ae71f8232e49269c92464b166eb87ebcea9d08 100644
+index 2548311b9c2b12d9ce7fbca758fdeae934eeeca5..7acd50c67c2b4a597564ab30d416121afb5f8c85 100644
 --- a/omnigent/tools/builtins/spawn.py
 +++ b/omnigent/tools/builtins/spawn.py
 @@ -16,6 +16,7 @@ from omnigent.entities import (
@@ -772,7 +772,7 @@ index 97b5a81a08b73d085df4f2f1b7cea5b414f78493..16ca2ace996a272607788c423019d7f9
          ],
          "responses": {
 diff --git a/tests/runner/test_runner_dispatch.py b/tests/runner/test_runner_dispatch.py
-index 553d113295da10a8bbc706f9551189cca69d0750..b4b2b83b4acd8d9dd6d283055a8461e2a6eabfcc 100644
+index 0054b62e906dfb85135c22488cb06fd10ef532e9..143139370bccc95ba543f3f0484b3ce8076093d1 100644
 --- a/tests/runner/test_runner_dispatch.py
 +++ b/tests/runner/test_runner_dispatch.py
 @@ -6970,6 +6970,127 @@ async def test_session_peek_returns_chronological_projected_items() -> None:

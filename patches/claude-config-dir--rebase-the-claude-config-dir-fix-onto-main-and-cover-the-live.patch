@@ -6,7 +6,7 @@ Subject: [PATCH] fix(claude-native): rebase the CLAUDE_CONFIG_DIR fix onto
  main and cover the live TUI journey
 
 Carried on custom until upstream PR #9617 (CLAUDE_CONFIG_DIR) merges; the
-account work below needs it. Read in full for security before use.
+account work below needs it.
 
 Replays #7125 (Lazar Gopcevic) onto current main: the Claude-native test
 modules moved to tests/harnesses/claude_native/ and

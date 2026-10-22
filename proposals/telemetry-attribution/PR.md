@@ -2,7 +2,7 @@
 
 ## Related issue
 
-Closes #10794
+Refs #10794
 
 ## Summary
 

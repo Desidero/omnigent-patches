@@ -36,7 +36,7 @@ request carries it, and this repository holds a copy until it merges).
 | `toast-safe-area` | Toasts stay below the iOS status bar and Dynamic Island. | proposed |
 | `session-history-paging` | Agents can page through a session's history and list recently updated sessions. | proposed |
 | `terminal-touch` | The terminal on phones and tablets: a Termux-style extra-keys row, long-press select, copy and paste, and native iOS clipboard reads for Paste. | PR open for the extra-keys row ([#6136](https://github.com/omnigent-ai/omnigent/pull/6136), carried copy with two iOS fixes); the rest proposed |
-| `telemetry-attribution` | Exported spans carry the acting user (opt-in), runner and host. | issue open ([#10794](https://github.com/omnigent-ai/omnigent/issues/10794)) |
+| `telemetry-attribution` | Exported spans carry the acting user (opt-in) and the runner. | issue open ([#10794](https://github.com/omnigent-ai/omnigent/issues/10794)) |
 | `sidebar-attention-filter` | Sidebar filters for sessions that need you or changed recently. | proposed |
 | `claude-sdk-web-tools` | claude-sdk agents can opt into Claude Code's WebSearch and WebFetch. | proposed |
 | `run-suggested-commands` | A Run button on shell commands an agent suggests in chat. | proposed |

@@ -2700,7 +2700,7 @@ index 3d6bd0214d924a5b32f531a1aa995b3ddce2191e..79058d519bc04dea7d6332b37cf01ba3
  
      # Sandbox-override regression: the launched Codex terminal must inherit
 diff --git a/tests/runner/test_runner_dispatch.py b/tests/runner/test_runner_dispatch.py
-index 1d495e1a2d8e9399b8b82b5e213e71ab0e83d02b..cf92108adc6db4503eb60fda09cf4eccede8b5d7 100644
+index 0e4ca57145e505a9e8aeced9246ea37e144f4ef3..fcffd4d5337512062e9d86a03048c4ced3e525b9 100644
 --- a/tests/runner/test_runner_dispatch.py
 +++ b/tests/runner/test_runner_dispatch.py
 @@ -91,6 +91,11 @@ from omnigent.runner.app import (
@@ -4625,7 +4625,7 @@ index f10fca0d19af0ac209604cb7ab41b903b72fc51a..a41a1f4e4a22f4d83f0e6f99cde1473e
     * Whether the owner opted into letting people with *view* (read-only)
     * access browse this session's workspace files (the Files/Changes/Pull Requests
 diff --git a/web/src/pages/ChatPage.composer.test.tsx b/web/src/pages/ChatPage.composer.test.tsx
-index 66333bac46abad2d4f045e870b9152d87f0f1554..d54fc8739890c75c77debaa6564c48bb7465510e 100644
+index 40a2486fa27b5479e10c675a78cc264c26d5b8aa..c975e57e096d74ce054fcd1c363c6c3b819b4b60 100644
 --- a/web/src/pages/ChatPage.composer.test.tsx
 +++ b/web/src/pages/ChatPage.composer.test.tsx
 @@ -6195,6 +6195,46 @@ describe("Composer config gear", () => {
@@ -5279,7 +5279,7 @@ index 5ba349a284c6b597f3016928e4ae4e118e1abfd5..ecfa47f5ad9ad1db5e744fa7c53f3231
      // Sessions already on screen when the create starts. "Never seen by this
      // tab" is part of how the screen recognizes its own announced row, so the
 diff --git a/web/src/shell/NewChatDialog.projectPrefill.test.tsx b/web/src/shell/NewChatDialog.projectPrefill.test.tsx
-index 51a509f6d92f1bc78b35002ffa8349aacbf22ef4..758b3dcbdd23789458b532de33357a6d99e0789a 100644
+index 73ae6eed77df9a03027a00efad46a9a65e4ef57f..fe94d20b96f9df0d6fb0f7a9064a78ff2244a5f5 100644
 --- a/web/src/shell/NewChatDialog.projectPrefill.test.tsx
 +++ b/web/src/shell/NewChatDialog.projectPrefill.test.tsx
 @@ -32,6 +32,7 @@ import type * as HostWorktreesModule from "@/hooks/useHostWorktrees";

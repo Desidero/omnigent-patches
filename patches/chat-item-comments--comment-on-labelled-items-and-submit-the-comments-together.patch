@@ -63,13 +63,12 @@ page closed while it waited in the in-memory queue puts them back as drafts.
 
 Web only; no server, protocol or schema change.
 
-This copy also adds the reply rule to the item-label instruction every agent
-gets (omnigent/runtime/prompt.py): answer each commented item by its label, and
-a comment on a closed item does not reopen it. feat/chat-item-comments has only
-the renderer; agents there take the same rule from their own prompt.
+It also adds the reply rule to the item-label instruction every agent gets
+(omnigent/runtime/prompt.py): answer each commented item by its label, and a
+comment on a closed item does not reopen it.
 
-Not upstream yet: proposed from feat/chat-item-comments, which builds on
-feat/chat-item-citations; drop this copy once it merges.
+Not upstream yet: to be proposed together with the labelled-items renderer;
+drop this copy once it merges.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
@@ -4475,7 +4474,7 @@ index a2a0ea93fee6f5ee35ded8963a90902167182107..5e19df7b3982f45192bb7fbc7095e5eb
  }
  
 diff --git a/web/src/pages/ChatPage.composer.test.tsx b/web/src/pages/ChatPage.composer.test.tsx
-index e1fddd45466eba5f94bf25a72b01ed08b92ae3a5..66333bac46abad2d4f045e870b9152d87f0f1554 100644
+index c5559b5a3a2fd18478eaef8adb2bee63dbe3829e..40a2486fa27b5479e10c675a78cc264c26d5b8aa 100644
 --- a/web/src/pages/ChatPage.composer.test.tsx
 +++ b/web/src/pages/ChatPage.composer.test.tsx
 @@ -30,6 +30,14 @@ import {

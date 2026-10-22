@@ -4,7 +4,7 @@ Date: Fri, 11 Sep 2026 12:29:46 +0200
 Subject: [PATCH] refactor(claude): resolve Claude's config dir in one place
 
 Carried on custom until upstream PR #9617 (CLAUDE_CONFIG_DIR) merges; the
-account work below needs it. Read in full for security before use.
+account work below needs it.
 
 The session-status reader and the local session importer each rebuilt
 the "$CLAUDE_CONFIG_DIR, else ~/.claude" rule by hand, while other

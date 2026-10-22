@@ -691,7 +691,7 @@ index 5569dfdb6603ae971e5497c44a983354204d6f8b..3bd9c5636a7d4b112502f3eacded8ba8
      """A second API key from a new source coexists with the first.
  
 diff --git a/tests/onboarding/test_subscription_accounts.py b/tests/onboarding/test_subscription_accounts.py
-index 7a4b7c0e405b908b9c1d67af997dce84f57a1322..d8aed8c5040ccd835c14ad8f2bb2caede8444933 100644
+index 06a2bdeff91060fc5f42ac07ab93e10b2f47a32e..b02658a8006cba624ee5d4dd4accb12b3dde3f83 100644
 --- a/tests/onboarding/test_subscription_accounts.py
 +++ b/tests/onboarding/test_subscription_accounts.py
 @@ -21,6 +21,7 @@ from omnigent.onboarding.provider_config import (

@@ -50,7 +50,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/web/src/components/composer/accountSection.test.tsx b/web/src/components/composer/accountSection.test.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..253b84de264450850c7d4e53e4faf8a400b1f308
+index 0000000000000000000000000000000000000000..ac58bf91a9037666bedc25f21aaecebd70a8c221
 --- /dev/null
 +++ b/web/src/components/composer/accountSection.test.tsx
 @@ -0,0 +1,123 @@
@@ -86,7 +86,7 @@ index 0000000000000000000000000000000000000000..253b84de264450850c7d4e53e4faf8a4
 +const DBX: HostProvider = {
 +  name: "databricks",
 +  kind: "databricks",
-+  label: "Databricks profile work",
++  label: "Databricks profile alt",
 +  default: false,
 +  ready: true,
 +};
@@ -333,7 +333,7 @@ index 0f7867734f4447179c5dc2741cfccfb9810f6721..d0653595336fdec6386f6b6e6de16ded
  /** A first-class project. Mirrors the `ProjectObject` response shape. */
 diff --git a/web/src/lib/sessionProvider.test.ts b/web/src/lib/sessionProvider.test.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..4a10838d415c166d0254e288b7627ad2acebbaed
+index 0000000000000000000000000000000000000000..55b23fc49ed8525eca1cf9d133c54984e538e203
 --- /dev/null
 +++ b/web/src/lib/sessionProvider.test.ts
 @@ -0,0 +1,83 @@
@@ -386,11 +386,11 @@ index 0000000000000000000000000000000000000000..4a10838d415c166d0254e288b7627ad2
 +  it("falls back with a reason when the host can't run the harness on it", () => {
 +    const choice = resolveSessionProvider({
 +      ...base,
-+      projectProvider: "codex-work",
++      projectProvider: "codex-alt",
 +      providers: [MAX1, MAX2],
 +    });
 +    expect(choice.override).toBeNull();
-+    expect(choice.projectFallback).toMatch(/"codex-work" isn't available for this harness/);
++    expect(choice.projectFallback).toMatch(/"codex-alt" isn't available for this harness/);
 +  });
 +
 +  it("falls back with a reason when the account is not signed in", () => {
@@ -562,7 +562,7 @@ index 530d7c65ddc8dc6cde4c43aa4ef8a2227575e54f..bf9599ef693b64b9d9813fb9f07b73c1
    useHosts: vi.fn(),
    useHostModelOptions: vi.fn(() => ({ data: [] })),
 diff --git a/web/src/shell/NewChatDialog.projectPrefill.test.tsx b/web/src/shell/NewChatDialog.projectPrefill.test.tsx
-index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..51a509f6d92f1bc78b35002ffa8349aacbf22ef4 100644
+index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..73ae6eed77df9a03027a00efad46a9a65e4ef57f 100644
 --- a/web/src/shell/NewChatDialog.projectPrefill.test.tsx
 +++ b/web/src/shell/NewChatDialog.projectPrefill.test.tsx
 @@ -38,6 +38,7 @@ import type { ReactNode } from "react";
@@ -668,12 +668,12 @@ index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..51a509f6d92f1bc78b35002ffa8349aa
 +
 +  it("falls back to the default with a visible hint when the host doesn't list it", async () => {
 +    setHostProviders([MAX1, MAX2]);
-+    setProjectConfig({ host_id: "host_1", workspace: REPO, provider: "codex-work" });
++    setProjectConfig({ host_id: "host_1", workspace: REPO, provider: "codex-alt" });
 +    renderLanding();
 +
 +    expect(
 +      await screen.findByTestId("new-chat-landing-project-account-fallback"),
-+    ).toHaveTextContent(/"codex-work" isn't available for this harness on this host/);
++    ).toHaveTextContent(/"codex-alt" isn't available for this harness on this host/);
 +    openAccounts();
 +    expectCheckedAccount("max1");
 +    closeAccounts();
@@ -848,7 +848,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
                switch took Smart Routing away, so say so instead of quietly
                leaving a different agent selected. Suppressed while the
 diff --git a/web/src/shell/ProjectSettingsDialog.test.tsx b/web/src/shell/ProjectSettingsDialog.test.tsx
-index 94c8db3c3ad2e2ea727cc9e75336e4bce3cf2f6d..ed2acb7bf3d9cb8e49db702385fd8bbdb58fd0f5 100644
+index 94c8db3c3ad2e2ea727cc9e75336e4bce3cf2f6d..0579f5df75942b7ef6b2f9cc71aed9e516544ef6 100644
 --- a/web/src/shell/ProjectSettingsDialog.test.tsx
 +++ b/web/src/shell/ProjectSettingsDialog.test.tsx
 @@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -928,13 +928,13 @@ index 94c8db3c3ad2e2ea727cc9e75336e4bce3cf2f6d..ed2acb7bf3d9cb8e49db702385fd8bbd
 +      getProjectMock.mockResolvedValue({
 +        id: "p_1",
 +        name: "Work",
-+        config: { host_id: "h1", agent_id: "ag_1", provider: "work-max" },
++        config: { host_id: "h1", agent_id: "ag_1", provider: "alt-max" },
 +      });
 +      renderDialog();
 +      await waitForSaveEnabled();
 +      await waitFor(() =>
 +        expect(screen.getByTestId("project-settings-account")).toHaveTextContent(
-+          "work-max (not listed here)",
++          "alt-max (not listed here)",
 +        ),
 +      );
 +
@@ -943,7 +943,7 @@ index 94c8db3c3ad2e2ea727cc9e75336e4bce3cf2f6d..ed2acb7bf3d9cb8e49db702385fd8bbd
 +        expect(updateMock).toHaveBeenCalledWith("p_1", {
 +          host_id: "h1",
 +          agent_id: "ag_1",
-+          provider: "work-max",
++          provider: "alt-max",
 +        }),
 +      );
 +    });

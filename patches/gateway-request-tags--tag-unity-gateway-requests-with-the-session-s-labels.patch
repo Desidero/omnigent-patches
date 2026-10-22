@@ -1038,7 +1038,7 @@ index 6b47a5b16521f9cb0efb404a6c4f6c0b0d0a2e5c..f46bec128cc6b409b316af656f4de8b4
      assert cfg.routing_enabled is True
      assert cfg.turn_routing is True
 diff --git a/tests/runner/test_runner_dispatch.py b/tests/runner/test_runner_dispatch.py
-index aa754d8a0cef49216b2a4fbcabb15b4893476173..1d495e1a2d8e9399b8b82b5e213e71ab0e83d02b 100644
+index 6cc2db9fbde45706f287babd5c8341c0712a5f71..0e4ca57145e505a9e8aeced9246ea37e144f4ef3 100644
 --- a/tests/runner/test_runner_dispatch.py
 +++ b/tests/runner/test_runner_dispatch.py
 @@ -46,6 +46,7 @@ import threading

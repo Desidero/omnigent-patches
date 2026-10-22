@@ -102,7 +102,7 @@ index 24e11339e8c54ecad00a88b60120774225e62f5f..f10fca0d19af0ac209604cb7ab41b903
     * Per-session cost-control switch: `"on"` activates the spec's
     * configured cost-control mode, `"off"` disables cost control for
 diff --git a/web/src/pages/ChatPage.composer.test.tsx b/web/src/pages/ChatPage.composer.test.tsx
-index 6b3725e871d1345c78977017561a530bd18b0463..e1fddd45466eba5f94bf25a72b01ed08b92ae3a5 100644
+index 6b3725e871d1345c78977017561a530bd18b0463..c5559b5a3a2fd18478eaef8adb2bee63dbe3829e 100644
 --- a/web/src/pages/ChatPage.composer.test.tsx
 +++ b/web/src/pages/ChatPage.composer.test.tsx
 @@ -9,6 +9,7 @@ import type * as AgentLabelsModule from "@/lib/agentLabels";
@@ -164,7 +164,7 @@ index 6b3725e871d1345c78977017561a530bd18b0463..e1fddd45466eba5f94bf25a72b01ed08
 +  const DBX: HostProvider = {
 +    name: "databricks",
 +    kind: "databricks",
-+    label: "Databricks profile work",
++    label: "Databricks profile alt",
 +    default: false,
 +    ready: true,
 +  };

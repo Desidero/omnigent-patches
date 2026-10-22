@@ -39,7 +39,7 @@ index ff5f27f47fdb679547d160d99a27d25dbead762c..40280fefd4b46212a4118943e66ea731
  
 diff --git a/docs/providers.md b/docs/providers.md
 new file mode 100644
-index 0000000000000000000000000000000000000000..75a557bb01e2266c804d7d899a39cdf9d0fe74bc
+index 0000000000000000000000000000000000000000..aab5b61f7e379140766ee392e6d102f962c91914
 --- /dev/null
 +++ b/docs/providers.md
 @@ -0,0 +1,164 @@
@@ -99,23 +99,23 @@ index 0000000000000000000000000000000000000000..75a557bb01e2266c804d7d899a39cdf9
 +### Accounts with separate logins
 +
 +Give an account its own `config_dir` to keep its login, sessions and settings
-+apart, for example a work account next to a personal one. This works for Codex
++apart, for example a second account next to your main one. This works for Codex
 +too:
 +
 +```yaml
 +providers:
-+  claude-work:
++  claude-alt:
 +    kind: subscription
 +    cli: claude
-+    config_dir: ~/.claude-work
-+  chatgpt-work:
++    config_dir: ~/.claude-alt
++  chatgpt-alt:
 +    kind: subscription
 +    cli: codex
-+    config_dir: ~/.codex-work
++    config_dir: ~/.codex-alt
 +    default: true
 +  databricks:
 +    kind: databricks
-+    profile: work
++    profile: alt
 +```
 +
 +`config_dir` accepts `~` and `$VAR`. Omnigent passes it to Claude as
@@ -126,8 +126,8 @@ index 0000000000000000000000000000000000000000..75a557bb01e2266c804d7d899a39cdf9
 +Sign each account in once, on the host:
 +
 +```bash
-+CLAUDE_CONFIG_DIR=~/.claude-work claude auth login --claudeai
-+CODEX_HOME=~/.codex-work codex login
++CLAUDE_CONFIG_DIR=~/.claude-alt claude auth login --claudeai
++CODEX_HOME=~/.codex-alt codex login
 +```
 +
 +Or run `omnigent setup` and choose **Add another account (own login
