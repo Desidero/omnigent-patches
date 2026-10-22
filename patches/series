@@ -96,3 +96,10 @@ chat-features--per-session-chat-features-starting-with-run-suggested-commands.pa
 # series: pr-watch
 # needs: subscription-accounts
 pr-watch--watch-a-session-s-pull-requests-until-they-re-green.patch
+
+# series: claude-native-delegate-idle
+# needs: claude-native-teammates
+claude-native-delegate-idle--settle-a-turn-while-a-background-agent-keeps-claude-busy.patch
+claude-native-delegate-idle--read-a-delegate-holdover-as-idle-on-the-osc-status-path.patch
+claude-native-delegate-idle--count-agent-team-teammates-as-background-agents.patch
+claude-native-delegate-idle--read-a-teammate-s-message-as-the-start-of-a-lead-turn.patch
