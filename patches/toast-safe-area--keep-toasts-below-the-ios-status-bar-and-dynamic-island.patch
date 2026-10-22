@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Desidero <desidero@gmail.com>
+Date: Thu, 15 Oct 2026 09:22:44 +0000
+Subject: [PATCH] fix(web): keep toasts below the iOS status bar and Dynamic
+ Island
+
+Carried on custom until our upstream PR for this lands (not opened yet).
+
+Toasts render top-center with sonner's fixed 16px/24px top gap, so in the
+iOS app they sat under the status bar and Dynamic Island and could not be
+read. The toaster already lifts its bottom edge above the home indicator
+with --omnigent-inset-bottom; give the top edge the matching
+--omnigent-inset-top. Desktop and Android without a top inset keep
+sonner's default gaps.
+
+Signed-off-by: Desidero <desidero@gmail.com>
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ web/src/shell/AppShell.tsx | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/web/src/shell/AppShell.tsx b/web/src/shell/AppShell.tsx
+index 31b6bd8165f39f64d35b7aa61b201bb06a7b5fc6..3487aca0db54ed0904fabcaf303f2be55d46619e 100644
+--- a/web/src/shell/AppShell.tsx
++++ b/web/src/shell/AppShell.tsx
+@@ -2823,11 +2823,14 @@ function AppShellImpl() {
+           <Toaster
+             position="top-center"
+             visibleToasts={100}
++            // Top toasts start below the iOS status bar / Dynamic Island.
+             offset={{
++              top: "calc(24px + var(--omnigent-inset-top))",
+               right: "1rem",
+               bottom: updateOverlayToastOffset(updateOverlayHeight),
+             }}
+             mobileOffset={{
++              top: "calc(16px + var(--omnigent-inset-top))",
+               right: "1rem",
+               bottom: updateOverlayToastOffset(updateOverlayHeight),
+             }}

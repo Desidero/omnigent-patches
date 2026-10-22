@@ -1,0 +1,54 @@
+name: check
+
+# Applies patches/series onto patches/BASE and compares the result with the
+# fork's custom branch. Override the repositories with the repository
+# variables UPSTREAM_REPO, FORK_REPO and CUSTOM_BRANCH, or per manual run.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      upstream_repo:
+        description: Upstream repository (owner/name) that has the BASE commit
+        required: false
+      fork_repo:
+        description: Repository (owner/name) with the custom branch
+        required: false
+      custom_branch:
+        description: Branch whose tree the applied series must match
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UPSTREAM_REPO: ${{ inputs.upstream_repo || vars.UPSTREAM_REPO || 'omnigent-ai/omnigent' }}
+      FORK_REPO: ${{ inputs.fork_repo || vars.FORK_REPO || 'Desidero/omnigent' }}
+      CUSTOM_BRANCH: ${{ inputs.custom_branch || vars.CUSTOM_BRANCH || 'custom' }}
+    steps:
+      - name: Check out the patches
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: patches-repo
+          persist-credentials: false
+
+      - name: Fetch upstream at BASE and the fork's custom branch
+        run: |
+          base="$(tr -d '[:space:]' < patches-repo/patches/BASE)"
+          git init -q omnigent
+          cd omnigent
+          git fetch --no-tags --depth=1 "https://github.com/${UPSTREAM_REPO}.git" "$base"
+          git fetch --no-tags --depth=1 "https://github.com/${FORK_REPO}.git" \
+            "+refs/heads/${CUSTOM_BRANCH}:refs/remotes/fork/${CUSTOM_BRANCH}"
+
+      - name: Apply and compare
+        run: patches-repo/scripts/check.sh --repo omnigent --custom "refs/remotes/fork/${CUSTOM_BRANCH}"
