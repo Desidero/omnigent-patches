@@ -1,0 +1,133 @@
+# Upstream tracker data. One entry per change we want, keyed by series name
+# where a patch series exists, or by a short slug for watch-only items.
+# `scripts/tracker.py` joins this with patches/series (for `needs`) and live
+# GitHub state to produce the tracker page. Only upstream links live here.
+#
+# Fields (all optional except want):
+#   want          one line: what we want
+#   issue         upstream issue we filed or that tracks this
+#   our_pr        our open PR
+#   carries       someone else's PR this series is a copy of; drop when it merges
+#   superseded_by issue/PR of someone else's work that makes ours redundant
+#   blocked_by    issue/PR that has to move before we can proceed
+#   related       issues/PRs worth watching alongside (converges on, conflicts with)
+#   conflicts     PRs touching the same code; whichever lands second rebases
+#   keep_local    true when we have decided this never goes upstream
+#   note          one short sentence shown on the row
+
+series:
+  claude-config-dir:
+    want: claude-native and claude-sdk follow CLAUDE_CONFIG_DIR instead of assuming ~/.claude.
+    carries: 9617
+    related: [7124]
+  subscription-accounts:
+    want: Several subscription logins per host; pick, switch and share accounts per session.
+    issue: 503
+    blocked_by: 503
+    note: Waits on a design reply; #583 is the older PR with the same goal.
+    related: [583]
+  toast-safe-area:
+    want: Toasts stay below the iOS status bar and Dynamic Island.
+    note: Reviewed, captures done; commit message needs the Android wording fix.
+  session-history-paging:
+    want: Agents can page a session's history and list recent sessions.
+  terminal-touch:
+    want: Termux-style extra keys, long-press select/copy/paste, native paste on touch.
+    carries: 6136
+    note: Only the extra-keys row is carried; the two iOS fixes should be proposed on #6136.
+  telemetry-attribution:
+    want: Exported spans carry the acting user (opt-in), runner and host.
+    issue: 10794
+    note: Review found host.id missing and an unproposed env var; fix or descope first.
+  sidebar-attention-filter:
+    want: Sidebar filters for sessions that need you or changed recently.
+  claude-sdk-web-tools:
+    want: claude-sdk agents can opt into Claude Code's WebSearch and WebFetch.
+  run-suggested-commands:
+    want: A Run button on shell commands an agent suggests in chat.
+    superseded_by: 10857
+    related: [10519, 7838, 7840]
+    keep_local: true
+    note: The #10519 stack takes the same UI slot and rejects the !-composer approach. Codex shellCommand routing is salvageable on its own.
+  claude-native-teammates:
+    want: Agent-team teammates appear as child sessions and their deliveries are not raw bubbles.
+    issue: 10745
+    related: [8779, 7690, 8588]
+    note: Rebased and reviewed; two cross-linked PRs (children, delivery).
+  claude-native-subagent-status:
+    want: Quiet sub-agents stay running until their turn actually ends.
+  claude-native-coordinator-messages:
+    want: A parent agent's follow-ups appear in the sub-agent's chat.
+  skip-gzip-binary-files:
+    want: Images and PDFs load in the file viewer under Starlette 1.8.0.
+    carries: 10585
+    related: [10481, 10592]
+  codex-native-mode-instructions:
+    want: Codex keeps its own Plan and Default mode instructions.
+  chat-item-labels:
+    want: Bracketed labels in chat become chips that preview, close and track items.
+    note: No upstream prior-art search yet; the labelling instruction's home is the first design question.
+  web-reconnect-shell-inputs:
+    want: A queued !command settles after the connection drops and recovers.
+    related: [10667, 10649]
+    note: Clean on upstream; not covered by either related PR. Needs a bug issue.
+  chat-item-comments:
+    want: Comment on labelled items and submit the comments together.
+  palette-new-chat-in-project:
+    want: Start a new chat in a chosen project from the command palette.
+    issue: 4409
+    conflicts: [9686]
+    related: [6627]
+    note: Reviewed ready after rebase; captures done.
+  new-chat-project-prompt:
+    want: Starting a session asks which project, with a setting to turn it off.
+    issue: 11083
+    related: [11007, 6319]
+    note: Hold for a maintainer reaction; three must-fixes from review.
+  session-labels-ui:
+    want: View and edit session labels in the web UI; default labels per project.
+    related: [2117, 8689]
+  gateway-request-tags:
+    want: Unity Gateway requests carry the session id and labels as request tags.
+    related: [10410]
+  chat-features:
+    want: Per-session toggles for chat features that need an instruction and a renderer.
+    related: [10826]
+  pr-watch:
+    want: Watch a session's pull requests and wake the agent until they are green.
+  claude-native-delegate-idle:
+    want: A Claude session settles its turn while a background agent or teammate keeps running.
+    carries: 10849
+    note: Only the status-file part is carried; OSC and teammate parts are ours.
+  delete-stops-runner:
+    want: Deleting a session stops its host-launched runner.
+
+watch:
+  server-owned-queue:
+    want: Queued messages live on the server, not in the browser window.
+    issue: 10986
+    related: [9311, 10951, 10985, 4861, 5850]
+    note: Hooks, status and host-drain ideas all converge here. Follow-up and body edit pending.
+  system-hooks:
+    want: Reliable server-side session and turn events.
+    issue: 4811
+    related: [10912, 4527]
+  startup-first-message:
+    want: Stop during startup does not drop the held first message.
+    issue: 10985
+    note: Fixable in web code; no branch yet.
+  host-drain-upgrade:
+    want: Drain a host and let the server request host upgrades.
+    related: [8955, 10673, 10872, 10197]
+    note: Parked; issue drafted, not filed.
+  routing-on-subscription:
+    want: Smart routing works on subscription-only setups.
+    related: [10634, 9694]
+  touch-project-actions:
+    want: One-tap new session by project on touch.
+    related: [6319, 11007]
+    note: Our #11083 prompt makes this less important; commented on #6319.
+  run-code-blocks:
+    want: Run code blocks from chat (their design; we retired ours).
+    related: [10519, 10857, 10837]
+    note: One review comment worth posting on #10857 about !-prefixed lines.
