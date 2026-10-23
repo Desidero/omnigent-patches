@@ -1,9 +1,8 @@
-<!-- Draft PR body for the delete-stops-runner series; title: fix(server): stop a deleted session's host-launched runner -->
-> Status: proposed; no upstream issue or PR yet. Open an issue first, then the PR from `fix/delete-stops-runner`.
+# fix(server): stop a deleted session's host-launched runner
 
 ## Related issue
 
-No upstream issue yet; file one before opening this PR and replace this line with `Closes #<n>`.
+Closes #<to be filed>
 
 ## Summary
 
@@ -28,8 +27,7 @@ ELI5: deleting a session cleaned up its work inside the runner but never told th
   | Parent with sub-agent deleted | runner PID alive 15 s later, runner online | runner exits within 1.0 s (SDK), 1.3 s (native) |
 
   No server errors were logged in either run.
-- Nearby suites pass: `test_session_host_launch.py`, `test_host_session_binding.py`, `test_sessions_endpoints.py`, `test_sessions_crud.py`, `test_session_worktree_delete*.py`, `test_routes_sessions_aliases.py`, `test_managed_startup_inputs.py`, `test_sessions_deleted_cursor_truncation_e2e.py`, `test_default_public_sessions.py`, `test_sessions_archive.py`, `tests/runner/test_delete_session_bridge_cleanup.py`, `tests/dev/test_verify_omnigent_feature_map.py`.
-- `pre-commit run --files <changed files>` is clean.
+- On this rebase onto `main` @ 39611f812: `uv run pytest tests/server/integration/test_session_host_launch.py -q` (85 passed, includes the new test) and `pre-commit run --files <changed files>` are clean. Earlier, on the base the patch was written against, nearby suites also passed: `test_host_session_binding.py`, `test_sessions_endpoints.py`, `test_sessions_crud.py`, `test_session_worktree_delete*.py`, `test_routes_sessions_aliases.py`, `test_managed_startup_inputs.py`, `test_sessions_deleted_cursor_truncation_e2e.py`, `test_default_public_sessions.py`, `test_sessions_archive.py`, `tests/runner/test_delete_session_bridge_cleanup.py`, `tests/dev/test_verify_omnigent_feature_map.py`.
 
 ```sh
 uv run pytest tests/server/integration/test_session_host_launch.py -k delete_session_stops_host_runner
@@ -74,3 +72,5 @@ Should this change be included in the release notes? Choose exactly one.
 
 - [x] No — no noteworthy user-facing change.
 - [ ] Yes — include the entry in the Changelog section.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

@@ -1,41 +1,50 @@
-<!-- Draft PR body for the palette-new-chat-in-project series; title: feat(web): start a new chat in a project from the command palette -->
+# feat(web): start a new chat in a project from the command palette
+
 ## Related issue
 
 Closes #4409
 
 ## Summary
 
-The palette's "New chat" always opens a plain composer, so starting a session with a project's stored defaults (host, workspace, agent, model, worktree) meant leaving the keyboard for the per-project pencil in the sidebar.
+The command palette's **New chat** always opened a plain composer. Starting a session with a project's stored defaults (host, workspace, agent, model, worktree) meant leaving the keyboard for the sidebar's per-project pencil, or the composer's unsearchable **+ › Work in a project** menu.
 
-- Typing in the command palette now also lists "New chat in <project>" rows. Picking one opens the composer at `/?project=<name>`, the same route the sidebar pencil uses.
-- Every typed word must appear in the row label, so "new omni" and "omni" both match.
-- The rows stay hidden while the query is empty, so a long project list does not push Actions out of view, and the sessions-only switcher leaves them out.
+- While the palette query is non-empty, it now also lists **New chat in \<project\>** rows, one per project, matched when every typed word appears in the label or its group heading (so `new omni`, `omni` and `project` all find "New chat in Omnigent").
+- A row opens the composer at `/?project=<name>`, the same route the per-project pencil already uses, so the project's defaults prefill exactly as they do today (`NewChatDialog` resolves name → id → config).
+- The rows stay hidden while the query is empty so a long project list doesn't push **Actions** out of view, and the sessions-only switcher leaves them out.
+- Legacy label-only projects (no project id) open a plain composer filed under the label, matching the pencil.
+
+This is the small PR the author of #6627 suggested when closing that draft ("what remains of #4409 would be a much smaller PR against the current code"). A follow-up, stacked on this one, adds a project prompt on every new-session entry point (#11083); that one waits for agreement on the default.
 
 ## Test Plan
 
-- `web/src/shell/CommandPalette.test.tsx` gains four cases: rows hidden until the user types, every typed word matched against the label, picking a row navigates to `/?project=<name>` and closes the palette, and the sessions-only switcher omits the rows.
-
-```sh
-cd web && pnpm exec vitest run src/shell/CommandPalette.test.tsx
-cd web && pnpm exec tsc -b
-```
-
-Manual:
-
-1. Create two projects, e.g. `alpha` and `beta lab`, with different default agents or workspaces.
-2. Open the command palette (Cmd/Ctrl+K) with an empty query: no "New chat in ..." rows appear.
-3. Type `beta`: "New chat in beta lab" appears. Type `new beta`: it still matches. Type `new gamma`: it disappears.
-4. Pick "New chat in beta lab": the URL is `/?project=beta%20lab` and the composer shows that project's defaults.
-5. Open the sessions-only switcher and type `beta`: no project rows appear.
+- `web/src/shell/CommandPalette.test.tsx`: new cases assert that project rows appear only with a non-empty query, that every typed word must match, that typing `project` alone lists every project, that the sessions-only switcher omits them, and that choosing a row by click or by Enter on the highlighted row navigates to `/?project=<name>` and closes the palette.
+- `feature-map/composer.md` gains a `palette-new-chat-in-project` entry with the manual check.
+- `npx vitest run src/shell/CommandPalette.test.tsx src/shell/AppShell.test.tsx` (225 tests) and `node_modules/.bin/tsc -b` pass; pre-commit (prettier, oxlint, custom lint) clean.
+- Manual, in a dev build with three projects: ⌘K, type part of a project name, Enter on the row, confirm the composer shows that project's host, workspace and agent.
 
 ## Demo
 
-- [ ] Visual demo attached below
+- [x] Visual demo attached below
 - [ ] Non-visual evidence provided below or in Test Plan
 - [ ] Not applicable — no behavioral change
 
-- [ ] TODO: screenshot of the palette with a typed query showing "New chat in <project>" rows (throwaway server, dummy projects)
-- [ ] TODO: short recording of picking a row and landing on the composer with the project's defaults
+Desktop. Typing `new` lists every project under the New chat action; a longer query filters:
+
+![Command palette listing "New chat in" rows for every project](img/palette-project-rows.png)
+
+![Command palette filtered to one project](img/palette-project-rows-filtered.png)
+
+After choosing a row, the composer opens bound to that project (the capture environment has no hosts, so the host and workspace chips stay empty here; against a real host they prefill as the per-project pencil does):
+
+![Composer prefilled from the chosen project](img/composer-prefilled.png)
+
+Phone width (390×844). The palette is a full-screen sheet; the same rows appear:
+
+![Mobile palette filtered to one project](img/mobile-palette-project-rows-filtered.png)
+
+![Mobile composer bound to the chosen project](img/mobile-composer-prefilled.png)
+
+One pre-existing quirk, unchanged by this PR: when the palette is opened from the mobile drawer's search button, choosing any row (a session today, a project row here) navigates but leaves the drawer open over the new page, because the palette's handlers only close the palette. The drawer's own links close it. Worth a separate small fix; noted here so it isn't mistaken for a regression.
 
 ## Type of change
 
@@ -52,17 +61,23 @@ Manual:
 - [x] Unit tests added / updated
 - [ ] Integration tests added / updated
 - [ ] E2E tests added / updated
-- [ ] Manual verification completed
+- [x] Manual verification completed
 - [ ] Existing tests cover this change
 - [ ] Not applicable
 
 ## Coverage notes
 
-Component tests cover filtering, navigation and the sessions-only switcher. No browser E2E: the navigation target is the existing `/?project=<name>` route, which already has coverage.
+The component tests cover row visibility, matching and navigation. The `/?project=` prefill is existing behaviour exercised by the pencil's tests, so it was checked by hand rather than re-tested here.
 
 ## Release notes
 
 Should this change be included in the release notes? Choose exactly one.
 
-- [x] No — no noteworthy user-facing change.
-- [ ] Yes — include the entry in the Changelog section.
+- [ ] No — no noteworthy user-facing change.
+- [x] Yes — include the entry in the Changelog section.
+
+## Changelog
+
+Start a new chat in a project from the command palette: type part of the project's name and pick "New chat in …".
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

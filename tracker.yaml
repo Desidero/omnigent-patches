@@ -15,6 +15,7 @@
 #   keep_local    true when we have decided this never goes upstream
 #   note          one short sentence shown on the row
 #   drafts        repo-relative paths of unposted comment/issue text
+#   branch        local contribution branch and head, when prepared
 
 series:
   claude-config-dir:
@@ -33,7 +34,10 @@ series:
     - proposals/subscription-accounts/comment-503.md
   toast-safe-area:
     want: Toasts stay below the iOS status bar and Dynamic Island.
-    note: Reviewed, captures done; commit message needs the Android wording fix.
+    note: 'Ready: reviewed, rebased, 193 tests, before/after captures. No issue needed.'
+    branch: fix/toast-safe-area @ ad2c67739
+    drafts:
+    - proposals/toast-safe-area/PR.md
   session-history-paging:
     want: Agents can page a session's history and list recent sessions.
     related:
@@ -45,11 +49,18 @@ series:
   terminal-touch:
     want: Termux-style extra keys, long-press select/copy/paste, native paste on touch.
     carries: 6136
-    note: Only the extra-keys row is carried; the two iOS fixes should be proposed on
+    note: 'Only the extra-keys row is carried; review comment drafted offering the two iOS fixes to #6136,
+      both still needed against its head.'
+    drafts:
+    - proposals/terminal-touch/review-comment-6136.md
   telemetry-attribution:
     want: Exported spans carry the acting user (opt-in), runner and host.
     issue: 10794
-    note: Review found host.id missing and an unproposed env var; fix or descope first.
+    note: 'Ready and complete: user (opt-in), runner, host. 403 tests. No live collector run; the PR says
+      so.'
+    branch: feat/span-attribution @ f1a6bf747
+    drafts:
+    - proposals/telemetry-attribution/PR.md
   sidebar-attention-filter:
     want: Sidebar filters for sessions that need you or changed recently.
     related:
@@ -74,9 +85,11 @@ series:
     - 7838
     - 7840
     keep_local: true
-    note: The
+    note: 'Retired: the #10519 stack takes the same UI slot and rejects the !-composer approach. Its Codex
+      shellCommand routing survives as codex-native-shell-input.'
     drafts:
     - proposals/run-suggested-commands/issue-retired.md
+    - proposals/_watch/run-code-blocks/review-comment-10857.md
   claude-native-teammates:
     want: Agent-team teammates appear as child sessions and their deliveries are not raw bubbles.
     issue: 10745
@@ -84,7 +97,12 @@ series:
     - 8779
     - 7690
     - 8588
-    note: Rebased and reviewed; two cross-linked PRs (children, delivery).
+    note: 'Ready as two cross-linked PRs: children closes #10745; delivery needs its bug issue filed first.'
+    branch: fix/claude-native-teammate-children @ 175027f23; fix/claude-native-teammate-delivery @ 5b3ed69fc
+    drafts:
+    - proposals/claude-native-teammates/PR.md
+    - proposals/claude-native-teammates/issue-delivery.md
+    - proposals/claude-native-teammates/PR-delivery.md
   claude-native-subagent-status:
     want: Quiet sub-agents stay running until their turn actually ends.
     related:
@@ -107,6 +125,7 @@ series:
     related:
     - 10481
     - 10592
+    note: 'Carried copy of #10585; drops when it merges. Reproduced under Starlette 1.8.0.'
   codex-native-mode-instructions:
     want: Codex keeps its own Plan and Default mode instructions.
     related:
@@ -125,9 +144,15 @@ series:
   web-reconnect-shell-inputs:
     want: A queued !command settles after the connection drops and recovers.
     related:
-    - 10667
+    - 6588
+    - 8104
     - 10649
-    note: Clean on upstream; not covered by either related PR. Needs a bug issue.
+    - 10667
+    note: 'Rebased, 718 tests. Bug issue drafted (#10667 and #10649 are different bugs), then PR.'
+    branch: fix/web-reconnect-settles-shell-inputs @ dcbb1aa37
+    drafts:
+    - proposals/web-reconnect-shell-inputs/issue.md
+    - proposals/web-reconnect-shell-inputs/PR.md
   chat-item-comments:
     want: Comment on labelled items and submit the comments together.
   palette-new-chat-in-project:
@@ -137,35 +162,54 @@ series:
     - 9686
     related:
     - 6627
-    note: Reviewed ready after rebase; captures done.
+    note: 'Ready: reviewed, rebased, 225 tests, captures. #9686 will conflict with whichever lands second.'
+    branch: feat/palette-new-chat-in-project @ d299993e4
+    drafts:
+    - proposals/palette-new-chat-in-project/PR.md
   new-chat-project-prompt:
     want: Starting a session asks which project, with a setting to turn it off.
     issue: 11083
     related:
     - 11007
     - 6319
-    note: Hold for a maintainer reaction; three must-fixes from review.
+    note: 'Open as a draft PR: must-fixes landed, 517 tests, captures; the issue asked for agreement on
+      the default.'
     drafts:
+    - proposals/new-chat-project-prompt/PR.md
     - proposals/new-chat-project-prompt/body-edit-11083.md
     - proposals/new-chat-project-prompt/bot-reply-11083.md
+    branch: feat/new-chat-project-prompt @ 4f816378f
   session-labels-ui:
     want: View and edit session labels in the web UI; default labels per project.
     related:
     - 2117
+    - 5194
     - 8689
     - 8719
     - 10418
-    note: 'Sweep: server half answers open #8689 (PRs #8719, #10418 overlap on delete); UI half collides
-      with the closed #2117 tags design. Issue first; PR the server parts only.'
+    note: 'Stands alone (no accounts dependency). Split: server PR first (null delete, project defaults,
+      shared predicate; 116 tests), web PR after with captures. Issue trimmed to the server scope.'
+    branch: feat/session-labels-api @ 8c142c7ed (server only); feat/session-labels-ui @ b24e91e03 (stacked
+      web)
+    drafts:
+    - proposals/session-labels-ui/issue.md
+    - proposals/session-labels-ui/PR-api.md
+    - proposals/session-labels-ui/PR.md
   gateway-request-tags:
     want: Unity Gateway requests carry the session id and labels as request tags.
     related:
     - 10410
+    - 11000
     - 11099
     - 11118
     - 11226
-    note: 'Sweep rank 1: yaoharry is in the same code (#11118, #11099 open). Issue drafted; rebase on
-      #11118 when it lands; expect a push for opt-in label sending.'
+    note: 'Stands alone. Labels prefixed omnigent_label_*, idempotent header, pi-native and opencode covered,
+      4 KiB cap; 1737 tests. Issue now (namespace, opt-in question); PR after #11118 merges. Signer drops
+      the header: known limitation, follow-up via #11099.'
+    branch: feat/gateway-request-tags @ d985f3642
+    drafts:
+    - proposals/gateway-request-tags/issue.md
+    - proposals/gateway-request-tags/PR.md
   chat-features:
     want: Per-session toggles for chat features that need an instruction and a renderer.
     related:
@@ -194,6 +238,43 @@ series:
     - 10849
   delete-stops-runner:
     want: Deleting a session stops its host-launched runner.
+    branch: fix/delete-stops-runner @ c3fa1616a
+    related:
+    - 8033
+    - 8077
+    - 9304
+    - 10195
+    - 10251
+    - 10317
+    note: 85 tests. Bug issue drafted, then PR.
+    drafts:
+    - proposals/delete-stops-runner/issue.md
+    - proposals/delete-stops-runner/PR.md
+  codex-native-shell-input:
+    want: A web !command runs as a Codex shell command instead of reaching the model as a prompt.
+    branch: fix/codex-native-shell-input @ ecc0c67dd
+    related:
+    - 9218
+    - 10856
+    note: Split from the retired Run-button series; 1869 unit tests, 1 real-Codex e2e. Bug issue drafted,
+      then PR.
+    drafts:
+    - proposals/codex-native-shell-input/issue.md
+    - proposals/codex-native-shell-input/PR.md
+  session-telemetry:
+    want: Session metadata (labels, project, agent, git, workspace, host), model and reasoning effort
+      stamped on every span of a turn.
+    branch: 'feat/session-telemetry @ f19900216 (3 commits: turn model/effort standalone; session metadata;
+      session fallback)'
+    related:
+    - 10794
+    note: 'From the private home-main branch; stands alone (related to #10794, not stacked). Credential
+      leak in git remote fixed, per-turn read bounded, project name cached; 371 tests. One commit is signed
+      with the work identity and must be re-signed before a PR. Feature issue drafted; two PRs.'
+    drafts:
+    - proposals/session-telemetry/issue.md
+    - proposals/session-telemetry/PR-turn-model-effort.md
+    - proposals/session-telemetry/PR.md
 watch:
   server-owned-queue:
     want: Queued messages live on the server, not in the browser window.
