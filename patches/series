@@ -106,3 +106,6 @@ claude-native-delegate-idle--read-a-teammate-s-message-as-the-start-of-a-lead-tu
 
 # series: delete-stops-runner
 delete-stops-runner--stop-a-deleted-session-s-host-launched-runner.patch
+
+# series: chat-item-labels (continued)
+chat-item-labels--emphasize-the-items-the-latest-reply-mentions.patch
