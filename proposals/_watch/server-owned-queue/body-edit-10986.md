@@ -1,3 +1,4 @@
+<!-- posted 2026-10-23: https://github.com/omnigent-ai/omnigent/issues/10986 (body) -->
 Add to the issue body, after "Alternatives considered" (or as a short "Notes" section):
 
 ### Why the queue left the server, and why this doesn't undo that
