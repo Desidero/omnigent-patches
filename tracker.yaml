@@ -36,6 +36,12 @@ series:
     note: Reviewed, captures done; commit message needs the Android wording fix.
   session-history-paging:
     want: Agents can page a session's history and list recent sessions.
+    related:
+    - 4601
+    - 11109
+    - 11299
+    note: 'Sweep rank 2: additive, precedent #4601 merged; split into list-filters and history-cursor
+      PRs; #11109 and #11299 touch the same read path.'
   terminal-touch:
     want: Termux-style extra keys, long-press select/copy/paste, native paste on touch.
     carries: 6136
@@ -46,8 +52,20 @@ series:
     note: Review found host.id missing and an unproposed env var; fix or descope first.
   sidebar-attention-filter:
     want: Sidebar filters for sessions that need you or changed recently.
+    related:
+    - 9232
+    - 9792
+    - 10433
+    note: 'Sweep: weak fit; duplicates the flagged sidebar_grouping_ui "Needs attention" bucket (#9792,
+      #10433) and the Inbox tabs (#9232 merged). Suggested: keep local.'
   claude-sdk-web-tools:
     want: claude-sdk agents can opt into Claude Code's WebSearch and WebFetch.
+    related:
+    - 5829
+    - 6529
+    - 8584
+    note: 'Sweep: opt-in and policy-gated, but a harness-specific spec field; #6529 (bot) gates WebSearch
+      for claude-native; #8584 is the spec tool-group precedent. Feature issue first.'
   run-suggested-commands:
     want: A Run button on shell commands an agent suggests in chat.
     superseded_by: 10857
@@ -69,8 +87,20 @@ series:
     note: Rebased and reviewed; two cross-linked PRs (children, delivery).
   claude-native-subagent-status:
     want: Quiet sub-agents stay running until their turn actually ends.
+    related:
+    - 4988
+    - 5834
+    - 9320
+    - 10318
+    - 10485
+    note: 'Sweep rank 4: #9320 (maintainer attempt) closed on restart-semantics blockers; the PR must
+      answer that. forwarder.py is conflict-prone.'
   claude-native-coordinator-messages:
     want: A parent agent's follow-ups appear in the sub-agent's chat.
+    related:
+    - 10740
+    note: 'Sweep rank 3: small reproducible bug; #10740 (bot) solves the sibling sys_session_send case,
+      align the presentation.'
   skip-gzip-binary-files:
     want: Images and PDFs load in the file viewer under Starlette 1.8.0.
     carries: 10585
@@ -79,9 +109,19 @@ series:
     - 10592
   codex-native-mode-instructions:
     want: Codex keeps its own Plan and Default mode instructions.
+    related:
+    - 8422
+    note: 'Sweep rank 5: the exact fix is bundled inside stalled bot PR #8422 (XL, needs demo); file as
+      a standalone bug fix, comment on #8422, drop if it lands first.'
   chat-item-labels:
     want: Bracketed labels in chat become chips that preview, close and track items.
-    note: No upstream prior-art search yet; the labelling instruction's home is the first design question.
+    note: 'Sweep: poor upstream fit as built (new transcript convention, unflagged framework prompt text
+      on every harness, ignores the review-comments store #8722/#11171; #11299 find-in-chat is their partial
+      answer). Decide: keep local or redesign on the comments store.'
+    related:
+    - 8722
+    - 11171
+    - 11299
   web-reconnect-shell-inputs:
     want: A queued !command settles after the connection drops and recovers.
     related:
@@ -113,20 +153,45 @@ series:
     related:
     - 2117
     - 8689
+    - 8719
+    - 10418
+    note: 'Sweep: server half answers open #8689 (PRs #8719, #10418 overlap on delete); UI half collides
+      with the closed #2117 tags design. Issue first; PR the server parts only.'
   gateway-request-tags:
     want: Unity Gateway requests carry the session id and labels as request tags.
     related:
     - 10410
+    - 11099
+    - 11118
+    - 11226
+    note: 'Sweep rank 1: yaoharry is in the same code (#11118, #11099 open). Issue drafted; rebase on
+      #11118 when it lands; expect a push for opt-in label sending.'
   chat-features:
     want: Per-session toggles for chat features that need an instruction and a renderer.
     related:
     - 10826
+    superseded_by: 10857
+    keep_local: true
+    note: 'Its only feature is the Run button, superseded by the #10519 stack; #8584 shows spec-level
+      opt-outs are preferred. Drop with run-suggested-commands.'
   pr-watch:
     want: Watch a session's pull requests and wake the agent until they are green.
+    related:
+    - 5353
+    - 7717
+    - 7719
+    - 11145
+    - 11148
+    - 11161
+    - 11167
+    note: 'Sweep: doubtful; competes with Monitor (#7717), #5353, active PR-tab work (#11161, #11167)
+      and automations v2 (#11145, #11148). Feature issue to test appetite at most.'
   claude-native-delegate-idle:
     want: A Claude session settles its turn while a background agent or teammate keeps running.
     carries: 10849
-    note: Only the status-file part is carried; OSC and teammate parts are ours.
+    note: 'Status-file part carried from #10849; OSC and teammate parts are ours. Not yet reviewed.'
+    related:
+    - 10849
   delete-stops-runner:
     want: Deleting a session stops its host-launched runner.
 watch:
