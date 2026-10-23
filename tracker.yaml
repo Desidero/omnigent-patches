@@ -33,9 +33,10 @@ series:
     drafts:
     - proposals/subscription-accounts/comment-503.md
   toast-safe-area:
+    our_pr: 11390
     want: Toasts stay below the iOS status bar and Dynamic Island.
     note: 'Ready: reviewed, rebased, 193 tests, before/after captures. No issue needed.'
-    branch: fix/toast-safe-area @ ad2c67739
+    branch: 'fix/toast-safe-area @ c08ede893'
     drafts:
     - proposals/toast-safe-area/PR.md
   session-history-paging:
@@ -54,11 +55,12 @@ series:
     drafts:
     - proposals/terminal-touch/review-comment-6136.md
   telemetry-attribution:
+    our_pr: 11380
     want: Exported spans carry the acting user (opt-in), runner and host.
     issue: 10794
     note: 'Ready and complete: user (opt-in), runner, host. 403 tests. No live collector run; the PR says
       so.'
-    branch: feat/span-attribution @ f1a6bf747
+    branch: 'feat/span-attribution @ 96d379b5d'
     drafts:
     - proposals/telemetry-attribution/PR.md
   sidebar-attention-filter:
@@ -91,6 +93,7 @@ series:
     - proposals/run-suggested-commands/issue-retired.md
     - proposals/_watch/run-code-blocks/review-comment-10857.md
   claude-native-teammates:
+    our_pr: 11388
     want: Agent-team teammates appear as child sessions and their deliveries are not raw bubbles.
     issue: 10745
     related:
@@ -98,7 +101,7 @@ series:
     - 7690
     - 8588
     note: 'Ready as two cross-linked PRs: children closes #10745; delivery needs its bug issue filed first.'
-    branch: fix/claude-native-teammate-children @ 175027f23; fix/claude-native-teammate-delivery @ 5b3ed69fc
+    branch: 'fix/claude-native-teammate-children @ a88ab9807 (PR 11388); fix/claude-native-teammate-delivery @ 2d1c32e6e (issue 11387, PR 11389)'
     drafts:
     - proposals/claude-native-teammates/PR.md
     - proposals/claude-native-teammates/issue-delivery.md
@@ -142,6 +145,8 @@ series:
     - 11171
     - 11299
   web-reconnect-shell-inputs:
+    our_pr: 11395
+    issue: 11385
     want: A queued !command settles after the connection drops and recovers.
     related:
     - 6588
@@ -149,13 +154,14 @@ series:
     - 10649
     - 10667
     note: 'Rebased, 718 tests. Bug issue drafted (#10667 and #10649 are different bugs), then PR.'
-    branch: fix/web-reconnect-settles-shell-inputs @ dcbb1aa37
+    branch: 'fix/web-reconnect-settles-shell-inputs @ e4e83d4fc'
     drafts:
     - proposals/web-reconnect-shell-inputs/issue.md
     - proposals/web-reconnect-shell-inputs/PR.md
   chat-item-comments:
     want: Comment on labelled items and submit the comments together.
   palette-new-chat-in-project:
+    our_pr: 11394
     want: Start a new chat in a chosen project from the command palette.
     issue: 4409
     conflicts:
@@ -163,10 +169,11 @@ series:
     related:
     - 6627
     note: 'Ready: reviewed, rebased, 225 tests, captures. #9686 will conflict with whichever lands second.'
-    branch: feat/palette-new-chat-in-project @ d299993e4
+    branch: 'feat/palette-new-chat-in-project @ 29f10b5dd'
     drafts:
     - proposals/palette-new-chat-in-project/PR.md
   new-chat-project-prompt:
+    our_pr: 11397
     want: Starting a session asks which project, with a setting to turn it off.
     issue: 11083
     related:
@@ -178,8 +185,10 @@ series:
     - proposals/new-chat-project-prompt/PR.md
     - proposals/new-chat-project-prompt/body-edit-11083.md
     - proposals/new-chat-project-prompt/bot-reply-11083.md
-    branch: feat/new-chat-project-prompt @ 4f816378f
+    branch: 'feat/new-chat-project-prompt @ 39c3adb5c (stacked on PR 11394)'
   session-labels-ui:
+    our_pr: 11398
+    issue: 11383
     want: View and edit session labels in the web UI; default labels per project.
     related:
     - 2117
@@ -189,13 +198,13 @@ series:
     - 10418
     note: 'Stands alone (no accounts dependency). Split: server PR first (null delete, project defaults,
       shared predicate; 116 tests), web PR after with captures. Issue trimmed to the server scope.'
-    branch: feat/session-labels-api @ 8c142c7ed (server only); feat/session-labels-ui @ b24e91e03 (stacked
-      web)
+    branch: 'feat/session-labels-api @ a9db52885 (PR 11398); feat/session-labels-ui @ f2231f600 (PR 11399, stacked)'
     drafts:
     - proposals/session-labels-ui/issue.md
     - proposals/session-labels-ui/PR-api.md
     - proposals/session-labels-ui/PR.md
   gateway-request-tags:
+    issue: 11382
     want: Unity Gateway requests carry the session id and labels as request tags.
     related:
     - 10410
@@ -206,7 +215,7 @@ series:
     note: 'Stands alone. Labels prefixed omnigent_label_*, idempotent header, pi-native and opencode covered,
       4 KiB cap; 1737 tests. Issue now (namespace, opt-in question); PR after #11118 merges. Signer drops
       the header: known limitation, follow-up via #11099.'
-    branch: feat/gateway-request-tags @ d985f3642
+    branch: 'feat/gateway-request-tags @ 518f1e998 (PR after #11118 merges)'
     drafts:
     - proposals/gateway-request-tags/issue.md
     - proposals/gateway-request-tags/PR.md
@@ -237,8 +246,10 @@ series:
     related:
     - 10849
   delete-stops-runner:
+    our_pr: 11391
+    issue: 11386
     want: Deleting a session stops its host-launched runner.
-    branch: fix/delete-stops-runner @ c3fa1616a
+    branch: 'fix/delete-stops-runner @ 360472f6a'
     related:
     - 8033
     - 8077
@@ -251,8 +262,10 @@ series:
     - proposals/delete-stops-runner/issue.md
     - proposals/delete-stops-runner/PR.md
   codex-native-shell-input:
+    our_pr: 11396
+    issue: 11392
     want: A web !command runs as a Codex shell command instead of reaching the model as a prompt.
-    branch: fix/codex-native-shell-input @ ecc0c67dd
+    branch: 'fix/codex-native-shell-input @ 81c828477'
     related:
     - 9218
     - 10856
@@ -262,10 +275,11 @@ series:
     - proposals/codex-native-shell-input/issue.md
     - proposals/codex-native-shell-input/PR.md
   session-telemetry:
+    our_pr: 11384
+    issue: 11381
     want: Session metadata (labels, project, agent, git, workspace, host), model and reasoning effort
       stamped on every span of a turn.
-    branch: 'feat/session-telemetry @ f19900216 (3 commits: turn model/effort standalone; session metadata;
-      session fallback)'
+    branch: 'feat/turn-model-effort @ 0a8a64418 (PR 11384); feat/session-telemetry @ 1524de2b6 (stacked PR pending: pre-push hook)'
     related:
     - 10794
     note: 'Previously held back; stands alone (related to #10794, not stacked). Credential
