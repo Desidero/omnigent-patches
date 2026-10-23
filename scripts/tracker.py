@@ -239,6 +239,8 @@ def main() -> None:
             rel.append(f'<strong>unblocks {len(e["unblocks"])}</strong>: ' + ", ".join(f"<code>{d}</code>" for d in e["unblocks"]))
         why = f' <span class="why">({html.escape(e["why"])})</span>' if e["why"] else ""
         note = f'<div class="note">{html.escape(e["note"])}</div>' if e.get("note") else ""
+        if e.get("branch"):
+            note += f'<div class="note">branch: <span class="mono">{html.escape(e["branch"])}</span></div>'
         if e.get("drafts"):
             note += '<div class="note">drafts: ' + ", ".join(f'<a href="https://github.com/Desidero/omnigent-patches/blob/main/{d}"><code>{d.split("/")[-1]}</code></a>' for d in e["drafts"]) + "</div>"
         kind = f'<span class="kind">{e["patch_count"]} patch{"es" if e["patch_count"] != 1 else ""}</span>' if e["kind"] == "series" else '<span class="kind">no patch</span>'

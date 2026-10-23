@@ -1,57 +1,62 @@
-<!-- Draft PR body for the new-chat-project-prompt series; title: feat(web): ask for a project when starting a new session -->
+# feat(web): ask for a project when starting a new session
+
+> **Held.** #11083 says "open once there's agreement on the default". The review's three must-fixes (stale load-error row gated out of the project step, Enter-on-first-row tests, Settings switch tests) have landed on the branch; it opens only after a maintainer reacts to the issue.
+
 ## Related issue
 
 Closes #11083
 
 ## Summary
 
-Depends on: palette-new-chat-in-project (stacked; would be rebased or split for upstream).
+A project stores the settings a new session needs, but every "new session" entry point opened a plain composer with no project, so sessions started in the wrong place and landed unfiled unless you remembered the per-project pencil. When at least one project exists, the new-session hotkey, the sidebar's **New session** and Sessions **+**, and the palette's **New chat** now first open a "Start a new session in…" picker:
 
-When you start a new session, the app now asks which project it belongs to first, so the session lands in the right place with that project's settings already filled in.
+- **No project** is the first row, so Enter straight away still gives a plain composer; projects follow, filtered by name as you type.
+- Picking a project opens `/?project=<name>`, the route the pencil already uses, so its defaults prefill exactly as today.
+- Middle-click and ⌘/Ctrl-click on the sidebar links still open a plain composer in a new tab. `/`, `/new`, the logo, the post-archive redirect and the extension `openNewSession` API never prompt.
+- **Settings › General › Sessions › Ask for a project when starting a session** turns it off. On by default, but a no-op until you have a project.
 
-A project carries the settings a new session needs (host, workspace, agent, model, worktree), but every "new session" entry point opened a plain composer, so filing a session in its project and getting those defaults was an extra, easily forgotten step.
-
-- When at least one project exists, the new-session hotkey, the sidebar's New session links (also reached from the mobile drawer) and the palette's New chat open the command palette on a "Start a new session in..." step: No project first, then every project, filtered by name as you type.
-- Picking a project opens `/?project=<name>`, the route the per-project pencil already uses; No project opens the plain composer.
-- Modified clicks (Cmd/Ctrl/middle click) on the sidebar links still open the composer in a new tab.
-- Settings > General > Sessions gains "Ask for a project when starting a session" (on by default, stored per browser) to turn the prompt off.
-- `feature-map/composer.md` documents the new `new-session-project-prompt` sub-feature.
+One shared `handleNewSession` in `AppShell` drives all entry points; the picker reuses the command palette dialog (already a full-screen sheet on mobile) and `useProjects`. The preference is a per-browser setting stored like the other General toggles. Stacked on the #4409 palette PR.
 
 ## Test Plan
 
-Tests added or changed:
-
-- `web/src/shell/CommandPalette.test.tsx`: project step offers No project first then every project, filters by name, and New chat routes through `onNewSession`.
-- `web/src/shell/AppShell.test.tsx`: asks for a project before opening the composer; opens it directly when the prompt is off.
-- `web/src/shell/Sidebar.test.tsx`: New session links hand off to the prompt; modified clicks keep the new-tab behaviour.
-- `web/src/hooks/useNewSessionHotkey.test.tsx`: the shortcut calls `onNewSession` instead of navigating.
-- `web/src/lib/newChatProjectPromptPreferences.test.ts`: defaults on when unset; persists off and restores the default when cleared.
-
-```sh
-cd web && pnpm exec vitest run src/shell/CommandPalette.test.tsx src/shell/AppShell.test.tsx \
-  src/shell/Sidebar.test.tsx src/hooks/useNewSessionHotkey.test.tsx \
-  src/lib/newChatProjectPromptPreferences.test.ts
-cd web && pnpm exec tsc -b
-```
-
-Manual:
-
-1. On a server with no projects, press Cmd+Shift+O (macOS) or Ctrl+Shift+O: the composer opens directly, as before.
-2. Create two projects with different default agents. Press the hotkey again: a "Start a new session in..." picker opens with No project, then both projects.
-3. Type part of a project name and press Enter: the URL is `/?project=<name>` and the composer shows its defaults. Repeat and choose No project: a plain composer opens.
-4. Click New session in the sidebar (and from the mobile drawer on a narrow window): the same picker opens. Cmd/Ctrl-click it: the composer opens in a new tab without the picker.
-5. Open the palette, pick New chat: the picker opens.
-6. In Settings > General > Sessions, turn off "Ask for a project when starting a session"; repeat steps 2, 4 and 5 and confirm the composer opens directly.
+- `CommandPalette.test.tsx`: project step renders No project first, filters by name, Enter with an empty query opens the plain composer (`/`), typing `lab` then Enter navigates to `/?project=home%20lab`, and a stale session-load error from the previous ⌘K fetch is not shown on the project step.
+- `useNewSessionHotkey.test.tsx`, `Sidebar.test.tsx`, `AppShell.test.tsx`: each entry point routes through the prompt when projects exist and straight to the composer when the switch is off or no projects exist; modified clicks bypass it.
+- `newChatProjectPromptPreferences.test.ts`: default on, persisted off.
+- `SettingsPage.test.tsx`: the **Ask for a project when starting a session** switch renders on by default and turning it off persists `"off"`, mirroring the neighbouring session-titles switch tests.
+- `npx vitest run` on the changed files (517 tests across 6 files), `tsc -b`, pre-commit (prettier, oxlint, custom lint) clean.
+- Manual on desktop and at phone width: see Demo.
 
 ## Demo
 
-- [ ] Visual demo attached below
+- [x] Visual demo attached below
 - [ ] Non-visual evidence provided below or in Test Plan
 - [ ] Not applicable — no behavioral change
 
-- [ ] TODO: recording of the hotkey opening the project picker, filtering, and landing on the composer with project defaults (throwaway server, dummy projects)
-- [ ] TODO: screenshot of the picker opened from the sidebar's New session link on a narrow (mobile drawer) window
-- [ ] TODO: screenshot of the new switch in Settings > General > Sessions
+Hotkey with projects present:
+
+![Picker: No project first, then projects](img/prompt-picker.png)
+
+Typing filters the list:
+
+![Picker filtered to one project](img/prompt-picker-filtered.png)
+
+Phone width (390×844): the drawer's New session, the full-screen picker, and the picker filtered:
+
+![Mobile drawer with New session](img/mobile-drawer-new-session.png)
+
+![Mobile full-screen picker](img/mobile-picker.png)
+
+![Mobile picker filtered to one project](img/mobile-prompt-picker-filtered.png)
+
+The switch, desktop and phone:
+
+![Settings › General › Sessions switch](img/settings-switch.png)
+
+![Settings switch at phone width](img/mobile-settings-switch.png)
+
+Dark theme:
+
+![Picker in dark theme](img/dark-prompt-picker.png)
 
 ## Type of change
 
@@ -68,13 +73,13 @@ Manual:
 - [x] Unit tests added / updated
 - [ ] Integration tests added / updated
 - [ ] E2E tests added / updated
-- [ ] Manual verification completed
+- [x] Manual verification completed
 - [ ] Existing tests cover this change
 - [ ] Not applicable
 
 ## Coverage notes
 
-Component tests cover each entry point (hotkey, sidebar links, palette action), the picker contents and filtering, and the opt-out preference. No browser E2E was added; the destination route `/?project=<name>` is unchanged.
+The component tests cover each entry point and the switch; the mobile drawer-to-sheet handoff was checked by hand in an iPhone-sized viewport (screenshots above).
 
 ## Release notes
 
@@ -85,4 +90,6 @@ Should this change be included in the release notes? Choose exactly one.
 
 ## Changelog
 
-Starting a new session asks which project it belongs to and opens the composer with that project's defaults; turn it off in Settings > General > Sessions
+When you have projects, starting a new session first asks which project it belongs to (or none); turn it off in Settings › General › Sessions.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)

@@ -1,30 +1,26 @@
-<!-- Draft PR body for the toast-safe-area series; title: fix(web): keep toasts below the iOS status bar and Dynamic Island -->
+# fix(web): keep top toasts below the native status bar / Dynamic Island
 
 ## Related issue
 
-Closes #TODO (issue to be opened)
+Closes #
+
+<!-- No upstream issue exists for this; it is a 3-line bug fix. If a maintainer wants one, I will file it. -->
 
 ## Summary
 
-In the iOS app, toasts appeared under the status bar and Dynamic Island, where they couldn't be read.
+In the iOS app, toasts render top-center with sonner's fixed 16px (phone) / 24px (desktop) top gap, so they sat under the status bar and Dynamic Island and could not be read. The toaster already lifts its bottom edge above the home indicator with `--omnigent-inset-bottom`; this gives the top edge the matching `--omnigent-inset-top`, the same safe-area helper the lightbox close button uses (7ea138029).
 
-The toaster renders top-center with sonner's fixed top gap (24px desktop, 16px mobile). Its bottom edge already clears the home indicator via `--omnigent-inset-bottom`. This change adds the matching `--omnigent-inset-top` to the top offset in `web/src/shell/AppShell.tsx`. Desktop and Android, which have no top inset, keep sonner's default gaps.
+- `offset.top` and `mobileOffset.top` on the `Toaster` become `calc(<sonner default> + var(--omnigent-inset-top))`; the other sides are unchanged. The offsets live in a small `toasterOffsets()` helper next to the existing bottom-offset helper so the strings are unit-tested and `AppShell` no longer repeats them.
+- Where the inset is 0 (desktop browsers, Electron) nothing moves. The Android shell injects its status-bar height into the same variable, so Android toasts clear the status bar too.
+- `calc()` rather than `max()` on purpose: `max()` would butt the toast against the Dynamic Island with no gap.
 
 ## Test Plan
 
-This is a three-line CSS offset change with no unit test. Verify it by eye:
-
-```sh
-cd web && pnpm exec tsc -b
-cd web && pnpm exec vitest run src/shell/AppShell.test.tsx
-```
-
-Manual:
-
-1. Build the iOS app against a test server and open it on an iPhone with a Dynamic Island, or a simulator such as iPhone 15 Pro.
-2. Trigger a toast, for example by saving an agent under Settings ("Agent saved") or copying text from the Terminal view ("Copied from terminal."). The toast sits fully below the status bar and Dynamic Island.
-3. Open the web UI in a desktop browser and trigger the same toast. Its position is unchanged (24px from the top).
-4. In the desktop browser's mobile emulation (no safe-area inset), the toast sits 16px from the top as before.
+- Before/after captured in Chromium with the same CDP safe-area override the mobile e2e suite uses (`Emulation.setSafeAreaInsetsOverride`, top 59px for an iPhone 14 Pro), which drives the real `env()` path: see Demo.
+- Measured in that emulation: before, toaster `--mobile-offset-top: 16px`; after, `calc(16px + max(59px, 0px))`, toaster top 75px. Identical in light and dark.
+- Checked on an iPhone in the iOS shell (production runs this fix): unpin a session from the header menu, the toast sits fully below the Dynamic Island with a 16px gap, centered; rotated to landscape, unchanged (sonner's desktop rules apply above 600px and iOS reports no top inset there).
+- `web/src/lib/updateOverlayInset.test.ts`: new case asserts the desktop (`24px`) and mobile (`16px`) top offsets include `var(--omnigent-inset-top)` and that both bottom offsets still come from `updateOverlayToastOffset`.
+- `npx vitest run src/shell/AppShell.test.tsx src/lib/updateOverlayInset.test.ts` (193 tests) and `node_modules/.bin/tsc -b` pass; pre-commit (prettier, oxlint, custom lint) clean.
 
 ## Demo
 
@@ -32,10 +28,23 @@ Manual:
 - [ ] Non-visual evidence provided below or in Test Plan
 - [ ] Not applicable — no behavioral change
 
-To capture on a clean throwaway server:
+Before and after at an iPhone 14 Pro viewport (390×844 @2x) with a 59px top inset applied through Chromium's `Emulation.setSafeAreaInsetsOverride`, so `env(safe-area-inset-top)` really resolves to 59px (a probe element measured it). The red band and pill mark the inset region; they are drawn on afterwards for clarity. Toast trigger: pin then unpin the session from the header menu.
 
-- [ ] TODO: before/after screenshots of a toast in the iOS app on a Dynamic Island device or simulator
-- [ ] TODO: screenshot of the same toast on desktop, showing no change
+Before: the toaster's top is 16px, so the toast (y 16–74) sits under the status bar and Dynamic Island.
+
+![Before: toast overlaps the top inset band](img/toast-before-portrait.png)
+
+After: the toaster's top is `calc(16px + 59px)`, so the toast (y 75–133) starts 16px below the band.
+
+![After: toast sits below the inset band](img/toast-after-portrait.png)
+
+Dark theme, after:
+
+![After, dark theme](img/toast-after-dark.png)
+
+Desktop (1280×800, no inset): unchanged, the toast keeps sonner's 24px default gap:
+
+![Desktop toast placement, unchanged](img/toast-desktop-after.png)
 
 ## Type of change
 
@@ -49,16 +58,16 @@ To capture on a clean throwaway server:
 
 ## Test coverage
 
-- [ ] Unit tests added / updated
+- [x] Unit tests added / updated
 - [ ] Integration tests added / updated
 - [ ] E2E tests added / updated
-- [ ] Manual verification completed
+- [x] Manual verification completed
 - [ ] Existing tests cover this change
-- [x] Not applicable
+- [ ] Not applicable
 
 ## Coverage notes
 
-The change only adds the safe-area inset to the toaster's top offset. jsdom doesn't lay out or resolve safe-area variables, so a unit test would only restate the prop. TODO before opening: run the manual steps on a Dynamic Island device and on desktop, attach the screenshots, then tick Manual verification.
+The offset strings are unit-tested; the safe-area value itself comes from `env(safe-area-inset-top)`, which jsdom cannot resolve, so placement was verified on a phone and with Chromium's safe-area emulation (the mechanism the mobile e2e suite uses). The existing `AppShell` tests cover that the toaster still mounts.
 
 ## Release notes
 
@@ -66,3 +75,5 @@ Should this change be included in the release notes? Choose exactly one.
 
 - [x] No — no noteworthy user-facing change.
 - [ ] Yes — include the entry in the Changelog section.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
