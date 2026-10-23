@@ -35,7 +35,8 @@ series:
   toast-safe-area:
     our_pr: 11390
     want: Toasts stay below the iOS status bar and Dynamic Island.
-    note: 'Ready: reviewed, rebased, 193 tests, before/after captures. No issue needed.'
+    issue: 11435
+    note: 'Ready: reviewed, rebased, 193 tests, before/after captures. Issue filed on the bot''s request.'
     branch: 'fix/toast-safe-area @ c08ede893'
     drafts:
     - proposals/toast-safe-area/PR.md
@@ -168,7 +169,7 @@ series:
     - 9686
     related:
     - 6627
-    note: 'Ready: reviewed, rebased, 225 tests, captures. #9686 will conflict with whichever lands second.'
+    note: 'Parked as draft 2026-10-23 to stay under the ten open-PR cap (slot given to #11398); re-mark ready when a slot frees. Reviewed, rebased, 225 tests, captures. #9686 will conflict with whichever lands second.'
     branch: 'feat/palette-new-chat-in-project @ 29f10b5dd'
     drafts:
     - proposals/palette-new-chat-in-project/PR.md
@@ -198,7 +199,7 @@ series:
     - 10418
     note: 'Stands alone (no accounts dependency). Split: server PR first (null delete, project defaults,
       shared predicate; 116 tests), web PR after with captures. Issue trimmed to the server scope.'
-    branch: 'feat/session-labels-api @ a9db52885 (PR 11398); feat/session-labels-ui @ f2231f600 (PR 11399, stacked; both draft until an open-PR slot frees)'
+    branch: 'feat/session-labels-api @ a9db52885 (PR 11398); feat/session-labels-ui @ f2231f600 (PR 11399, stacked, draft until an open-PR slot frees)'
     drafts:
     - proposals/session-labels-ui/issue.md
     - proposals/session-labels-ui/PR-api.md
