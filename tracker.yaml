@@ -198,7 +198,7 @@ series:
     - 10418
     note: 'Stands alone (no accounts dependency). Split: server PR first (null delete, project defaults,
       shared predicate; 116 tests), web PR after with captures. Issue trimmed to the server scope.'
-    branch: 'feat/session-labels-api @ a9db52885 (PR 11398); feat/session-labels-ui @ f2231f600 (PR 11399, stacked)'
+    branch: 'feat/session-labels-api @ a9db52885 (PR 11398); feat/session-labels-ui @ f2231f600 (PR 11399, stacked; both draft until an open-PR slot frees)'
     drafts:
     - proposals/session-labels-ui/issue.md
     - proposals/session-labels-ui/PR-api.md
@@ -279,7 +279,7 @@ series:
     issue: 11381
     want: Session metadata (labels, project, agent, git, workspace, host), model and reasoning effort
       stamped on every span of a turn.
-    branch: 'feat/turn-model-effort @ 0a8a64418 (PR 11384); feat/session-telemetry @ 1524de2b6 (stacked PR pending: pre-push hook)'
+    branch: 'feat/turn-model-effort @ 0a8a64418 (PR 11384); feat/session-telemetry @ 1524de2b6 (PR 11434, stacked, draft)'
     related:
     - 10794
     note: 'Previously held back; stands alone (related to #10794, not stacked). Credential
