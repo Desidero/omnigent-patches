@@ -23,6 +23,16 @@ The same commits are available as a branch: `custom` on
 [Desidero/omnigent](https://github.com/Desidero/omnigent/tree/custom) is
 upstream plus this whole series, rebased as upstream moves.
 
+## Tracker
+
+`tracker.yaml` records, per series and per upstream change we only watch, the
+upstream issue and PR links plus relationships (`carries`, `blocked_by`,
+`superseded_by`, `related`, `conflicts`). `scripts/tracker.py OUT.html` joins
+it with `patches/series` and live GitHub state to produce a page with a drop
+list (patches to remove on the next rebase), what waits on us, what waits on
+maintainers, and a dependency graph. The table below is the hand-written
+summary; the generated page is the live view.
+
 ## Patch index
 
 Status is one of: **proposed** (not yet filed upstream; see `proposals/`),
