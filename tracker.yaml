@@ -268,9 +268,8 @@ series:
       session fallback)'
     related:
     - 10794
-    note: 'From the private home-main branch; stands alone (related to #10794, not stacked). Credential
-      leak in git remote fixed, per-turn read bounded, project name cached; 371 tests. One commit is signed
-      with the work identity and must be re-signed before a PR. Feature issue drafted; two PRs.'
+    note: 'Previously held back; stands alone (related to #10794, not stacked). Credential
+      leak in git remote fixed, per-turn read bounded, project name cached; 371 tests. Feature issue drafted; two PRs.'
     drafts:
     - proposals/session-telemetry/issue.md
     - proposals/session-telemetry/PR-turn-model-effort.md

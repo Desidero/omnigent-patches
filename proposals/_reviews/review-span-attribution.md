@@ -1,6 +1,6 @@
 # Review: `feat/span-attribution` (9a7e75680) vs issue #10794
 
-Worktree reviewed: `/home/matt/repos/omnigent-wt/feat/span-attribution`. Line numbers below are from that checkout.
+Worktree reviewed: the `feat/span-attribution` checkout. Line numbers below are from that checkout.
 
 ## Verdict
 
@@ -66,7 +66,7 @@ Verified against the issue's correctness list:
 
 ## Tests run
 
-- Env: unset all `OMNIGENT_*` / `RUNNER_SERVER_URL`; worktree `/home/matt/repos/omnigent-wt/feat/span-attribution` (existing `.venv`, OTel SDK + FastAPI instrumentation present, semconv 0.65b0, sdk 1.44.0).
+- Env: unset all `OMNIGENT_*` / `RUNNER_SERVER_URL`; the `feat/span-attribution` worktree (existing `.venv`, OTel SDK + FastAPI instrumentation present, semconv 0.65b0, sdk 1.44.0).
 - `timeout 230 uv run --no-sync python -m pytest tests/runtime/test_telemetry.py -q` → **81 passed, 1 warning in 0.61s**.
 - Ad hoc middleware-order check (`/tmp/claude-1000/-home-matt-repos-omnigent-ai-omnigent/12eade73-7cca-4e00-986c-acd763356144/scratchpad/mw_order.py`): FastAPI app, `FastAPIInstrumentor.instrument_app` first, then an `@app.middleware("http")` that calls `set_current_user_id` + `telemetry.set_request_user(current_user_id())`, user processor installed. Result: SERVER span and all child spans (`inner`, `http send`) carry `enduser.id='alice@example.com'`; the middleware observed a recording span named `GET /v1/sessions/conv_123/x`. This is the test the PR should include (item 4).
 - Not run: `tests/server/test_audit_logging_middleware.py` (no change there yet) or `pre-commit`; run `pre-commit run --all-files` after the fixes.

@@ -9,7 +9,7 @@ Report only; nothing was modified.
 **Ship it after amending the commit message** (one factual error, see Must fix).
 The code is correct, minimal, uses the repo's own safe-area variable, formats
 clean (prettier --check passes), compiles and runs (the identical `custom`
-copy is in `deploy/2026-10-20`, i.e. production), and rebases onto
+copy is already deployed), and rebases onto
 upstream/main with no conflicts. A tiny unit test is cheap and worth adding
 (see Tests) but not blocking.
 
@@ -174,17 +174,16 @@ Correctness notes behind the verdict:
   87063d904^..87063d904 f2e1daaf5^..f2e1daaf5` differs only by the "Carried on
   custom" line in the message). The requested `git diff 87063d904
   fix/toast-safe-area --stat` is noise (997 files: other custom patches plus
-  upstream drift) and not a useful comparison. The copy is in
-  `deploy/2026-10-20`, so **both production and the dm2 preview already run
-  the fix**; there is no deployed "before" to photograph (see below).
+  upstream drift) and not a useful comparison. The copy is
+  already deployed, so **every running instance carries the fix**; there is
+  no deployed "before" to photograph (see below).
 
 ## Demo capture steps
 
 Real-device "after" (recommended; the PR template wants an image for UI
 changes):
 
-1. On the iPhone open the Omnigent app (production, https://omni.hoelt.ing, or
-   the preview https://dm2.tail6515b2.ts.net:8443 -- both carry the fix),
+1. On the iPhone open the Omnigent app on an instance that carries the fix,
    portrait, light or dark theme, any session list visible.
 2. Trigger a toast with Undo (these are the easiest reliable ones):
    - Archive a throwaway session: open it, header kebab (three dots) ->

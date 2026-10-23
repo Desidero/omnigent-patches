@@ -155,8 +155,8 @@ draft:
 - Do not propose the no-endpoint `!`-composer fallback; they already
   considered and rejected it in the issue, and it only serves two harnesses.
 
-Keep `feat/run-suggested-commands` as a local `custom` patch only if the
-dm2/prod users actually use it now; otherwise shelve it, because the 17-file
+Keep `feat/run-suggested-commands` as a local `custom` patch only if it is
+actually used now; otherwise shelve it, because the 17-file
 overlap with #10857 (especially `message.tsx`, `chatStore.ts`,
 `routes/_sessions/*`, `schemas.py`, `openapi.json`) means every future
 `custom` rebase will fight that stack once it merges.
