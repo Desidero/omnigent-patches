@@ -1,4 +1,4 @@
-@bbqiu @dhruv0811 @serena-ruan, as #583's reviewers: a design question before it merges. cc @Leemoonsoo for the `CLAUDE_CONFIG_DIR` handling in #9583.
+A design question on #583 before it merges, since #583 and this issue were both marked stale this week and I'd rather it got settled than closed. @TomeHirata, as the assignee.
 
 I've been running per-session Claude accounts locally, with one difference from #583: each account is a `subscription` entry in `providers:` with its own `config_dir`, not a separate `claude_profiles:` block. `providers:` already allows any number of named entries and is what `executor.auth: {type: provider}` resolves against, so a second account doesn't need a second config concept:
 
@@ -8,7 +8,7 @@ providers:
   claude-max2: {kind: subscription, cli: claude, config_dir: ~/.claude-max2}
 ```
 
-The host resolves the session's choice and exports `CLAUDE_CONFIG_DIR` to the runner, so claude-native works as well as claude-sdk. Omnigent's own reads of Claude's files follow it with #9617.
+The host resolves the session's choice and exports `CLAUDE_CONFIG_DIR` to the runner, so claude-native works as well as claude-sdk. Omnigent's own reads of Claude's files follow it with #9617, and #9583 (merged) made the terminal launch honour it.
 
 Two things I think should hold whichever shape wins:
 
