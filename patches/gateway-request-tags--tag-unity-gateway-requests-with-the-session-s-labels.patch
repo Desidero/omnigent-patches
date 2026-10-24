@@ -235,7 +235,7 @@ index a88a807a780910a27f97eaa1d99a13f9875c28d4..445c336558e464eedc35f54c23ae8f4f
 +    lines.append(f"{REQUEST_TAGS_HEADER}: {tags_value}")
 +    return "\n".join(lines)
 diff --git a/omnigent/harnesses/claude_native/main.py b/omnigent/harnesses/claude_native/main.py
-index e8274b0cbe57a21be1f81d38ea3ca29f226de959..181c563c61c26f5cbba3800b05b0796fe349e648 100644
+index d621f69fd375e2d436d6b3791e998009a2cdb62e..da875ce713f9ac845d63077f9c621ace32abd991 100644
 --- a/omnigent/harnesses/claude_native/main.py
 +++ b/omnigent/harnesses/claude_native/main.py
 @@ -87,9 +87,11 @@ from omnigent.cli_invocation import cli_invocation
@@ -327,7 +327,7 @@ index e8274b0cbe57a21be1f81d38ea3ca29f226de959..181c563c61c26f5cbba3800b05b0796f
          )
          record_startup_event("terminal_available", session_id=session_id)
 diff --git a/omnigent/harnesses/codex_native/app_server.py b/omnigent/harnesses/codex_native/app_server.py
-index 582833481e76635afcc31b90b6796d7b8b91eb5b..f6fea64a99d112af605166bc07caad7d3cd35eac 100644
+index c9aafa2fc1fc837e7400a7b5beef6c2a4ee38e89..596acba9a3966cd30b309156c2c8f0737e030c8f 100644
 --- a/omnigent/harnesses/codex_native/app_server.py
 +++ b/omnigent/harnesses/codex_native/app_server.py
 @@ -35,6 +35,7 @@ if TYPE_CHECKING:
@@ -338,7 +338,7 @@ index 582833481e76635afcc31b90b6796d7b8b91eb5b..f6fea64a99d112af605166bc07caad7d
  from omnigent.debug_logging import debug_event
  from omnigent.errors import ErrorCode, OmnigentError
  from omnigent.harnesses.codex_egress import CertificateFailure, detect_certificate_failure
-@@ -3406,6 +3407,7 @@ def build_codex_native_server(
+@@ -3523,6 +3524,7 @@ def build_codex_native_server(
      model_catalog_rows: list[_JsonObject] | None = None,
      reconcile_process_registry: bool = True,
      terminal_launch_args: Sequence[str] = (),
@@ -346,7 +346,7 @@ index 582833481e76635afcc31b90b6796d7b8b91eb5b..f6fea64a99d112af605166bc07caad7d
  ) -> CodexNativeAppServer:
      """
      Build a configured native Codex app-server process wrapper.
-@@ -3464,6 +3466,9 @@ def build_codex_native_server(
+@@ -3581,6 +3583,9 @@ def build_codex_native_server(
      :param terminal_launch_args: Original CLI options used to select the Codex
          config-file profile (distinct from the Databricks routing profile)
          and the ``--add-dir`` roots the app-server owns.
@@ -356,7 +356,7 @@ index 582833481e76635afcc31b90b6796d7b8b91eb5b..f6fea64a99d112af605166bc07caad7d
      :returns: Configured app-server process wrapper.
      :raises ImportError: If no Codex CLI is available.
      :raises OSError: If Databricks routing was requested but no
-@@ -3479,6 +3484,10 @@ def build_codex_native_server(
+@@ -3596,6 +3601,10 @@ def build_codex_native_server(
              "nvm-managed bin dir), set OMNIGENT_CODEX_PATH=/path/to/codex."
          )
      env = _clean_codex_env()
@@ -368,7 +368,7 @@ index 582833481e76635afcc31b90b6796d7b8b91eb5b..f6fea64a99d112af605166bc07caad7d
      pinned_model = model
      if profile is not None:
 diff --git a/omnigent/harnesses/codex_native/main.py b/omnigent/harnesses/codex_native/main.py
-index 8bedf8ed1f75ce3c3d379a5b6cedefa3f21bcc4d..80d08387d5fe2631ddd7077894f9ba626b8d7f48 100644
+index 738744495edbf35227c020ce05260654008f9c48..ea9b0cd102811ff7095cfc4d4f363645ef37eff2 100644
 --- a/omnigent/harnesses/codex_native/main.py
 +++ b/omnigent/harnesses/codex_native/main.py
 @@ -1190,6 +1190,8 @@ async def _prepare_codex_terminal(
@@ -397,10 +397,10 @@ index 8bedf8ed1f75ce3c3d379a5b6cedefa3f21bcc4d..80d08387d5fe2631ddd7077894f9ba62
          app_server.listen_url = codex_ws_url
          event_client: CodexAppServerClient | None = None
 diff --git a/omnigent/host/connect.py b/omnigent/host/connect.py
-index 972a0b281934286589846d03ed9c54e917b5a1d5..66a801c010c19b0affd065ace07092ee17050fb8 100644
+index afc66888b658096c5d34ecba8a30434849ae965c..697fd453b7fb536f2bd1047941cef9d3fed6a5e9 100644
 --- a/omnigent/host/connect.py
 +++ b/omnigent/host/connect.py
-@@ -719,6 +719,8 @@ _RUNNER_ENV_ALLOWLIST: frozenset[str] = frozenset(
+@@ -725,6 +725,8 @@ _RUNNER_ENV_ALLOWLIST: frozenset[str] = frozenset(
          "OMNIGENT_HARNESS_STDERR_ENABLED",
          # Runner release flags must survive CLI -> daemon -> runner.
          "OMNIGENT_FEATURES",
@@ -410,7 +410,7 @@ index 972a0b281934286589846d03ed9c54e917b5a1d5..66a801c010c19b0affd065ace07092ee
          # cli_auth.databricks_request_headers into every client→server connection
          # so a request pins to a specific server instance/replica. Must reach the
 diff --git a/omnigent/inner/claude_sdk_executor.py b/omnigent/inner/claude_sdk_executor.py
-index 951c4fdd80eea6483b662777557f7da8b099edcf..9015c9d851227101416f2b10f3197275f4845fca 100644
+index 36590b66022a07a90542bf6806b9bee74187421e..7468df968237e0d7e4578408b43acdc53c1cacb6 100644
 --- a/omnigent/inner/claude_sdk_executor.py
 +++ b/omnigent/inner/claude_sdk_executor.py
 @@ -48,9 +48,12 @@ from omnigent.claude_paths import claude_config_dir, claude_json_path
@@ -426,7 +426,7 @@ index 951c4fdd80eea6483b662777557f7da8b099edcf..9015c9d851227101416f2b10f3197275
  )
  from omnigent.inner import _proc
  from omnigent.inner.bundle_skills import ensure_bundle_plugin_manifest
-@@ -1340,6 +1343,12 @@ def _resolve_gateway_env(
+@@ -1388,6 +1391,12 @@ def _resolve_gateway_env(
              CLAUDE_CODE_AGENT,
              via_ug=is_ug_route(base_url),
          )
@@ -440,7 +440,7 @@ index 951c4fdd80eea6483b662777557f7da8b099edcf..9015c9d851227101416f2b10f3197275
          gateway_env["CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS"] = "1"
      return gateway_env
 diff --git a/omnigent/inner/codex_executor.py b/omnigent/inner/codex_executor.py
-index bfa40df03ea662b0b68b21017c9d4f5cff1f8233..f2eea5f94632f033e78767cb77190753aa685cff 100644
+index 6906674fb51cdd854f50b4d1591828a3a8cdcc6f..c4034e9eeff9b6feb2066e090174317d1c27a5cf 100644
 --- a/omnigent/inner/codex_executor.py
 +++ b/omnigent/inner/codex_executor.py
 @@ -42,6 +42,8 @@ from packaging.version import InvalidVersion, Version
@@ -497,7 +497,7 @@ index bfa40df03ea662b0b68b21017c9d4f5cff1f8233..f2eea5f94632f033e78767cb77190753
  
  
 diff --git a/omnigent/inner/pi_executor.py b/omnigent/inner/pi_executor.py
-index 54ec39bac6c475740362ac3964341d000e0ed828..f754879f42a61680a6d3164c70ef886ddfda4859 100644
+index c4df66f72d53f4d07f03e622ae8989dd6794b622..4f9ec2d9383375616702ea96110b7476a4e38d8a 100644
 --- a/omnigent/inner/pi_executor.py
 +++ b/omnigent/inner/pi_executor.py
 @@ -56,7 +56,12 @@ from importlib.resources import files
@@ -514,7 +514,7 @@ index 54ec39bac6c475740362ac3964341d000e0ed828..f754879f42a61680a6d3164c70ef886d
  from omnigent.harnesses.pi_native.credentials import (
      _databricks_workspace_url_for_gateway,
      _is_databricks_ai_gateway_url,
-@@ -964,9 +969,17 @@ def _build_models_json(
+@@ -972,9 +977,17 @@ def _build_models_json(
              provider["models"] = [*provider["models"], entry]
      for provider_config in config["providers"].values():
          if _is_databricks_ai_gateway_url(provider_config["baseUrl"]):
@@ -536,7 +536,7 @@ index 54ec39bac6c475740362ac3964341d000e0ed828..f754879f42a61680a6d3164c70ef886d
  
  
 diff --git a/omnigent/runner/app.py b/omnigent/runner/app.py
-index 77938f49509241d2400d167c7b70217edaa04fb2..8d39d210cf4183faa2050cec7178de54eafdf94f 100644
+index bcaf48379146e7700b4161926c444ea054ff1dba..206dfaec2938d58546d9e6758190465e615d4551 100644
 --- a/omnigent/runner/app.py
 +++ b/omnigent/runner/app.py
 @@ -39,6 +39,7 @@ from fastapi import FastAPI, Query, Request
@@ -547,7 +547,7 @@ index 77938f49509241d2400d167c7b70217edaa04fb2..8d39d210cf4183faa2050cec7178de54
  from omnigent.debug_logging import (
      debug_event,
      phase_scope,
-@@ -2599,6 +2600,13 @@ def create_runner_app(
+@@ -2618,6 +2619,13 @@ def create_runner_app(
                      session_id, "failed", error={"code": exc.code, "message": str(exc)}
                  )
                  raise
@@ -561,7 +561,7 @@ index 77938f49509241d2400d167c7b70217edaa04fb2..8d39d210cf4183faa2050cec7178de54
              if spawn_env is None:
                  spawn_env = await _resolve_native_spawn_env(
                      harness_name,
-@@ -5515,6 +5523,13 @@ def create_runner_app(
+@@ -5519,6 +5527,13 @@ def create_runner_app(
                      },
                  )
  
@@ -575,7 +575,7 @@ index 77938f49509241d2400d167c7b70217edaa04fb2..8d39d210cf4183faa2050cec7178de54
          if spawn_env is None:
              spawn_env = await _resolve_native_spawn_env(
                  harness_name,
-@@ -8312,6 +8327,52 @@ def _build_spawn_env_from_spec(
+@@ -8407,6 +8422,52 @@ def _build_spawn_env_from_spec(
      return env
  
  
@@ -629,10 +629,10 @@ index 77938f49509241d2400d167c7b70217edaa04fb2..8d39d210cf4183faa2050cec7178de54
  
  
 diff --git a/omnigent/runner/native/orchestration.py b/omnigent/runner/native/orchestration.py
-index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf24a502fd8 100644
+index c9798a2cc2aa51a4397e81ed8e7ed014fb6b5cac..38a4e1e793a830a986607ea79fdf3a777be73cbb 100644
 --- a/omnigent/runner/native/orchestration.py
 +++ b/omnigent/runner/native/orchestration.py
-@@ -646,6 +646,7 @@ class _CodexNativeLaunchConfig:
+@@ -651,6 +651,7 @@ class _CodexNativeLaunchConfig:
          reads. A session the forwarder rotated onto carries the original
          session's id here. ``None`` when unlabelled: the bridge is then keyed
          by the session id.
@@ -640,7 +640,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
      """
  
      workspace: Path
-@@ -662,6 +663,7 @@ class _CodexNativeLaunchConfig:
+@@ -667,6 +668,7 @@ class _CodexNativeLaunchConfig:
      turn_routing: bool = False
      reasoning_effort: str | None = None
      bridge_id: str | None = None
@@ -648,7 +648,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
  
  
  @dataclasses.dataclass(frozen=True)
-@@ -1469,6 +1471,11 @@ async def _codex_native_launch_config(
+@@ -1474,6 +1476,11 @@ async def _codex_native_launch_config(
          turn_routing=routing_class.turn_routing,
          reasoning_effort=reasoning_effort,
          bridge_id=bridge_id,
@@ -660,7 +660,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
      )
  
  
-@@ -5513,6 +5520,7 @@ async def _auto_create_codex_terminal(
+@@ -5609,6 +5616,7 @@ async def _auto_create_codex_terminal(
          terminal_launch_args=launch_config.terminal_launch_args or (),
          reasoning_effort=launch_config.reasoning_effort,
          model_catalog_rows=_fresh_codex_catalog,
@@ -668,7 +668,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
          # Codex can show project-trust and legacy-model migration prompts before
          # creating a thread. This TUI runs detached for the web UI, so persist
          # the runner-owned acknowledgements in the private session config.
-@@ -8331,6 +8339,8 @@ class _ClaudeSessionLaunchMetadata:
+@@ -8427,6 +8435,8 @@ class _ClaudeSessionLaunchMetadata:
      external_session_id: str | None = None
      fork_source_external_id: str | None = None
      fork_carry_history: bool = False
@@ -677,7 +677,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
      #: Both routing fields come from ``routing_class_from_snapshot``, so an
      #: auto-harness session always reads as routing-enabled too. Deriving them
      #: separately was the bug: a sub-agent child of a routed parent carries the
-@@ -8378,6 +8388,7 @@ def _claude_launch_metadata_from_envelope(
+@@ -8474,6 +8484,7 @@ def _claude_launch_metadata_from_envelope(
              fork_source if isinstance(fork_source, str) and fork_source else None
          ),
          fork_carry_history=snapshot.labels.get(FORK_CARRY_HISTORY_LABEL_KEY) == "1",
@@ -685,7 +685,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
      )
  
  
-@@ -8444,6 +8455,7 @@ async def _load_legacy_claude_launch_metadata(
+@@ -8540,6 +8551,7 @@ async def _load_legacy_claude_launch_metadata(
              fork_source if isinstance(fork_source, str) and fork_source else None
          ),
          fork_carry_history=labels.get(FORK_CARRY_HISTORY_LABEL_KEY) == "1",
@@ -693,7 +693,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
      )
      permission_mode = _claude_launch_permission_mode(metadata.terminal_launch_args)
      _logger.info(
-@@ -8745,6 +8757,7 @@ async def _auto_create_claude_terminal(
+@@ -8841,6 +8853,7 @@ async def _auto_create_claude_terminal(
  
      from omnigent.harnesses.claude_native.main import (
          build_native_claude_terminal_env,
@@ -701,7 +701,7 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
          claude_config_with_launch_model_pinned,
          claude_config_with_routed_arms_pinned,
          resolve_claude_native_model_selection,
-@@ -9325,7 +9338,11 @@ async def _auto_create_claude_terminal(
+@@ -9421,7 +9434,11 @@ async def _auto_create_claude_terminal(
          # Tool Search env plus ucode gateway env (ANTHROPIC_BASE_URL
          # etc.) when derived. Empty provider config still forces
          # ENABLE_TOOL_SEARCH=true so MCP schemas are loaded on demand.
@@ -715,10 +715,10 @@ index d3660123963e0e9c1d9b716d792955f9371c8b90..716e3560ccb2925880c96cb52e50bcf2
          # ``DATABRICKS_CONFIG_PROFILE`` matters because Claude's MCP servers
          # inherit this env and several build ``WorkspaceClient`` without pinning
 diff --git a/tests/cli/test_host_daemon_env.py b/tests/cli/test_host_daemon_env.py
-index c84821262dffd9ef2e754f655ceffc904991075a..8a4dccf24b996ef064b798441d8072eea7a4e1a3 100644
+index 845ba41c2967d35a01b1b47d21885b9a5fec85b4..98d7d4eef7443f7f10c18b7acde201d59b5c7993 100644
 --- a/tests/cli/test_host_daemon_env.py
 +++ b/tests/cli/test_host_daemon_env.py
-@@ -227,6 +227,7 @@ def test_runner_env_explicit_proxy_passthrough_remains_available() -> None:
+@@ -232,6 +232,7 @@ def test_runner_env_explicit_proxy_passthrough_remains_available() -> None:
          ("OMNIGENT_FEATURES", "usage_page,claude_osc_status", True),
          ("OMNIGENT_FEATURES", "usage_page,-claude_osc_status", False),
          ("OMNIGENT_FEATURES", "-claude_osc_status,claude_osc_status", False),
@@ -727,10 +727,10 @@ index c84821262dffd9ef2e754f655ceffc904991075a..8a4dccf24b996ef064b798441d8072ee
  )
  def test_release_controls_reach_daemon_and_runner(
 diff --git a/tests/harnesses/codex_native/app_server/test_launch_config.py b/tests/harnesses/codex_native/app_server/test_launch_config.py
-index 9060cb17d6e33f84fb698f450435ebc3b091ef1c..100c2118ba6e41ba9495d92ac489801deddfdbfe 100644
+index b20c234cc4289cb1aae2b21b5ea08071b978b83d..ccfce06978f16702df35c4cfa58cb2a461ae4f7d 100644
 --- a/tests/harnesses/codex_native/app_server/test_launch_config.py
 +++ b/tests/harnesses/codex_native/app_server/test_launch_config.py
-@@ -153,6 +153,34 @@ def test_native_codex_resource_attributes_reach_server_and_terminal(
+@@ -298,6 +298,34 @@ def test_native_codex_resource_attributes_reach_server_and_terminal(
          }
  
  
@@ -766,7 +766,7 @@ index 9060cb17d6e33f84fb698f450435ebc3b091ef1c..100c2118ba6e41ba9495d92ac489801d
      tmp_path: Path,
      monkeypatch: pytest.MonkeyPatch,
 diff --git a/tests/inner/test_claude_sdk_executor.py b/tests/inner/test_claude_sdk_executor.py
-index f65581b3a9d636367e8a55b6b4c1db0da31a602d..1bbbe8c7b99f0b25940d3199bc936c3edd6be187 100644
+index 82cc0ce66ad8a8ab27137fd88f023069f908c9e0..8864299d0f5494b98b2f5f0e827ae3358e7f632d 100644
 --- a/tests/inner/test_claude_sdk_executor.py
 +++ b/tests/inner/test_claude_sdk_executor.py
 @@ -1767,6 +1767,31 @@ class TestResolveGatewayEnv(unittest.TestCase):
@@ -845,10 +845,10 @@ index a321425c55d063951f0052fc5d08eee36e88c6ae..d43203e982f53f7c1ab7fb75962e484a
  # Tests for _to_codex_input_items — input_file → inline text conversion
  # ---------------------------------------------------------------------------
 diff --git a/tests/inner/test_pi_executor.py b/tests/inner/test_pi_executor.py
-index f09b6ee23ed03d68c41afb0b6935f09329439bd8..fa00451db10f4949804ba8f9fdcc862ac464b642 100644
+index 7b583aedd302b24439f8e7c309ee19e459d1377e..bea8abb2e6a6da895210a01ab14d52bf967e90a3 100644
 --- a/tests/inner/test_pi_executor.py
 +++ b/tests/inner/test_pi_executor.py
-@@ -4355,8 +4355,13 @@ def test_models_json_lists_only_live_gateway_models() -> None:
+@@ -4377,8 +4377,13 @@ def test_models_json_lists_only_live_gateway_models() -> None:
      ]
  
  
@@ -863,7 +863,7 @@ index f09b6ee23ed03d68c41afb0b6935f09329439bd8..fa00451db10f4949804ba8f9fdcc862a
      providers = _build_models_json("https://dbc-1.cloud.databricks.com", "tok")["providers"]
  
      attributed = {name for name, provider in providers.items() if "headers" in provider}
-@@ -4364,6 +4369,8 @@ def test_models_json_attributes_only_unity_gateway_providers() -> None:
+@@ -4386,6 +4391,8 @@ def test_models_json_attributes_only_unity_gateway_providers() -> None:
      assert providers["databricks-openai"]["headers"] == {
          "Databricks-Custom-Coding-Agent": "pi",
          "Databricks-Custom-Client-Surfaces": "omnigent",
@@ -992,10 +992,10 @@ index e827844491d1307c317a062a50a91a2a604f9bde..be75f670fca5577e6093ae6dd9e83007
      "subagent_started,turn_started",
      [(True, True), (True, False), (False, True), (False, False)],
 diff --git a/tests/runner/test_app_sessions_native_terminals_runtime.py b/tests/runner/test_app_sessions_native_terminals_runtime.py
-index 1d0c9398742007687b8d5406ed8fd8a5b313955d..3d6bd0214d924a5b32f531a1aa995b3ddce2191e 100644
+index 14c275ea7bef73c9b271514d092e1f7ddd4e3d2e..3872fb3387c92893a305f9b0138a1f31797426ff 100644
 --- a/tests/runner/test_app_sessions_native_terminals_runtime.py
 +++ b/tests/runner/test_app_sessions_native_terminals_runtime.py
-@@ -565,9 +565,9 @@ async def test_auto_create_codex_terminal_uses_persisted_resume_launch_config(
+@@ -567,9 +567,9 @@ async def test_auto_create_codex_terminal_uses_persisted_resume_launch_config(
      bridge_id = _ROTATED_BRIDGE_ID if rotated else session_id
      bridge_dir = codex_native_bridge.bridge_dir_for_bridge_id(bridge_id)
      session_dir = codex_native_bridge.bridge_dir_for_bridge_id(session_id)
@@ -1008,7 +1008,7 @@ index 1d0c9398742007687b8d5406ed8fd8a5b313955d..3d6bd0214d924a5b32f531a1aa995b3d
      launch_snapshot = RunnerSessionInitSnapshot(
          created_at=10,
          updated_at=11,
-@@ -896,6 +896,8 @@ async def test_auto_create_codex_terminal_uses_persisted_resume_launch_config(
+@@ -898,6 +898,8 @@ async def test_auto_create_codex_terminal_uses_persisted_resume_launch_config(
      assert build_calls[0]["developer_instructions"] == (
          f"Be a concise, careful coding assistant.\n\n{ITEM_LABEL_INSTRUCTION}"
      )

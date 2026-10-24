@@ -28,10 +28,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  2 files changed, 80 insertions(+), 12 deletions(-)
 
 diff --git a/omnigent/harnesses/claude_native/bridge.py b/omnigent/harnesses/claude_native/bridge.py
-index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe3556faab 100644
+index e0f7b7344670ae09b5b158f00632b4fc5d3aa9d7..599d6172ede0049a8b10142f5b093a1e722b36ca 100644
 --- a/omnigent/harnesses/claude_native/bridge.py
 +++ b/omnigent/harnesses/claude_native/bridge.py
-@@ -61,7 +61,7 @@ from http import HTTPStatus
+@@ -62,7 +62,7 @@ from http import HTTPStatus
  from http.client import HTTPConnection, HTTPException
  from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
  from pathlib import Path
@@ -40,7 +40,7 @@ index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe
  from urllib import request
  
  from filelock import FileLock
-@@ -8632,7 +8632,9 @@ def _attachment_transcript_items_from_entry(
+@@ -8751,7 +8751,9 @@ def _attachment_transcript_items_from_entry(
          return current_response_id, []
      if attachment.get("isMeta") is True:
          return current_response_id, []
@@ -51,7 +51,7 @@ index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe
          return current_response_id, []
      source_key = _transcript_source_key(entry, line_number, record_offset)
      item = ClaudeTranscriptItem(
-@@ -9084,10 +9086,28 @@ def _is_trusted_agent_notification_text(text: str, *, origin: object = None) ->
+@@ -9203,10 +9205,28 @@ def _is_trusted_agent_notification_text(text: str, *, origin: object = None) ->
      )
  
  
@@ -82,7 +82,7 @@ index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe
      stripped = text.lstrip()
      wrapped = False
      for prefix in _TEAMMATE_MESSAGE_PREFIXES:
-@@ -9096,13 +9116,15 @@ def _is_agent_notification_text(text: str) -> bool:
+@@ -9215,13 +9235,15 @@ def _is_agent_notification_text(text: str) -> bool:
              wrapped = True
              break
      if _TEAMMATE_MESSAGE_RE.match(stripped) is None:
@@ -101,7 +101,7 @@ index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe
  
  
  def _subagent_handback_id(origin: object) -> str | None:
-@@ -9344,8 +9366,10 @@ def _user_transcript_items_from_entry(
+@@ -9463,8 +9485,10 @@ def _user_transcript_items_from_entry(
      if isinstance(content, str):
          if not content:
              return current_response_id, []
@@ -114,7 +114,7 @@ index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe
          ):
              items.append(
                  ClaudeTranscriptItem(
-@@ -9437,8 +9461,10 @@ def _user_transcript_items_from_entry(
+@@ -9556,8 +9580,10 @@ def _user_transcript_items_from_entry(
              text = block.get("text")
              if not isinstance(text, str) or not text:
                  continue
@@ -128,10 +128,10 @@ index ea9a86b06717db9e0b623b5b53382d7090a9cf8a..20aab6c9fe9394f26b36808809f82ebe
                  items.append(
                      ClaudeTranscriptItem(
 diff --git a/tests/harnesses/claude_native/test_claude_native_bridge.py b/tests/harnesses/claude_native/test_claude_native_bridge.py
-index a16434302733650ce920dd0b3fe852669cf60031..d5ae35a2c6a34c3013ec9e6c2dfd69e4c679f9f3 100644
+index c4dae38ece2bd7d023f7f01252e003203c4719a2..9a07c11045693f0812e00b3cbe0e07f743bc5cc8 100644
 --- a/tests/harnesses/claude_native/test_claude_native_bridge.py
 +++ b/tests/harnesses/claude_native/test_claude_native_bridge.py
-@@ -1413,7 +1413,7 @@ def test_team_markup_needs_provenance(
+@@ -1414,7 +1414,7 @@ def test_team_markup_needs_provenance(
      tmp_path: Path, text: str, candidate: bool, as_blocks: bool
  ) -> None:
      content = [{"type": "text", "text": text}] if as_blocks else text
@@ -140,7 +140,7 @@ index a16434302733650ce920dd0b3fe852669cf60031..d5ae35a2c6a34c3013ec9e6c2dfd69e4
      [item] = items
      assert item.agent_message_candidate is candidate
      assert item.data == {"role": "user", "content": [{"type": "input_text", "text": text}]}
-@@ -1423,11 +1423,53 @@ def test_team_markup_needs_provenance(
+@@ -1424,11 +1424,53 @@ def test_team_markup_needs_provenance(
      assert response_id == "active"
  
  

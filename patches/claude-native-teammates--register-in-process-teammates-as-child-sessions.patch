@@ -28,10 +28,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  2 files changed, 111 insertions(+), 11 deletions(-)
 
 diff --git a/omnigent/harnesses/claude_native/forwarder.py b/omnigent/harnesses/claude_native/forwarder.py
-index af85c717b359bb21aef4f2c8c9bfc0e767a1e4e8..e87509bbc8fbafd7a59a06b4b845879d2cb8d35d 100644
+index e8d3d28da3618379050b913356c1c89ae22703a2..24dc6144db24d09c1b9ac9c5bbc3e231b5ddf3f8 100644
 --- a/omnigent/harnesses/claude_native/forwarder.py
 +++ b/omnigent/harnesses/claude_native/forwarder.py
-@@ -125,9 +125,12 @@ _MAX_SEEN_DELTA_KEYS = 5000
+@@ -129,9 +129,12 @@ _MAX_SEEN_DELTA_KEYS = 5000
  _SUBAGENT_IDLE_THRESHOLD_S = 5.0
  
  # Meta-file glob inside ``~/.claude/projects/<encoded>/<session>/subagents/``.
@@ -46,7 +46,7 @@ index af85c717b359bb21aef4f2c8c9bfc0e767a1e4e8..e87509bbc8fbafd7a59a06b4b845879d
  # Claude's built-in sub-agent spawn tool; its tool-use id is the ``toolUseId``
  # stamped into each ``agent-<id>.meta.json``. Reuse the router's canonical set so
  # both the current ``Agent`` name and the still-supported ``Task`` alias match.
-@@ -1933,10 +1936,14 @@ def _read_subagent_meta(meta_path: Path) -> dict[str, str] | None:
+@@ -1944,10 +1947,14 @@ def _read_subagent_meta(meta_path: Path) -> dict[str, str] | None:
      or malformed so the watcher can skip it gracefully and try again
      on the next tick.
  
@@ -63,7 +63,7 @@ index af85c717b359bb21aef4f2c8c9bfc0e767a1e4e8..e87509bbc8fbafd7a59a06b4b845879d
      """
      try:
          raw = json.loads(meta_path.read_text(encoding="utf-8"))
-@@ -1952,7 +1959,12 @@ def _read_subagent_meta(meta_path: Path) -> dict[str, str] | None:
+@@ -1963,7 +1970,12 @@ def _read_subagent_meta(meta_path: Path) -> dict[str, str] | None:
      if not isinstance(description, str):
          return None
      if not isinstance(tool_use_id, str) or not tool_use_id:
@@ -77,7 +77,7 @@ index af85c717b359bb21aef4f2c8c9bfc0e767a1e4e8..e87509bbc8fbafd7a59a06b4b845879d
      return {
          "agentType": agent_type,
          "description": description,
-@@ -2654,7 +2666,7 @@ def _subagent_own_spawn_tool_use_id(agent_jsonl_path: Path) -> str | None:
+@@ -2665,7 +2677,7 @@ def _subagent_own_spawn_tool_use_id(agent_jsonl_path: Path) -> str | None:
          agent_jsonl_path.name.removesuffix(".jsonl") + ".meta.json"
      )
      meta = _read_subagent_meta(meta_path)
@@ -86,7 +86,7 @@ index af85c717b359bb21aef4f2c8c9bfc0e767a1e4e8..e87509bbc8fbafd7a59a06b4b845879d
  
  
  def _subagent_parents_by_tool_use(
-@@ -2770,21 +2782,30 @@ async def _forward_available_subagents(
+@@ -2781,21 +2793,30 @@ async def _forward_available_subagents(
          if (sid := _subagent_id_from_meta_path(path)) not in updated.subagents
          and start_retry_tracker.retry_delay_s(f"subagent_start:{sid}") is None
      ]

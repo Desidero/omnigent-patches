@@ -33,10 +33,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  7 files changed, 149 insertions(+), 53 deletions(-)
 
 diff --git a/omnigent/harnesses/claude_native/bridge.py b/omnigent/harnesses/claude_native/bridge.py
-index 20aab6c9fe9394f26b36808809f82ebe3556faab..99c6be92863f21482613eb1e66f1572f6579f603 100644
+index 599d6172ede0049a8b10142f5b093a1e722b36ca..3223f9a610e9e290cb4d8ad37d0b6f1cb435de36 100644
 --- a/omnigent/harnesses/claude_native/bridge.py
 +++ b/omnigent/harnesses/claude_native/bridge.py
-@@ -9127,6 +9127,11 @@ def _peer_message_shape(text: str) -> Literal["bare", "framed"] | None:
+@@ -9246,6 +9246,11 @@ def _peer_message_shape(text: str) -> Literal["bare", "framed"] | None:
      return None
  
  
@@ -48,7 +48,7 @@ index 20aab6c9fe9394f26b36808809f82ebe3556faab..99c6be92863f21482613eb1e66f1572f
  def _subagent_handback_id(origin: object) -> str | None:
      """Read Claude's explicit returned-result provenance, excluding teammate chatter."""
      if (
-@@ -9323,10 +9328,12 @@ def _user_transcript_items_from_entry(
+@@ -9442,10 +9447,12 @@ def _user_transcript_items_from_entry(
          if isinstance(content, list)
          else []
      )
@@ -63,10 +63,10 @@ index 20aab6c9fe9394f26b36808809f82ebe3556faab..99c6be92863f21482613eb1e66f1572f
      ):
          return current_response_id, []
 diff --git a/tests/harnesses/claude_native/test_claude_native_bridge.py b/tests/harnesses/claude_native/test_claude_native_bridge.py
-index d5ae35a2c6a34c3013ec9e6c2dfd69e4c679f9f3..02f7c7fc47946352bafc601d11e195fcff9ad7d8 100644
+index 9a07c11045693f0812e00b3cbe0e07f743bc5cc8..ca9f986d151d4c027e7ed82e620820a031086c45 100644
 --- a/tests/harnesses/claude_native/test_claude_native_bridge.py
 +++ b/tests/harnesses/claude_native/test_claude_native_bridge.py
-@@ -1508,6 +1508,31 @@ def test_completion_preserves_hidden_provenance(
+@@ -1509,6 +1509,31 @@ def test_completion_preserves_hidden_provenance(
          assert response_id == "active"
  
  
@@ -207,10 +207,10 @@ index 9b62211ab84f2ab64d019a20ff89e9a861f33408..0d7608e229e78acdcd2de997b787fd00
   * System-marker content for a user message that is a Claude task notification.
   *
 diff --git a/web/src/store/chatStore.test.ts b/web/src/store/chatStore.test.ts
-index e4645652190a634cdcc6e79a25c588a9133770b6..b3482127ebf27ab1ddb3d7ac4cc48f63ef769e66 100644
+index 6e5b0792dd5a514d6dbfb8c454c129c86aeeaa70..af7cc346bdab3d7738d7dd74d136c3068d1f9df2 100644
 --- a/web/src/store/chatStore.test.ts
 +++ b/web/src/store/chatStore.test.ts
-@@ -8749,57 +8749,63 @@ describe("chatStore — handleSessionEvent (session.* events)", () => {
+@@ -8781,57 +8781,63 @@ describe("chatStore — handleSessionEvent (session.* events)", () => {
        ]);
      });
  
@@ -324,10 +324,10 @@ index e4645652190a634cdcc6e79a25c588a9133770b6..b3482127ebf27ab1ddb3d7ac4cc48f63
      const teamContent = [
        {
 diff --git a/web/src/store/chatStore.ts b/web/src/store/chatStore.ts
-index e9c90e5269e0cfc856531bbeaa89c49887001e8e..c0511805e1f4b5870985247a44b04e92157e4e75 100644
+index bc98c2c403242c191b862c68020b53416103c39a..a85160023b13e68df30005cb0046d18a38b07778 100644
 --- a/web/src/store/chatStore.ts
 +++ b/web/src/store/chatStore.ts
-@@ -156,6 +156,7 @@ import {
+@@ -157,6 +157,7 @@ import {
  } from "./interactionTelemetry";
  import { getSessionHost, subscribeSessionHostChanges } from "@/lib/sessionHost";
  import {
@@ -335,7 +335,7 @@ index e9c90e5269e0cfc856531bbeaa89c49887001e8e..c0511805e1f4b5870985247a44b04e92
    isClaudeAgentMessageContent,
    isSystemUserContent,
    taskNotificationMarkerContent,
-@@ -7027,7 +7028,7 @@ function userContentFromEvent(event: SessionInputConsumedEvent): MessageContentB
+@@ -7059,7 +7060,7 @@ function userContentFromEvent(event: SessionInputConsumedEvent): MessageContentB
    // other meta message (injected skill text) stays hidden.
    const marker = taskNotificationMarkerContent(content);
    if (marker !== null) return marker;

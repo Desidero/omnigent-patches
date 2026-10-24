@@ -51,10 +51,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  create mode 100644 tests/server/routes/test_session_provider_switch.py
 
 diff --git a/omnigent/host/frames.py b/omnigent/host/frames.py
-index 6ec96c68d2f8cbae8713be67c4071cce6b526300..f08a9d53b9c3050342cbb44820a60b93e056bb2f 100644
+index f113a5bd0f92e05348a5ae330edd3d70323d831b..b0f8270e5789127a9ae6f485f25ea3e83dadf1f5 100644
 --- a/omnigent/host/frames.py
 +++ b/omnigent/host/frames.py
-@@ -1213,7 +1213,7 @@ class HostProvidersResultFrame:
+@@ -1222,7 +1222,7 @@ class HostProvidersResultFrame:
  
      request_id: str
      status: str
@@ -63,7 +63,7 @@ index 6ec96c68d2f8cbae8713be67c4071cce6b526300..f08a9d53b9c3050342cbb44820a60b93
      error: str | None = None
  
  
-@@ -3042,13 +3042,15 @@ def _decode_providers_result(msg: _JsonObject) -> HostProvidersResultFrame:
+@@ -3087,13 +3087,15 @@ def _decode_providers_result(msg: _JsonObject) -> HostProvidersResultFrame:
      raw = msg.get("providers", [])
      if not isinstance(raw, list):
          raise ValueError("frame field must be a list of providers: 'providers'")
@@ -149,10 +149,10 @@ index d7c98c163e0b5421c54b631de0c85e0c715b76e8..c045f621c731bad34f2bd3bbc5d17281
          )
      return rows
 diff --git a/omnigent/server/routes/_sessions/helpers.py b/omnigent/server/routes/_sessions/helpers.py
-index 49cceaeeef39ec0a1c8b74c923310581f37e863a..2c2b64f0773d0471d9cf4400e38a5f6844acc106 100644
+index 64755517c245ac2e5f4d0bb2d9dfc574ee3aaea4..359f2a83bb9d30bd664d3fc996635e63a82cab8e 100644
 --- a/omnigent/server/routes/_sessions/helpers.py
 +++ b/omnigent/server/routes/_sessions/helpers.py
-@@ -5056,6 +5056,10 @@ def _publish_status(
+@@ -5085,6 +5085,10 @@ def _publish_status(
      _session_status_cache[session_id] = status
      if previous_status != status:
          _publish_child_status_to_parent(session_id, status)
@@ -186,18 +186,18 @@ index e6887885dd8b77ee1805bcf5ec2da1c72b53f48f..00312154e4e47cac7b9dbd39f9011bcf
  
  class HostProvidersResponse(BaseModel):
 diff --git a/omnigent/server/routes/sessions/__init__.py b/omnigent/server/routes/sessions/__init__.py
-index 26c026f8b9d5a3c2b290cccf3776159cf72ff72e..4f1a9abd5d52e5270c4f2c9c898f7be69dd6095a 100644
+index 0b3ab7385c9ddd3e67a247d9db62a0f3b9bad387..091d3e1d43983a6c10fbcc2800efae3b59e735d5 100644
 --- a/omnigent/server/routes/sessions/__init__.py
 +++ b/omnigent/server/routes/sessions/__init__.py
-@@ -897,6 +897,7 @@ def create_sessions_router(
+@@ -899,6 +899,7 @@ def create_sessions_router(
      from omnigent.server.routes.sessions.routes_hooks import register_hooks_routes
      from omnigent.server.routes.sessions.routes_items import register_items_routes
      from omnigent.server.routes.sessions.routes_permissions import register_permissions_routes
 +    from omnigent.server.routes.sessions.routes_provider import register_provider_routes
      from omnigent.server.routes.sessions.routes_resources import register_resources_routes
+     from omnigent.server.routes.sessions.routes_ui import register_ui_routes
  
-     register_core_routes(
-@@ -918,6 +919,16 @@ def create_sessions_router(
+@@ -921,6 +922,16 @@ def create_sessions_router(
          background_title_coordinator=background_title_coordinator,
      )
  
@@ -215,7 +215,7 @@ index 26c026f8b9d5a3c2b290cccf3776159cf72ff72e..4f1a9abd5d52e5270c4f2c9c898f7be6
          router,
          conversation_store=conversation_store,
 diff --git a/omnigent/server/routes/sessions/routes_core.py b/omnigent/server/routes/sessions/routes_core.py
-index 0adff73e9702767c47dce7c65e115d51b5081780..9d2619adcd6bf6eafac20dd49127d6a82b003f23 100644
+index e11f743a2bf0af72b118e83299244f4a5286c95b..5c82574857e5a42ec9c8b0ddaf4ce91929550273 100644
 --- a/omnigent/server/routes/sessions/routes_core.py
 +++ b/omnigent/server/routes/sessions/routes_core.py
 @@ -280,27 +280,54 @@ async def _wake_runner_for_model_change(
@@ -709,10 +709,10 @@ index ad2d6c954eb5dd0092f8e0031c26e9ea42b6c83d..bb8dd3adc3ebb9ef3b756458dd153fa9
          self,
          conversation_id: str,
 diff --git a/openapi.json b/openapi.json
-index fcbf8290a5c57d31f2442eff3e1f35853310aca7..97b5a81a08b73d085df4f2f1b7cea5b414f78493 100644
+index 2e77aec5a2922c7983467096a90c888f66818211..4a877bca1277a53ccfe55ab90784c1d374bb6de2 100644
 --- a/openapi.json
 +++ b/openapi.json
-@@ -3252,6 +3252,18 @@
+@@ -3271,6 +3271,18 @@
              "description": "`False` when a subscription account is not logged in.",
              "title": "Ready",
              "type": "boolean"
@@ -731,7 +731,7 @@ index fcbf8290a5c57d31f2442eff3e1f35853310aca7..97b5a81a08b73d085df4f2f1b7cea5b4
            }
          },
          "required": [
-@@ -7517,6 +7529,60 @@
+@@ -7620,6 +7632,60 @@
          "title": "SessionProjectSummary",
          "type": "object"
        },
@@ -792,7 +792,7 @@ index fcbf8290a5c57d31f2442eff3e1f35853310aca7..97b5a81a08b73d085df4f2f1b7cea5b4
        "SessionReasoningEffortEvent": {
          "description": "Active reasoning-effort update from a terminal-backed integration.\n\nEmitted after an `external_reasoning_effort_change` POST from a native\nterminal forwarder when the user changes the thinking level inside the\nterminal UI. Lets the web effort picker reflect a TUI-side switch without\na reload.",
          "properties": {
-@@ -15353,6 +15419,59 @@
+@@ -15503,6 +15569,59 @@
          ]
        }
      },
@@ -853,10 +853,10 @@ index fcbf8290a5c57d31f2442eff3e1f35853310aca7..97b5a81a08b73d085df4f2f1b7cea5b4
        "put": {
          "description": "Set the calling user's read-state for one session.\n\nRequires `LEVEL_READ` on the session in multi-user mode \u2014 you can\nonly track read-state for sessions you can see. Stores the values\nverbatim (the client enforces the baseline's monotonicity and the\nunread semantics); the server does not interpret them against\nsession status. Returns `204` \u2014 the client already has the\noptimistic state and re-reads the authoritative value on the next\n`GET /v1/sessions` poll.\n\n**Parameters**\n\n- `body` \u2014 The validated `ReadStatePutRequest`.\n\n**Returns:** An empty `204 No Content` response.\n\n**Raises**\n\n- `OmnigentError` \u2014 403 if the caller lacks read access.",
 diff --git a/tests/host/test_frames.py b/tests/host/test_frames.py
-index 80c700795cbc20cbe224906ee837a3478496cae7..0ec87579298d07c1df0ea535cd6996b5e06ac252 100644
+index 4147f9d5c9ff0c1ff1a75df7ff6d814b1ffd0b8e..bbf8589cef7850c38812eb3869a177911f9d64b9 100644
 --- a/tests/host/test_frames.py
 +++ b/tests/host/test_frames.py
-@@ -281,9 +281,10 @@ def test_mcp_servers_frames_round_trip(
+@@ -414,9 +414,10 @@ def test_mcp_servers_result_validates_reported_account_state(
                  {
                      "name": "claude-max2",
                      "kind": "subscription",
@@ -868,7 +868,7 @@ index 80c700795cbc20cbe224906ee837a3478496cae7..0ec87579298d07c1df0ea535cd6996b5
                  }
              ],
          ),
-@@ -312,7 +313,8 @@ def test_providers_result_drops_unknown_fields() -> None:
+@@ -445,7 +446,8 @@ def test_providers_result_drops_unknown_fields() -> None:
          )
      )
      assert isinstance(frame, HostProvidersResultFrame)

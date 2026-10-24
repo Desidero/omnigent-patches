@@ -19,10 +19,10 @@ Signed-off-by: mhavant <matthew.hoelting@avant.com>
  2 files changed, 30 insertions(+), 1 deletion(-)
 
 diff --git a/omnigent/harnesses/claude_native/bridge.py b/omnigent/harnesses/claude_native/bridge.py
-index d0f13dae92a372a03a30cd03172ded31c03cf01a..161fab63ae154bd07bac3e5425be43d769b12b98 100644
+index fc7e15f949c5119995975b14abf73ed930776594..ef48e7d6d58eaf4c2df25df2b3053da4f0221e09 100644
 --- a/omnigent/harnesses/claude_native/bridge.py
 +++ b/omnigent/harnesses/claude_native/bridge.py
-@@ -3911,7 +3911,10 @@ _TERMINAL_BACKGROUND_TASK_STATUSES: frozenset[str] = frozenset(
+@@ -3914,7 +3914,10 @@ _TERMINAL_BACKGROUND_TASK_STATUSES: frozenset[str] = frozenset(
  _BACKGROUND_TASK_FORWARD_LIMIT = 100
  _BACKGROUND_TASK_FIELD_MAX_CHARS = 512
  _BACKGROUND_TASK_FIELDS: tuple[str, ...] = ("id", "type", "status", "description", "command")
@@ -35,10 +35,10 @@ index d0f13dae92a372a03a30cd03172ded31c03cf01a..161fab63ae154bd07bac3e5425be43d7
  
  def _is_background_shell(raw: object) -> bool:
 diff --git a/tests/harnesses/claude_native/test_claude_native_bridge.py b/tests/harnesses/claude_native/test_claude_native_bridge.py
-index 7d1f4731cb09c5d2de1a676e95200b0e12abc54d..6dd27f9c35ffce07e722bd90695b5653a540f288 100644
+index c359032ce3bcdbe557452cc3f61ecf706399e439..765972ee115daf76e9a25b72b8d65ce99ac2bc00 100644
 --- a/tests/harnesses/claude_native/test_claude_native_bridge.py
 +++ b/tests/harnesses/claude_native/test_claude_native_bridge.py
-@@ -10641,6 +10641,32 @@ def test_hook_record_stop_excludes_backgrounded_subagents() -> None:
+@@ -10934,6 +10934,32 @@ def test_hook_record_stop_excludes_backgrounded_subagents() -> None:
      ]
  
  

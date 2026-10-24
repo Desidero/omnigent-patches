@@ -112,10 +112,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/lib/itemComments.ts
 
 diff --git a/omnigent/runtime/prompt.py b/omnigent/runtime/prompt.py
-index 6eb051639385b71ae1121a39dacb0ee866d501de..5fc52bebff6858f1d492c00dc2b783dd05f615de 100644
+index 2487d3da3f7de8b5e2dfbfb02f792bbacd657f96..235052c0f4f38e737161316e92a3e96189647343 100644
 --- a/omnigent/runtime/prompt.py
 +++ b/omnigent/runtime/prompt.py
-@@ -82,7 +82,17 @@ ITEM_LABEL_INSTRUCTION = (
+@@ -81,7 +81,17 @@ ITEM_LABEL_INSTRUCTION = (
      'rows as-is, per your answer"). Close each item once, as soon as it is '
      "settled. After that, write its label struck through whenever you mention it "
      "again; a plain mention reopens it. The chat UI pins a list of open items, so "
@@ -548,7 +548,7 @@ index f7dc1949fb52c0cb7094a9a55e34b5d56963d659..80820d311f14901072bd87f4fbc5ea3c
  
    it("does not preview on touch", async () => {
 diff --git a/web/src/components/blocks/ChatMarkdown.tsx b/web/src/components/blocks/ChatMarkdown.tsx
-index f0acb8222fa0cbaa7213662ef76bc4c0674f4382..783414f4dce5db5ef34c1ab5995cb9ef3daee569 100644
+index 1b83961c7160b772fef2481675dd5df8a99bd454..e7c7ddf62606e29716eb66d2897cac71a1bf9f94 100644
 --- a/web/src/components/blocks/ChatMarkdown.tsx
 +++ b/web/src/components/blocks/ChatMarkdown.tsx
 @@ -6,14 +6,15 @@
@@ -564,12 +564,12 @@ index f0acb8222fa0cbaa7213662ef76bc4c0674f4382..783414f4dce5db5ef34c1ab5995cb9ef
  
  import type React from "react";
  import { useContext, useMemo } from "react";
--import { GitPullRequestIcon } from "lucide-react";
-+import { GitPullRequestIcon, MessageSquarePlusIcon, PaperclipIcon } from "lucide-react";
+-import { CopyIcon, GitPullRequestIcon } from "lucide-react";
++import { CopyIcon, GitPullRequestIcon, MessageSquarePlusIcon, PaperclipIcon } from "lucide-react";
+ import { toast } from "sonner";
  import { defaultRemarkPlugins } from "streamdown";
  import remarkBreaks from "remark-breaks";
- import { normalizeExplicitMathDelimiters } from "@/components/ai-elements/mathMarkdown";
-@@ -38,16 +39,30 @@ import {
+@@ -48,16 +49,30 @@ import {
    ITEM_LABEL_HREF_PREFIX,
    ItemLabelIndexContext,
    ItemLabelMessageContext,
@@ -600,7 +600,7 @@ index f0acb8222fa0cbaa7213662ef76bc4c0674f4382..783414f4dce5db5ef34c1ab5995cb9ef
  import { cn } from "@/lib/utils";
  import {
    useFileViewer,
-@@ -448,18 +463,121 @@ export function itemLabelChipClass(closed: boolean): string {
+@@ -530,18 +545,121 @@ export function itemLabelChipClass(closed: boolean): string {
    );
  }
  
@@ -727,7 +727,7 @@ index f0acb8222fa0cbaa7213662ef76bc4c0674f4382..783414f4dce5db5ef34c1ab5995cb9ef
    const closing = useMemo(
      () => (closedBy ? extractLabelSentence(closedBy.text, label) : null),
      [closedBy, label],
-@@ -472,32 +590,129 @@ function ItemLabelPreview({ item, onClose }: { item: ItemLabelEntry; onClose: ()
+@@ -554,32 +672,129 @@ function ItemLabelPreview({ item, onClose }: { item: ItemLabelEntry; onClose: ()
        return next;
      });
    };
@@ -867,7 +867,7 @@ index f0acb8222fa0cbaa7213662ef76bc4c0674f4382..783414f4dce5db5ef34c1ab5995cb9ef
                onClick={() => showMessage(closedBy.messageId)}
              >
                Show
-@@ -510,7 +725,21 @@ function ItemLabelPreview({ item, onClose }: { item: ItemLabelEntry; onClose: ()
+@@ -592,7 +807,21 @@ function ItemLabelPreview({ item, onClose }: { item: ItemLabelEntry; onClose: ()
            )}
          </div>
        )}
@@ -890,7 +890,7 @@ index f0acb8222fa0cbaa7213662ef76bc4c0674f4382..783414f4dce5db5ef34c1ab5995cb9ef
    );
  }
  
-@@ -545,36 +774,42 @@ export function ItemLabelPopover({
+@@ -627,36 +856,42 @@ export function ItemLabelPopover({
  }
  
  /**
@@ -1114,7 +1114,7 @@ index 77a05f5690427b3656f637ae80a03073a62b38d1..bf6a1af9643dd83f424c22f02412a4da
          </div>
        </details>
 diff --git a/web/src/components/chat/Transcript.tsx b/web/src/components/chat/Transcript.tsx
-index cb97e50d8f9387f1ccf24dc3f61de26e27fa3bed..c8035d422412e3067cd377662cda7749be729084 100644
+index d0481788f89fde902b21ce6fe0ec3d819cd780f2..332f3a8107eaf780a32f47be692c33d6fe68aea6 100644
 --- a/web/src/components/chat/Transcript.tsx
 +++ b/web/src/components/chat/Transcript.tsx
 @@ -31,7 +31,12 @@ import { ArcaShutdownBanner } from "@/components/ArcaShutdownBanner";
@@ -1131,7 +1131,7 @@ index cb97e50d8f9387f1ccf24dc3f61de26e27fa3bed..c8035d422412e3067cd377662cda7749
  import { useMessageDeepLink } from "@/hooks/useMessageDeepLink";
  import { useUserMessageNav } from "@/hooks/useUserMessageNav";
  import { ChatPlanAccordion } from "@/shell/ChatPlanAccordion";
-@@ -323,10 +328,15 @@ function TranscriptImpl({
+@@ -327,10 +332,15 @@ function TranscriptImpl({
      () => buildBubbleItemLabelIndex(display.bubbles),
      [display.bubbles],
    );
@@ -1148,7 +1148,7 @@ index cb97e50d8f9387f1ccf24dc3f61de26e27fa3bed..c8035d422412e3067cd377662cda7749
        {/* Task tracker pinned above the thread. Sibling of the viewport (not an
        overlay) so it shrinks the scroll area rather than covering messages.
        Self-hides with no tasks. */}
-@@ -465,6 +475,25 @@ function TranscriptImpl({
+@@ -470,6 +480,25 @@ function TranscriptImpl({
            />
          )}
        </div>
@@ -1175,7 +1175,7 @@ index cb97e50d8f9387f1ccf24dc3f61de26e27fa3bed..c8035d422412e3067cd377662cda7749
    );
  }
 diff --git a/web/src/components/chat/chatBubbleParts.tsx b/web/src/components/chat/chatBubbleParts.tsx
-index 7da2d56e15392b5b4bdbf4c5a3c7942487afbc03..44285bfdcb9a770c0ed6bac3e55015c3eef9d08f 100644
+index a5a1ac147235ad04351229765a86702acd19f85d..f6a6e8ccfbf7df65417ed574a2ca31f0f443efbf 100644
 --- a/web/src/components/chat/chatBubbleParts.tsx
 +++ b/web/src/components/chat/chatBubbleParts.tsx
 @@ -62,6 +62,7 @@ import {
@@ -4474,10 +4474,10 @@ index a2a0ea93fee6f5ee35ded8963a90902167182107..5e19df7b3982f45192bb7fbc7095e5eb
  }
  
 diff --git a/web/src/pages/ChatPage.composer.test.tsx b/web/src/pages/ChatPage.composer.test.tsx
-index c5559b5a3a2fd18478eaef8adb2bee63dbe3829e..40a2486fa27b5479e10c675a78cc264c26d5b8aa 100644
+index 23b97c454ad6629b3419f661fcacab6c18bac1ce..70026d82948c111d0588fb58462304702c659bdd 100644
 --- a/web/src/pages/ChatPage.composer.test.tsx
 +++ b/web/src/pages/ChatPage.composer.test.tsx
-@@ -30,6 +30,14 @@ import {
+@@ -32,6 +32,14 @@ import {
  import { setOmnigentHostConfig } from "@/lib/host";
  import { CapabilitiesProvider } from "@/lib/CapabilitiesContext";
  import { FALLBACK_SERVER_INFO } from "@/lib/capabilities";
@@ -4491,8 +4491,8 @@ index c5559b5a3a2fd18478eaef8adb2bee63dbe3829e..40a2486fa27b5479e10c675a78cc264c
 +import { buildItemLabelIndex } from "@/lib/itemLabels";
  import * as host from "@/lib/host";
  import * as identity from "@/lib/identity";
- import {
-@@ -408,6 +416,147 @@ describe("Composer session drafts", () => {
+ import { authorizeRegistryService, registryRequest } from "@/lib/mcpRegistry";
+@@ -429,6 +437,147 @@ describe("Composer session drafts", () => {
    });
  });
  
@@ -4641,12 +4641,12 @@ index c5559b5a3a2fd18478eaef8adb2bee63dbe3829e..40a2486fa27b5479e10c675a78cc264c
    beforeEach(() => {
      clearSessionDrafts();
 diff --git a/web/src/pages/ChatPage.tsx b/web/src/pages/ChatPage.tsx
-index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b37509ac95 100644
+index d669546a3f9a9d0631166ce973119e4e7754e375..096ea0cb23dcf19ccfc3f17caee6413153d4f40a 100644
 --- a/web/src/pages/ChatPage.tsx
 +++ b/web/src/pages/ChatPage.tsx
-@@ -24,7 +24,14 @@ import {
-   useRef,
+@@ -25,7 +25,14 @@ import {
    useState,
+   useSyncExternalStore,
  } from "react";
 -import { BotIcon, WandSparklesIcon, FileTextIcon, Loader2Icon, XIcon } from "lucide-react";
 +import {
@@ -4660,7 +4660,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
  import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
  import {
    composerSendShortcutKeys,
-@@ -53,6 +60,8 @@ import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdow
+@@ -54,6 +61,8 @@ import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdow
  import { useAppName } from "@/lib/branding";
  import { cn } from "@/lib/utils";
  import { QueuedMessagesStrip } from "@/pages/QueuedMessagesStrip";
@@ -4669,7 +4669,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
  import {
    serverSwitcherHiddenForSurface,
    useSurfaceFrontmost,
-@@ -89,6 +98,7 @@ import { codexEffortLevelsForModel, findNativeModelOption } from "@/lib/codexNat
+@@ -90,6 +99,7 @@ import { codexEffortLevelsForModel, findNativeModelOption } from "@/lib/codexNat
  import { modelConfigurationSourceRows } from "@/lib/modelConfigurationSource";
  import {
    takeFailedSendDraft,
@@ -4677,7 +4677,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
    composerAttachmentKey,
    consumePendingInitialPrompt,
    holdsInitialDraft,
-@@ -2576,6 +2586,9 @@ function ComposerImpl(
+@@ -2723,6 +2733,9 @@ function ComposerImpl(
    valueRef.current = fullText;
    const replyDraftRef = useRef(storedReplyDraft);
    replyDraftRef.current = storedReplyDraft;
@@ -4687,7 +4687,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
    // Guards against React StrictMode double-invoke in development:
    // setup → cleanup → setup runs cleanup before the user has touched
    // the input, which would delete the draft. Only save when the user
-@@ -2653,13 +2666,17 @@ function ComposerImpl(
+@@ -2800,13 +2813,17 @@ function ComposerImpl(
      draftConversationIdRef.current = conversationId ?? null;
      if (!isMobileRef.current) textareaRef.current?.focus();
  
@@ -4710,7 +4710,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
      };
    }, [conversationId, replaceText]);
  
-@@ -2667,7 +2684,13 @@ function ComposerImpl(
+@@ -2814,7 +2831,13 @@ function ComposerImpl(
    // rather than only learning about a draft when this composer unmounts.
    useEffect(() => {
      if (!conversationId || settledConversationId !== conversationId || !dirtyRef.current) return;
@@ -4725,7 +4725,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
    }, [conversationId, settledConversationId, fullText, files, storedReplyDraft]);
  
    const terminalPending = useChatStore((s) => s.terminalPending);
-@@ -2873,6 +2896,63 @@ function ComposerImpl(
+@@ -3027,6 +3050,63 @@ function ComposerImpl(
      // setMentionedItems is a stable useState setter (from useMentionBrowser).
    }, [pendingComposerAttachments, setMentionedItems]);
  
@@ -4789,7 +4789,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
    // Restore the text (and attachments) of a send that failed, so the user can
    // fix and resend instead of retyping. The composer is empty in the normal
    // case — `submit` clears it optimistically — so only fill it when the user
-@@ -2888,10 +2968,14 @@ function ComposerImpl(
+@@ -3042,10 +3122,14 @@ function ComposerImpl(
      // conversation's draft and wrongly conclude the user is mid-sentence,
      // dropping the failed message on the way back to the session it failed in.
      if (settledConversationId !== conversationId) return;
@@ -4805,7 +4805,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
      );
      if (!failed) return;
      pendingFailedSendRestore.current = failed.stableId
-@@ -2902,7 +2986,14 @@ function ComposerImpl(
+@@ -3056,7 +3140,14 @@ function ComposerImpl(
      dirtyRef.current = true;
      if (failed.files.length > 0) attachmentsRef.current.replaceFiles(failed.files);
      if (!isMobileRef.current) textareaRef.current?.focus();
@@ -4821,7 +4821,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
  
    // Retract a restored failed-send draft once its send proves delivered (its
    // committed item arrived over the stream or a reconnect snapshot). Edits win:
-@@ -3253,6 +3344,11 @@ function ComposerImpl(
+@@ -3537,6 +3628,11 @@ function ComposerImpl(
    }: { resetNativeInputSession?: boolean } = {}) => {
      // The /btw overlay locks the composer — never send while it's open.
      if (composerLockedByBtw) return;
@@ -4833,7 +4833,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
      const trimmed = fullText.trim();
      // Allow send if there's text, attached files, OR "@"-tagged paths.
      if (
-@@ -3403,7 +3499,7 @@ function ComposerImpl(
+@@ -3687,7 +3783,7 @@ function ComposerImpl(
  
    const handleSubmit = (e: FormEvent) => {
      e.preventDefault();
@@ -4842,7 +4842,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
        onStop();
        return;
      }
-@@ -3436,7 +3532,12 @@ function ComposerImpl(
+@@ -3720,7 +3816,12 @@ function ComposerImpl(
      // steers everything: the draft, if any, is submitted first so it joins the
      // queue tail (or sends directly when idle), then every queued message is
      // sent into the running turn in FIFO order instead of draining one per idle.
@@ -4856,7 +4856,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
        e.preventDefault();
        if (!mentionListingPending) submit();
        steerAllQueuedMessages(conversationId);
-@@ -3463,6 +3564,12 @@ function ComposerImpl(
+@@ -3752,6 +3853,12 @@ function ComposerImpl(
        submit();
        return;
      }
@@ -4869,7 +4869,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
      // Esc dismisses the /btw sidechat overlay if open
      if (e.key === "Escape" && btwSidechat) {
        e.preventDefault();
-@@ -3490,6 +3597,7 @@ function ComposerImpl(
+@@ -3779,6 +3886,7 @@ function ComposerImpl(
      // fire even mid-compose; without this guard the recall below intercepts
      // them (replacing the draft) and the hotkeys appear broken in the composer.
      if (
@@ -4877,7 +4877,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
        (draft.quotes.length === 0 || recallingRef.current) &&
        (e.key === "ArrowUp" || e.key === "ArrowDown") &&
        !e.metaKey &&
-@@ -3501,6 +3609,11 @@ function ComposerImpl(
+@@ -3790,6 +3898,11 @@ function ComposerImpl(
          // Empty-composer recall takes the last queued row before browsing history.
          if (fullText.trim() === "" && files.length === 0 && mentionedItems.length === 0) {
            const target = queuedMessages.findLast((m) => m.conversationId === conversationId);
@@ -4889,7 +4889,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
            if (target !== undefined) {
              e.preventDefault();
              resetCursor();
-@@ -3574,13 +3687,33 @@ function ComposerImpl(
+@@ -3863,13 +3976,33 @@ function ComposerImpl(
            bottom corners when the surface below is at least as wide,
            otherwise page background shows and the tray floats detached. */}
        <div className={cn("mx-auto", COMPOSER_COLUMN_WIDTH)}>
@@ -4924,7 +4924,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
            onEdit={(queueId) => {
              // Pull the queued message back into the composer for editing:
              // replace the composer's text + attachments with the queued
-@@ -3588,6 +3721,11 @@ function ComposerImpl(
+@@ -3877,6 +4010,11 @@ function ComposerImpl(
              // Re-sending re-queues it (busy) or sends it (idle).
              const target = queuedMessages.find((m) => m.queueId === queueId);
              if (!target) return;
@@ -4936,7 +4936,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
              replaceText(target.text, target.replyDraft);
              dirtyRef.current = true;
              resetCursor();
-@@ -3609,7 +3747,7 @@ function ComposerImpl(
+@@ -3898,7 +4036,7 @@ function ComposerImpl(
          <ComposerWorkspaceBar
            data-testid="composer-workspace-controls"
            className={cn(
@@ -4945,8 +4945,8 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
                "rounded-t-none border-t-0 border-border/50 before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-border/50 before:content-['']",
            )}
          >
-@@ -3676,19 +3814,21 @@ function ComposerImpl(
-           "aria-label": "Message the agent",
+@@ -3966,19 +4104,21 @@ function ComposerImpl(
+           "aria-keyshortcuts": nextFromSelected === null ? undefined : "Shift+Tab",
            placeholder: composerLockedByBtw
              ? "Side chat open — press Esc to close"
 -            : readOnlyReason !== null
@@ -4980,7 +4980,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
            rows: 1,
            disabled:
              ((disabled || unreachable) && sendDisabledReason === null) ||
-@@ -3732,6 +3872,17 @@ function ComposerImpl(
+@@ -4022,6 +4162,17 @@ function ComposerImpl(
              ) : undefined,
            beforeInput: (
              <>
@@ -4998,7 +4998,7 @@ index a79c47fbfef8198d5ba3246aa25de5f4c854ec96..69df53304f81ff9df207c891a1cea3b3
                {/* Slash-command suggestions — floats above the composer box */}
                {slashCompletion.open && (
                  <SlashCommandMenu
-@@ -3970,32 +4121,53 @@ function ComposerImpl(
+@@ -4268,32 +4419,53 @@ function ComposerImpl(
                    resetCursor();
                  }}
                />

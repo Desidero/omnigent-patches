@@ -31,10 +31,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  4 files changed, 25 insertions(+), 106 deletions(-)
 
 diff --git a/omnigent/harnesses/codex_native/forwarder.py b/omnigent/harnesses/codex_native/forwarder.py
-index f57d4b1ab0db703790e7de0c7f658f58078f4578..bed1ba58c9bad6aa347d55a18f4cf1bab5b3b26f 100644
+index 78f53850558f2dadfa1afc23e8c3ae7c92bb151b..48295dbbb7d293f722dcc37a45a6426735ad3b15 100644
 --- a/omnigent/harnesses/codex_native/forwarder.py
 +++ b/omnigent/harnesses/codex_native/forwarder.py
-@@ -5028,7 +5028,9 @@ def _default_collaboration_mode(
+@@ -5036,7 +5036,9 @@ def _default_collaboration_mode(
          "settings": {
              "model": forwarder_state.model,
              "reasoning_effort": None,
@@ -46,10 +46,10 @@ index f57d4b1ab0db703790e7de0c7f658f58078f4578..bed1ba58c9bad6aa347d55a18f4cf1ba
      }
  
 diff --git a/omnigent/runner/native_controls.py b/omnigent/runner/native_controls.py
-index ab0749e600d67b9621ed93234092886e911dc874..6f2bdef821b35f5d760763b82dcbe93560b96e71 100644
+index fa9ae61d4388d5ad1bae462ef85acb86acf9d36a..3c78732b6a0d98041a3a30dce561ca73898e20b9 100644
 --- a/omnigent/runner/native_controls.py
 +++ b/omnigent/runner/native_controls.py
-@@ -736,30 +736,6 @@ def build_native_controls(
+@@ -791,30 +791,6 @@ def build_native_controls(
                      "detail": "Codex-native plan-mode update requires a current model.",
                  },
              )
@@ -80,7 +80,7 @@ index ab0749e600d67b9621ed93234092886e911dc874..6f2bdef821b35f5d760763b82dcbe935
          return await _handle_codex_native_settings_update(
              conv_id,
              {
-@@ -768,7 +744,10 @@ def build_native_controls(
+@@ -823,7 +799,10 @@ def build_native_controls(
                      "settings": {
                          "model": model,
                          "reasoning_effort": effort,

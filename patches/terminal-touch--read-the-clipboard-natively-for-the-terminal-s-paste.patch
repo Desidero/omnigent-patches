@@ -87,7 +87,7 @@ index 1506b30f175105365032dd6566da945fc7a4b0bc..29e822f6c35764b530e80c9fa7674451
    func emitSignOutResult(_ handled: Bool) {
      webView?.evaluateJavaScript("window.__omnigentNativeEmitSignOutResult?.(\(handled));")
 diff --git a/web/src/components/blocks/TerminalView.test.tsx b/web/src/components/blocks/TerminalView.test.tsx
-index b49b313356edd6c0d38b88e6fac51caf1215d529..efd1184baa8903116927ceec716d4f7214ff7dd3 100644
+index be64af841aaf2246432213e95082be8904cbd677..68b56ced8df7347bcac7ed26113e0a9646e7dccb 100644
 --- a/web/src/components/blocks/TerminalView.test.tsx
 +++ b/web/src/components/blocks/TerminalView.test.tsx
 @@ -509,6 +509,30 @@ describe("touch selection menu", () => {
@@ -122,7 +122,7 @@ index b49b313356edd6c0d38b88e6fac51caf1215d529..efd1184baa8903116927ceec716d4f72
      const terminal = await renderSelectingView(true);
      showSelection(terminal);
 diff --git a/web/src/components/blocks/TerminalView.tsx b/web/src/components/blocks/TerminalView.tsx
-index 1e6d749c45eb13b3ef5fe11b31f6bfbd02cf65ff..d2a880e2b4827c296a28e1ca0b8d3dfe4b937423 100644
+index ac8e9fd3acc11a93e90ba39ba3a296ba10c2217d..09a28fef64924b4e105e7d789d15e0004d8a12d0 100644
 --- a/web/src/components/blocks/TerminalView.tsx
 +++ b/web/src/components/blocks/TerminalView.tsx
 @@ -30,6 +30,7 @@ import {
@@ -133,7 +133,7 @@ index 1e6d749c45eb13b3ef5fe11b31f6bfbd02cf65ff..d2a880e2b4827c296a28e1ca0b8d3dfe
  import { useFileViewer, useWorkspacePaths } from "@/shell/FileViewerContext";
  import { resolveInitialAttachUrl, watchDirectUpgrade, withAttachParams } from "@/lib/terminals";
  import {
-@@ -554,6 +555,12 @@ export function TerminalView({
+@@ -557,6 +558,12 @@ export function TerminalView({
      const session = sessionRef.current;
      if (!session || readOnly) return;
      session.touchSelection.clear();
@@ -147,7 +147,7 @@ index 1e6d749c45eb13b3ef5fe11b31f6bfbd02cf65ff..d2a880e2b4827c296a28e1ca0b8d3dfe
        toast.error("Pasting isn't available in this browser.");
        return;
 diff --git a/web/src/lib/nativeBridge.ts b/web/src/lib/nativeBridge.ts
-index 9b57e702211d4ffc9240725ac61cbf244ef97d9a..52cc65be48e412963d36be5af62c6844eaf30281 100644
+index 93554e1465868eb6fad0eeb8c14f395de9edb45d..462fd9810a1fcad569c1737aada1a5846f73f1e8 100644
 --- a/web/src/lib/nativeBridge.ts
 +++ b/web/src/lib/nativeBridge.ts
 @@ -123,6 +123,12 @@ interface NativeShellApi {
@@ -163,7 +163,7 @@ index 9b57e702211d4ffc9240725ac61cbf244ef97d9a..52cc65be48e412963d36be5af62c6844
    /**
     * Drive the native Chat/Terminal bar's visibility (iOS). The web app owns
     * the truth and only ever pushes it hidden now that the switcher lives in
-@@ -926,6 +932,24 @@ export async function switchServer(url: string): Promise<void> {
+@@ -996,6 +1002,24 @@ export async function switchServer(url: string): Promise<void> {
    }
  }
  

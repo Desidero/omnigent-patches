@@ -35,7 +35,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  6 files changed, 231 insertions(+), 3 deletions(-)
 
 diff --git a/omnigent/harnesses/claude_native/forwarder.py b/omnigent/harnesses/claude_native/forwarder.py
-index e87509bbc8fbafd7a59a06b4b845879d2cb8d35d..2a98ca8832885957e9da08084b863bed1d9eec93 100644
+index 24dc6144db24d09c1b9ac9c5bbc3e231b5ddf3f8..e2da2ddb3cbb4dbb27a187f1e15ebf47008b1608 100644
 --- a/omnigent/harnesses/claude_native/forwarder.py
 +++ b/omnigent/harnesses/claude_native/forwarder.py
 @@ -5,6 +5,7 @@ from __future__ import annotations
@@ -54,7 +54,7 @@ index e87509bbc8fbafd7a59a06b4b845879d2cb8d35d..2a98ca8832885957e9da08084b863bed
  
  import httpx
  
-@@ -123,6 +125,16 @@ _MAX_SEEN_DELTA_KEYS = 5000
+@@ -127,6 +129,16 @@ _MAX_SEEN_DELTA_KEYS = 5000
  # Seconds without transcript activity before reporting an idle observation.
  # This heuristic does not establish that the sub-agent has completed.
  _SUBAGENT_IDLE_THRESHOLD_S = 5.0
@@ -71,7 +71,7 @@ index e87509bbc8fbafd7a59a06b4b845879d2cb8d35d..2a98ca8832885957e9da08084b863bed
  
  # Meta-file glob inside ``~/.claude/projects/<encoded>/<session>/subagents/``.
  # One per Claude Task-tool subagent or in-process teammate; appears alongside
-@@ -137,6 +149,99 @@ _IN_PROCESS_TEAMMATE_TASK_KIND = "in_process_teammate"
+@@ -141,6 +153,99 @@ _IN_PROCESS_TEAMMATE_TASK_KIND = "in_process_teammate"
  _SUBAGENT_SPAWN_TOOL_NAMES = frozenset(AGENT_TOOL_NAMES)
  
  
@@ -171,7 +171,7 @@ index e87509bbc8fbafd7a59a06b4b845879d2cb8d35d..2a98ca8832885957e9da08084b863bed
  def _subagent_id_from_meta_path(meta_path: Path) -> str:
      """``agent-<id>.meta.json`` / ``agent-<id>.jsonl`` → ``<id>``."""
      return meta_path.stem.removeprefix("agent-").removesuffix(".meta")
-@@ -2495,9 +2600,14 @@ async def _forward_one_subagent(
+@@ -2506,9 +2611,14 @@ async def _forward_one_subagent(
          and new_entry.last_activity_ts is not None
          and now - new_entry.last_activity_ts > _SUBAGENT_IDLE_THRESHOLD_S
      ):
@@ -190,7 +190,7 @@ index e87509bbc8fbafd7a59a06b4b845879d2cb8d35d..2a98ca8832885957e9da08084b863bed
          return
      retry_key = f"subagent_status:{entry.child_conversation_id}"
 diff --git a/omnigent/server/subagent_activity.py b/omnigent/server/subagent_activity.py
-index 34bbaf3a3747d5f5f3c662061663553c1da51fe8..d0edfdbf983c058b4b5ee172209cc6e51334595e 100644
+index 53f3d5e3d3ab6da159776f722ff03a9573dc7789..6514d0e0e2ff096c69d0608b89478750072ec30c 100644
 --- a/omnigent/server/subagent_activity.py
 +++ b/omnigent/server/subagent_activity.py
 @@ -317,6 +317,22 @@ def claude_subagent_completion_markers(

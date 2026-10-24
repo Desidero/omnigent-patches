@@ -20,10 +20,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/web/src/shell/AppShell.tsx b/web/src/shell/AppShell.tsx
-index 31b6bd8165f39f64d35b7aa61b201bb06a7b5fc6..3487aca0db54ed0904fabcaf303f2be55d46619e 100644
+index cb5fce94284c8743edb76152a02f1289d9ee13b4..04385ea0b7ef9b5ed410b071fde8eb85be2fe1bc 100644
 --- a/web/src/shell/AppShell.tsx
 +++ b/web/src/shell/AppShell.tsx
-@@ -2823,11 +2823,14 @@ function AppShellImpl() {
+@@ -2839,11 +2839,14 @@ function AppShellImpl() {
            <Toaster
              position="top-center"
              visibleToasts={100}
