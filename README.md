@@ -67,6 +67,7 @@ request carries it, and this repository holds a copy until it merges).
 | `claude-native-delegate-idle` | A Claude session stops showing Working, and takes follow-ups without Steer, once its turn ends while a background agent or teammate keeps running. Covers the default OSC status path and agent-team teammates, including lead turns a teammate's message starts. Needs `claude-native-teammates`. | PR open for the status-file part ([#10849](https://github.com/omnigent-ai/omnigent/pull/10849), carried copy); OSC and teammate parts proposed |
 | `delete-stops-runner` | Deleting a session stops its host-launched runner once no remaining session uses it, instead of leaving the process running until its idle timeout. | proposed |
 | `app-error-boundary` | A rendering error shows the error, its stack and a Reload button instead of a blank window. | proposed |
+| `jump-to-latest` | A labelled Jump-to-latest pill, outside the scroll fade, that counts new replies landing below a reader who scrolled up. | proposed |
 
 ## Using the patches
 
