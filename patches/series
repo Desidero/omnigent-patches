@@ -124,3 +124,6 @@ lean-history-items--load-history-with-tool-output-previews-fetch-results-on-expa
 
 # series: chat-item-labels (continued)
 chat-item-labels--dismiss-items-from-the-open-items-bar.patch
+
+# series: app-error-boundary
+app-error-boundary--show-the-error-instead-of-a-blank-page-when-rendering-crashes.patch
