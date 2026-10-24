@@ -61,6 +61,7 @@ codex-native-mode-instructions--let-codex-apply-its-own-plan-and-default-mode-in
 # series: chat-item-labels
 # needs: run-suggested-commands
 # needs: codex-native-mode-instructions
+# needs: session-labels-ui
 chat-item-labels--preview-close-and-track-labelled-items-in-chat.patch
 
 # series: web-reconnect-shell-inputs
@@ -109,3 +110,17 @@ delete-stops-runner--stop-a-deleted-session-s-host-launched-runner.patch
 
 # series: chat-item-labels (continued)
 chat-item-labels--emphasize-the-items-the-latest-reply-mentions.patch
+
+# series: transcript-hold-position
+transcript-hold-position--hold-the-reader-s-row-while-a-streaming-turn-re-keys-or-re.patch
+
+# series: history-prefetch
+history-prefetch--fetch-scroll-up-history-ahead-of-its-landing-in-larger-pages.patch
+
+# series: lean-history-items
+# needs: history-prefetch
+lean-history-items--serve-lean-session-item-pages-and-a-per-item-read.patch
+lean-history-items--load-history-with-tool-output-previews-fetch-results-on-expand.patch
+
+# series: chat-item-labels (continued)
+chat-item-labels--dismiss-items-from-the-open-items-bar.patch
