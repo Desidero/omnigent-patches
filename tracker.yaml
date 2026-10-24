@@ -319,6 +319,13 @@ series:
     note: 'Folded onto custom 2026-10-24 from mh-avant''s series. PR drafted, not yet filed; no upstream issue or contribution branch yet.'
     drafts:
     - proposals/app-error-boundary/PR.md
+  jump-to-latest:
+    want: A labelled Jump-to-latest pill, outside the scroll fade, that counts new replies landing below a reader who scrolled up.
+    note: 'Folded onto custom 2026-10-24. Issue and PR drafted, not yet filed; no upstream issue yet.'
+    branch: 'feat/transcript-jump-to-latest @ f0bb4c17c7'
+    drafts:
+    - proposals/jump-to-latest/issue.md
+    - proposals/jump-to-latest/PR.md
 watch:
   server-owned-queue:
     want: Queued messages live on the server, not in the browser window.

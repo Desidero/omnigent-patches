@@ -127,3 +127,6 @@ chat-item-labels--dismiss-items-from-the-open-items-bar.patch
 
 # series: app-error-boundary
 app-error-boundary--show-the-error-instead-of-a-blank-page-when-rendering-crashes.patch
+
+# series: jump-to-latest
+jump-to-latest--offer-a-jump-to-the-latest-message-with-a-new-reply-signal.patch
