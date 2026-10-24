@@ -48,7 +48,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  omnigent/harnesses/claude_native/main.py      |  20 +-
  omnigent/harnesses/codex_native/main.py       |   8 +-
  omnigent/runner/native/orchestration.py       |  12 +-
- omnigent/runtime/prompt.py                    |  42 +-
+ omnigent/runtime/prompt.py                    |  46 +-
  tests/e2e_ui/chat/test_item_label_chips.py    | 138 ++++++
  .../claude_native/test_claude_native.py       |   3 +
  .../test_claude_native_bridge.py              |  26 ++
@@ -56,7 +56,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  ...pp_sessions_native_terminals_autocreate.py |  25 +-
  ...t_app_sessions_native_terminals_runtime.py |   9 +-
  tests/runner/test_runner_dispatch.py          |   7 +-
- tests/runtime/test_prompt.py                  |  68 +--
+ tests/runtime/test_prompt.py                  |  82 ++--
  tests/spec/test_resolve_agent_bundle.py       |   6 +-
  .../blocks/ChatMarkdown.itemLabels.test.tsx   | 157 +++++++
  web/src/components/blocks/ChatMarkdown.tsx    | 199 ++++++++-
@@ -68,7 +68,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  web/src/hooks/useHoverPopover.ts              |  95 +++++
  web/src/lib/itemLabels.test.ts                | 276 ++++++++++++
  web/src/lib/itemLabels.ts                     | 399 ++++++++++++++++++
- 24 files changed, 1975 insertions(+), 83 deletions(-)
+ 24 files changed, 1986 insertions(+), 90 deletions(-)
  create mode 100644 tests/e2e_ui/chat/test_item_label_chips.py
  create mode 100644 web/src/components/blocks/ChatMarkdown.itemLabels.test.tsx
  create mode 100644 web/src/components/chat/OpenItemsPanel.test.tsx
@@ -79,10 +79,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/lib/itemLabels.ts
 
 diff --git a/omnigent/harnesses/claude_native/bridge.py b/omnigent/harnesses/claude_native/bridge.py
-index 99c6be92863f21482613eb1e66f1572f6579f603..28feae5e15cab65b4851d1c6d110981fda1fc3b6 100644
+index 3223f9a610e9e290cb4d8ad37d0b6f1cb435de36..b7dea0a5cf2787a74f7142556042c3651a677796 100644
 --- a/omnigent/harnesses/claude_native/bridge.py
 +++ b/omnigent/harnesses/claude_native/bridge.py
-@@ -2841,8 +2841,7 @@ def augment_claude_args(
+@@ -2844,8 +2844,7 @@ def augment_claude_args(
              str(settings_path),
          ]
      )
@@ -92,7 +92,7 @@ index 99c6be92863f21482613eb1e66f1572f6579f603..28feae5e15cab65b4851d1c6d110981f
      # Imported here: bundle-skills parsing rides the spec graph; launch-only.
      from omnigent.inner.bundle_skills import claude_agents_skill_args, claude_native_skill_args
  
-@@ -2902,6 +2901,36 @@ def _args_request_bypass_permissions(args: tuple[str, ...]) -> bool:
+@@ -2905,6 +2904,36 @@ def _args_request_bypass_permissions(args: tuple[str, ...]) -> bool:
      )
  
  
@@ -130,7 +130,7 @@ index 99c6be92863f21482613eb1e66f1572f6579f603..28feae5e15cab65b4851d1c6d110981f
      """Merge framework-approved tools into Claude's ``--allowedTools`` flag.
  
 diff --git a/omnigent/harnesses/claude_native/main.py b/omnigent/harnesses/claude_native/main.py
-index 5249235a9477e196800782760c47dd57a73927b1..e8274b0cbe57a21be1f81d38ea3ca29f226de959 100644
+index 272387ada848d5e1cfbbc342789e591503b2da65..d621f69fd375e2d436d6b3791e998009a2cdb62e 100644
 --- a/omnigent/harnesses/claude_native/main.py
 +++ b/omnigent/harnesses/claude_native/main.py
 @@ -25,6 +25,7 @@ import uuid
@@ -189,7 +189,7 @@ index 5249235a9477e196800782760c47dd57a73927b1..e8274b0cbe57a21be1f81d38ea3ca29f
          for this native session.
      :returns: JSON body for ``POST /resources/terminals``.
 diff --git a/omnigent/harnesses/codex_native/main.py b/omnigent/harnesses/codex_native/main.py
-index 0554f7b76c13a5a95ffc452c1c48cc6e63900925..8bedf8ed1f75ce3c3d379a5b6cedefa3f21bcc4d 100644
+index 17294a88ff5095de32af6e9bde05fd6b8b9eed90..738744495edbf35227c020ce05260654008f9c48 100644
 --- a/omnigent/harnesses/codex_native/main.py
 +++ b/omnigent/harnesses/codex_native/main.py
 @@ -108,6 +108,7 @@ from omnigent.native.native_terminal import request_with_429_retry
@@ -222,10 +222,10 @@ index 0554f7b76c13a5a95ffc452c1c48cc6e63900925..8bedf8ed1f75ce3c3d379a5b6cedefa3
          cold resume only — the reattach branch below returns before this
          is used, so it never relaunches or duplicates the value.
 diff --git a/omnigent/runner/native/orchestration.py b/omnigent/runner/native/orchestration.py
-index f0ad295411385eaf720b7fbeea7eab63092837e4..d3660123963e0e9c1d9b716d792955f9371c8b90 100644
+index 0a3ab6eb215889c3dbf94ea6c3216b6b9725e1da..c9798a2cc2aa51a4397e81ed8e7ed014fb6b5cac 100644
 --- a/omnigent/runner/native/orchestration.py
 +++ b/omnigent/runner/native/orchestration.py
-@@ -95,6 +95,7 @@ from omnigent.runner.session_init_protocol import (
+@@ -96,6 +96,7 @@ from omnigent.runner.session_init_protocol import (
      RunnerSessionInitEnvelope,
  )
  from omnigent.runner.transports.ws_tunnel.event_delivery import RunnerEventDispatcher
@@ -233,7 +233,7 @@ index f0ad295411385eaf720b7fbeea7eab63092837e4..d3660123963e0e9c1d9b716d792955f9
  from omnigent.spec.types import AgentSpec
  
  _logger = logging.getLogger("omnigent.runner.app")
-@@ -5484,7 +5485,9 @@ async def _auto_create_codex_terminal(
+@@ -5580,7 +5581,9 @@ async def _auto_create_codex_terminal(
          "\n\n".join(
              x
              for x in [
@@ -244,7 +244,7 @@ index f0ad295411385eaf720b7fbeea7eab63092837e4..d3660123963e0e9c1d9b716d792955f9
                  _codex_routing_note,
              ]
              if x
-@@ -9262,7 +9265,12 @@ async def _auto_create_claude_terminal(
+@@ -9358,7 +9361,12 @@ async def _auto_create_claude_terminal(
          subagent_router_dir=subagent_router_dir,
          append_system_prompt="\n\n".join(
              x
@@ -259,10 +259,10 @@ index f0ad295411385eaf720b7fbeea7eab63092837e4..d3660123963e0e9c1d9b716d792955f9
          )
          or None,
 diff --git a/omnigent/runtime/prompt.py b/omnigent/runtime/prompt.py
-index 78479a80ca6d07c83f8c775e76582edb261c5748..6eb051639385b71ae1121a39dacb0ee866d501de 100644
+index 3096ba10e4628fbd637e6812ec217af708c29ba7..2487d3da3f7de8b5e2dfbfb02f792bbacd657f96 100644
 --- a/omnigent/runtime/prompt.py
 +++ b/omnigent/runtime/prompt.py
-@@ -59,6 +59,32 @@ EMBEDDED_BROWSER_PRIORITY_INSTRUCTION = (
+@@ -58,6 +58,32 @@ EMBEDDED_BROWSER_PRIORITY_INSTRUCTION = (
      "attached) or for non-interactive bulk fetching."
  )
  
@@ -295,20 +295,26 @@ index 78479a80ca6d07c83f8c775e76582edb261c5748..6eb051639385b71ae1121a39dacb0ee8
  
  def _framework_instructions_for(spec: AgentSpec) -> list[str]:
      """
-@@ -72,7 +98,8 @@ def _framework_instructions_for(spec: AgentSpec) -> list[str]:
- 
-     The embedded-browser priority guidance applies to every agent,
-     mirroring the unconditional ``browser_*`` registration
--    (``ToolManager._register_browser_tools``).
-+    (``ToolManager._register_browser_tools``). The item-label guidance also
-+    applies to every agent, since every transcript renders label chips.
+@@ -72,11 +98,12 @@ def _framework_instructions_for(spec: AgentSpec) -> list[str]:
+     The embedded-browser priority guidance follows the ``browser_*``
+     registration gate (``ToolManager._register_browser_tools``): every
+     agent unless the spec sets ``tool_groups.browser: false``, in which
+-    case the prompt must not steer the model toward tools it lacks.
++    case the prompt must not steer the model toward tools it lacks. The
++    item-label guidance applies to every agent, since every transcript
++    renders label chips.
  
      :param spec: The parsed AgentSpec.
-     :returns: The applicable spec-level framework instructions, never empty.
-@@ -82,9 +109,22 @@ def _framework_instructions_for(spec: AgentSpec) -> list[str]:
-     if spec.tools.agents or spec.spawn or dispatches_web_researcher:
+-    :returns: The applicable spec-level framework instructions; empty for
+-        an agent with no sub-agents and the browser group disabled.
++    :returns: The applicable spec-level framework instructions, never empty.
+     """
+     instructions: list[str] = []
+     dispatches_web_researcher = any(entry.name == "web_fetch" for entry in spec.tools.builtins)
+@@ -84,9 +111,22 @@ def _framework_instructions_for(spec: AgentSpec) -> list[str]:
          instructions.append(SUBAGENT_WAKE_NOTICE_INSTRUCTION)
-     instructions.append(EMBEDDED_BROWSER_PRIORITY_INSTRUCTION)
+     if spec.tool_groups.browser:
+         instructions.append(EMBEDDED_BROWSER_PRIORITY_INSTRUCTION)
 +    instructions.append(ITEM_LABEL_INSTRUCTION)
      return instructions
  
@@ -501,10 +507,10 @@ index cbd4b425cfa94fab874b3b72907cf7e474af3d5d..c00a59975e0ec93910323e4db04b111a
  
  def test_local_resume_does_not_print_redundant_resume_hint(
 diff --git a/tests/harnesses/claude_native/test_claude_native_bridge.py b/tests/harnesses/claude_native/test_claude_native_bridge.py
-index 02f7c7fc47946352bafc601d11e195fcff9ad7d8..9beb9a45eab0b1ac69135b4ecf43385248a6bb86 100644
+index ca9f986d151d4c027e7ed82e620820a031086c45..9c98a3c224550e62d5259043130b211d7c7e5d1b 100644
 --- a/tests/harnesses/claude_native/test_claude_native_bridge.py
 +++ b/tests/harnesses/claude_native/test_claude_native_bridge.py
-@@ -4037,6 +4037,32 @@ def test_augment_claude_args_appends_caller_system_prompt(
+@@ -4038,6 +4038,32 @@ def test_augment_claude_args_appends_caller_system_prompt(
      assert args[index + 1] == framework_instruction
  
  
@@ -538,7 +544,7 @@ index 02f7c7fc47946352bafc601d11e195fcff9ad7d8..9beb9a45eab0b1ac69135b4ecf433852
      """Framework preapproval extends rather than replaces the user's allowlist."""
      args = augment_claude_args(
 diff --git a/tests/harnesses/codex_native/test_codex_native.py b/tests/harnesses/codex_native/test_codex_native.py
-index 0beb3e5b531ee94e8a25efe69c485458705c24c9..20f096bfcece54b8836bc751d7494491341ee903 100644
+index a0b6f7368b15817297bea65673e903ffdb598229..c68825f1946efc1dfbef62eade9bbdca8457a8d3 100644
 --- a/tests/harnesses/codex_native/test_codex_native.py
 +++ b/tests/harnesses/codex_native/test_codex_native.py
 @@ -34,6 +34,7 @@ from omnigent.harnesses.codex_native.bridge import (
@@ -549,7 +555,7 @@ index 0beb3e5b531ee94e8a25efe69c485458705c24c9..20f096bfcece54b8836bc751d7494491
  from omnigent.spec import load
  
  # The default-stance auto-review override normalize_codex_permission_launch_args
-@@ -8870,6 +8871,7 @@ def test_run_with_local_server_threads_raw_instructions_to_prepare_terminal_fres
+@@ -8971,6 +8972,7 @@ def test_run_with_local_server_threads_raw_instructions_to_prepare_terminal_fres
  
      assert captured.get("developer_instructions") is not None
      assert "Codex is running in the session terminal" in captured["developer_instructions"]
@@ -557,7 +563,7 @@ index 0beb3e5b531ee94e8a25efe69c485458705c24c9..20f096bfcece54b8836bc751d7494491
  
  
  def test_run_with_local_server_threads_raw_instructions_to_prepare_terminal_resume(
-@@ -8952,6 +8954,7 @@ def test_run_with_local_server_threads_raw_instructions_to_prepare_terminal_resu
+@@ -9053,6 +9055,7 @@ def test_run_with_local_server_threads_raw_instructions_to_prepare_terminal_resu
  
      assert captured.get("developer_instructions") is not None
      assert "Codex is running in the session terminal" in captured["developer_instructions"]
@@ -566,10 +572,10 @@ index 0beb3e5b531ee94e8a25efe69c485458705c24c9..20f096bfcece54b8836bc751d7494491
  
  @pytest.mark.asyncio
 diff --git a/tests/runner/test_app_sessions_native_terminals_autocreate.py b/tests/runner/test_app_sessions_native_terminals_autocreate.py
-index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8bf6e537e 100644
+index 73aab7fcd6f99e73fe179751e01c96f44935bc60..1edee01083977e32bba34488d00d9f20b229ce1e 100644
 --- a/tests/runner/test_app_sessions_native_terminals_autocreate.py
 +++ b/tests/runner/test_app_sessions_native_terminals_autocreate.py
-@@ -73,6 +73,7 @@ from omnigent.runner.resource_registry import (
+@@ -74,6 +74,7 @@ from omnigent.runner.resource_registry import (
      SessionResourceRegistry,
  )
  from omnigent.runner.session_init_protocol import RunnerSessionInitEnvelope
@@ -577,7 +583,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
  from omnigent.spec.types import AgentSpec, ExecutorSpec
  from omnigent.terminals import TerminalRegistry
  from tests._helpers.pi_native import seed_pi_own_login_catalog
-@@ -124,6 +125,13 @@ def _load_claude_invocation_settings(args: list[str]) -> dict[str, Any]:
+@@ -128,6 +129,13 @@ def _load_claude_invocation_settings(args: list[str]) -> dict[str, Any]:
      return json.loads(settings_path.read_text(encoding="utf-8"))
  
  
@@ -591,7 +597,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
  def test_read_relay_policy_config_returns_coords_from_tool_relay_json(
      tmp_path: Path,
  ) -> None:
-@@ -1887,7 +1895,7 @@ async def test_auto_create_claude_terminal_passes_raw_instructions(
+@@ -2272,7 +2280,7 @@ async def test_auto_create_claude_terminal_passes_raw_instructions(
  ) -> None:
      """
      Host-spawned launch emits ``--append-system-prompt`` with the agent's
@@ -600,7 +606,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
  
      The managed-host wiring in ``runner/native/orchestration.py``
      (``augment_claude_args(..., append_system_prompt=
-@@ -1954,10 +1962,9 @@ async def test_auto_create_claude_terminal_passes_raw_instructions(
+@@ -2339,10 +2347,9 @@ async def test_auto_create_claude_terminal_passes_raw_instructions(
          agent_spec=agent_spec,
      )
  
@@ -614,7 +620,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
  
  
  @pytest.mark.asyncio
-@@ -2697,7 +2704,7 @@ async def test_auto_create_claude_terminal_forwarder_skips_replayed_transcript_o
+@@ -3082,7 +3089,7 @@ async def test_auto_create_claude_terminal_forwarder_skips_replayed_transcript_o
  
      # Session titles are generated by an isolated background job, so neither
      # fresh nor resumed Claude terminals receive framework rename instructions.
@@ -623,7 +629,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
  
  
  @pytest.mark.asyncio
-@@ -5125,7 +5132,7 @@ async def test_auto_create_claude_terminal_registers_permission_hook(
+@@ -5510,7 +5517,7 @@ async def test_auto_create_claude_terminal_registers_permission_hook(
      # early no longer cascades into "no server running" (#540).
      assert spec.keep_alive_after_exit is True
      args = spec.args
@@ -632,7 +638,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
      settings = _load_claude_invocation_settings(args)
      assert "PermissionRequest" in settings["hooks"]
      permission_hook = settings["hooks"]["PermissionRequest"][0]["hooks"][0]
-@@ -5340,7 +5347,7 @@ async def test_a_routed_claude_native_launch_keeps_the_spawn_gate_and_the_pin(
+@@ -5725,7 +5732,7 @@ async def test_a_routed_claude_native_launch_keeps_the_spawn_gate_and_the_pin(
      assert spec.env["ANTHROPIC_CUSTOM_MODEL_OPTION"] == "databricks-claude-opus-4-7"
      # A pinned session's spawns stay on the claude family, so it gets neither
      # the routed-spawn note nor the pre-approvals the cross-family hop needs.
@@ -641,7 +647,7 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
  
  
  async def test_an_auto_harness_launch_without_a_cost_control_stamp_is_still_routed(
-@@ -5368,7 +5375,7 @@ async def test_an_auto_harness_launch_without_a_cost_control_stamp_is_still_rout
+@@ -5753,7 +5760,7 @@ async def test_an_auto_harness_launch_without_a_cost_control_stamp_is_still_rout
      assert any("claude_router_hook" in command for command in _claude_hook_commands(spec))
      assert spec.env["ANTHROPIC_CUSTOM_MODEL_OPTION"] == "databricks-claude-opus-4-7"
      # And the auto-harness extras, which only make sense alongside the router.
@@ -651,18 +657,18 @@ index 91e5307b081f9ce731617561dbf5350836d76f51..99e478237af637d7cddd293024d660d8
      assert "mcp__omnigent__sys_session_create" in allowed
  
 diff --git a/tests/runner/test_app_sessions_native_terminals_runtime.py b/tests/runner/test_app_sessions_native_terminals_runtime.py
-index 4ba5a019509af6a99477efb87145498f83c7b7dd..1d0c9398742007687b8d5406ed8fd8a5b313955d 100644
+index 75f97eb88ca022bbc0a1f0ddf4e48e33a85f0509..14c275ea7bef73c9b271514d092e1f7ddd4e3d2e 100644
 --- a/tests/runner/test_app_sessions_native_terminals_runtime.py
 +++ b/tests/runner/test_app_sessions_native_terminals_runtime.py
-@@ -46,6 +46,7 @@ from omnigent.runner.session_init_protocol import (
+@@ -47,6 +47,7 @@ from omnigent.runner.session_init_protocol import (
      RunnerSessionInitEnvelope,
      RunnerSessionInitSnapshot,
  )
 +from omnigent.runtime.prompt import ITEM_LABEL_INSTRUCTION
  from omnigent.spec.types import AgentSpec, ExecutorSpec
+ from tests.budgets import budget
  from tests.runner.conftest import (
-     _FakeProcessManager,
-@@ -892,7 +893,9 @@ async def test_auto_create_codex_terminal_uses_persisted_resume_launch_config(
+@@ -894,7 +895,9 @@ async def test_auto_create_codex_terminal_uses_persisted_resume_launch_config(
      assert build_calls[0]["cwd"] == tmp_path / "workspace"
      assert build_calls[0]["trust_project"] is True
      assert build_calls[0]["reconcile_process_registry"] is False
@@ -673,7 +679,7 @@ index 4ba5a019509af6a99477efb87145498f83c7b7dd..1d0c9398742007687b8d5406ed8fd8a5
      # Persisted pass-through args must reach launch resolution (--profile layering).
      assert resolve_calls and all(
          call["terminal_launch_args"] == ["--config", "approval_policy=on-request"]
-@@ -1860,7 +1863,9 @@ async def test_auto_create_codex_terminal_uses_worktree_workspace_not_bundle_dir
+@@ -1862,7 +1865,9 @@ async def test_auto_create_codex_terminal_uses_worktree_workspace_not_bundle_dir
          "mean the session snapshot workspace was ignored."
      )
      assert build_calls[0]["cwd"] != bundle_dir.resolve()  # never the spec-bundle dir
@@ -710,7 +716,7 @@ index 143139370bccc95ba543f3f0484b3ce8076093d1..6cc2db9fbde45706f287babd5c8341c0
  
  async def _contract_run_no_harness(
 diff --git a/tests/runtime/test_prompt.py b/tests/runtime/test_prompt.py
-index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839d31b8611 100644
+index bd1e19757a3bd4826e13bdc0c0077d9341eca95d..6f3b96135bde6c2aa8a12f293fde03c7fdba15db 100644
 --- a/tests/runtime/test_prompt.py
 +++ b/tests/runtime/test_prompt.py
 @@ -1,6 +1,7 @@
@@ -743,7 +749,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
  
  
  def _spec(
-@@ -258,8 +262,7 @@ def test_framework_instructions_append_after_custom_prompts() -> None:
+@@ -260,8 +264,7 @@ def test_framework_instructions_append_after_custom_prompts() -> None:
      )
  
      assert result == (
@@ -753,7 +759,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
      )
  
  
-@@ -267,7 +270,7 @@ def test_empty_framework_instructions_do_not_change_default() -> None:
+@@ -269,7 +272,7 @@ def test_empty_framework_instructions_do_not_change_default() -> None:
      spec = _spec(None)
  
      assert build_instructions(spec, None, [], framework_instructions=("", "   ")) == (
@@ -762,7 +768,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
      )
  
  
-@@ -281,7 +284,7 @@ def test_build_instructions_nullable_unauthored_never_fabricates_fallback() -> N
+@@ -283,7 +286,7 @@ def test_build_instructions_nullable_unauthored_never_fabricates_fallback() -> N
      guidance applies to every agent)."""
      spec = _spec(None)
      result = build_instructions_nullable(spec, None, [])
@@ -771,7 +777,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
      assert "You are a helpful assistant." not in result
  
  
-@@ -290,13 +293,11 @@ def test_build_instructions_nullable_whitespace_only_treated_as_absent() -> None
+@@ -292,13 +295,11 @@ def test_build_instructions_nullable_whitespace_only_treated_as_absent() -> None
      raw_author_instructions' non-empty/non-whitespace gate, so authored_present
      and composed agree on what counts as "authored"."""
      spec = _spec("   \n  ")
@@ -787,7 +793,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
  
  
  def test_build_instructions_nullable_whitespace_only_per_request_treated_as_absent() -> None:
-@@ -304,15 +305,11 @@ def test_build_instructions_nullable_whitespace_only_per_request_treated_as_abse
+@@ -306,15 +307,11 @@ def test_build_instructions_nullable_whitespace_only_per_request_treated_as_abse
      the same non-empty/non-whitespace gate applies to both instruction
      sources, not just spec.instructions."""
      spec = _spec(None)
@@ -805,7 +811,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
  
  
  def test_build_instructions_nullable_authored_present() -> None:
-@@ -322,8 +319,7 @@ def test_build_instructions_nullable_authored_present() -> None:
+@@ -324,8 +321,7 @@ def test_build_instructions_nullable_authored_present() -> None:
          spec, "Request prompt", [], framework_instructions=("Framework prompt",)
      )
      assert result == (
@@ -815,7 +821,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
      )
  
  
-@@ -341,9 +337,7 @@ def test_build_instructions_nullable_framework_only_omits_fallback() -> None:
+@@ -343,9 +339,7 @@ def test_build_instructions_nullable_framework_only_omits_fallback() -> None:
      result = build_instructions_nullable(
          spec, None, [], framework_instructions=(_SAMPLE_FRAMEWORK_INSTRUCTION,)
      )
@@ -826,7 +832,7 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
      assert "You are a helpful assistant." not in (result or "")
  
      # The comparison this helper replaces would have misclassified the
-@@ -376,28 +370,27 @@ def test_subagent_wake_instruction_added_for_dispatching_agents(
+@@ -378,28 +372,27 @@ def test_subagent_wake_instruction_added_for_dispatching_agents(
      result = build_instructions(dispatching, None, [], framework_instructions=("Turn note",))
      assert result == (
          f"Agent prompt\n\n{SUBAGENT_WAKE_NOTICE_INSTRUCTION}\n\n"
@@ -862,10 +868,34 @@ index 534ca2636707a89fff01f6fbf8d554ee16a557b7..775fd57b6d0e6cd9439b23491bc9e839
  
  
  def test_embedded_browser_guidance_names_registered_tools() -> None:
-@@ -435,3 +428,24 @@ def test_raw_author_instructions_verbatim_and_none() -> None:
+@@ -445,12 +438,16 @@ def test_raw_author_instructions_verbatim_and_none() -> None:
+ def test_browser_guidance_omitted_when_browser_group_disabled() -> None:
+     """
+     With the ``browser_*`` tools unregistered, the prompt must not steer
+-    the model toward them: author text composes alone, and an unauthored
+-    spec yields ``None`` rather than guidance for tools it lacks.
++    the model toward them: only the every-agent label guidance follows the
++    author text, and an unauthored spec yields that guidance alone.
+     """
+     spec = _spec("You are a helpful assistant.", browser=False)
+-    assert build_instructions_nullable(spec, None, []) == "You are a helpful assistant."
+-    assert build_instructions_nullable(_spec(None, browser=False), None, []) is None
++    assert build_instructions_nullable(spec, None, []) == (
++        f"You are a helpful assistant.\n\n{ITEM_LABEL_INSTRUCTION}"
++    )
++    assert build_instructions_nullable(_spec(None, browser=False), None, []) == (
++        ITEM_LABEL_INSTRUCTION
++    )
  
-     whitespace_only = cast(AgentSpec, SimpleNamespace(instructions="   \n  "))
-     assert raw_author_instructions(whitespace_only) is None
+ 
+ def test_browser_group_disabled_keeps_wake_notice_for_spawning_agent() -> None:
+@@ -458,5 +455,26 @@ def test_browser_group_disabled_keeps_wake_notice_for_spawning_agent() -> None:
+     wake notice still rides its own dispatch gate."""
+     spec = _spec(None, spawn=True, browser=False)
+     result = build_instructions_nullable(spec, None, [])
+-    assert result == SUBAGENT_WAKE_NOTICE_INSTRUCTION
++    assert result == f"{SUBAGENT_WAKE_NOTICE_INSTRUCTION}\n\n{ITEM_LABEL_INSTRUCTION}"
+     assert EMBEDDED_BROWSER_PRIORITY_INSTRUCTION not in result
 +
 +
 +def test_native_startup_instructions_append_item_labels_after_author_text() -> None:
@@ -1075,7 +1105,7 @@ index 0000000000000000000000000000000000000000..f7dc1949fb52c0cb7094a9a55e34b5d5
 +  });
 +});
 diff --git a/web/src/components/blocks/ChatMarkdown.tsx b/web/src/components/blocks/ChatMarkdown.tsx
-index fd08b64d26c055cb5491252a6f5e74d1db502e9d..f0acb8222fa0cbaa7213662ef76bc4c0674f4382 100644
+index a4e12e3b0621be2ce056972b1f1b01a2cc8982c2..1b83961c7160b772fef2481675dd5df8a99bd454 100644
 --- a/web/src/components/blocks/ChatMarkdown.tsx
 +++ b/web/src/components/blocks/ChatMarkdown.tsx
 @@ -1,11 +1,12 @@
@@ -1093,13 +1123,15 @@ index fd08b64d26c055cb5491252a6f5e74d1db502e9d..f0acb8222fa0cbaa7213662ef76bc4c0
  //
  // Lives apart from `BlockRenderer` so approval cards can render agent markdown
  // without importing the block dispatcher that renders them.
-@@ -28,10 +29,25 @@ import {
- import { ZoomableImage } from "@/components/ImageLightbox";
+@@ -36,12 +37,27 @@ import {
+ } from "@/components/ui/context-menu";
  import { VideoPlayer } from "@/components/VideoPlayer";
  import { isRemoteVideoUrl, isVideoFile } from "@/lib/video";
 +import { useHoverPopover } from "@/hooks/useHoverPopover";
  import { useThrottledValue } from "@/hooks/useThrottledValue";
  import { withBasePath } from "@/lib/basePath";
+ import { copyText } from "@/lib/clipboard";
+ import { absoluteWorkspacePath } from "@/lib/composerContext";
  import { followLinkWithPopupFallback } from "@/lib/openLinkInApp";
  import { extractInlineRunnableCommand } from "@/lib/runnableCommands";
 +import {
@@ -1119,7 +1151,7 @@ index fd08b64d26c055cb5491252a6f5e74d1db502e9d..f0acb8222fa0cbaa7213662ef76bc4c0
  import { cn } from "@/lib/utils";
  import {
    useFileViewer,
-@@ -419,6 +435,163 @@ function WorkspaceFileLink({
+@@ -501,6 +517,163 @@ function citesSamePlace(
    );
  }
  
@@ -1283,7 +1315,7 @@ index fd08b64d26c055cb5491252a6f5e74d1db502e9d..f0acb8222fa0cbaa7213662ef76bc4c0
  // Markdown images open in the shared lightbox on click, matching uploaded and
  // generated images. (Remote `src`s are still gated by Streamdown's image
  // security; this only adds the zoom affordance to whatever does render.)
-@@ -437,9 +610,14 @@ function ZoomableMarkdownImage({
+@@ -519,9 +692,14 @@ function ZoomableMarkdownImage({
  const FILE_PATH_AWARE_COMPONENTS = {
    inlineCode: WorkspacePathInlineCode,
    img: ZoomableMarkdownImage,
@@ -1299,7 +1331,7 @@ index fd08b64d26c055cb5491252a6f5e74d1db502e9d..f0acb8222fa0cbaa7213662ef76bc4c0
  // How often the live (growing) assistant bubble re-parses its markdown. The
  // store pump commits a new, longer text up to once per animation frame (~60/s);
  // without this the whole accumulated message is re-parsed on every commit. ~10/s
-@@ -522,13 +700,12 @@ function PlainTextFallback({ text }: { text: string }) {
+@@ -604,13 +782,12 @@ function PlainTextFallback({ text }: { text: string }) {
   * `<pre>` wrapper and Shiki highlighting. Overriding `code` here would replace
   * block rendering too, stripping `<pre>` and collapsing whitespace.
   *
@@ -1316,7 +1348,7 @@ index fd08b64d26c055cb5491252a6f5e74d1db502e9d..f0acb8222fa0cbaa7213662ef76bc4c0
   */
  export function FilePathAwareMessageResponse({
    children,
-@@ -537,13 +714,7 @@ export function FilePathAwareMessageResponse({
+@@ -619,13 +796,7 @@ export function FilePathAwareMessageResponse({
  }: React.ComponentProps<typeof MessageResponse> & { breaks?: boolean }) {
    const components = FILE_PATH_AWARE_COMPONENTS;
  
@@ -1654,10 +1686,10 @@ index 0000000000000000000000000000000000000000..77a05f5690427b3656f637ae80a03073
 +  );
 +}
 diff --git a/web/src/components/chat/Transcript.tsx b/web/src/components/chat/Transcript.tsx
-index 7edf764b94ccfcd106305625224321b2b5f3fef1..cb97e50d8f9387f1ccf24dc3f61de26e27fa3bed 100644
+index 866f46f9e235ed613344855faf5beecc06719425..d0481788f89fde902b21ce6fe0ec3d819cd780f2 100644
 --- a/web/src/components/chat/Transcript.tsx
 +++ b/web/src/components/chat/Transcript.tsx
-@@ -31,15 +31,18 @@ import { ArcaShutdownBanner } from "@/components/ArcaShutdownBanner";
+@@ -31,9 +31,11 @@ import { ArcaShutdownBanner } from "@/components/ArcaShutdownBanner";
  import { useArcaShutdownBanner } from "@/hooks/useArcaShutdownBanner";
  import { useSearchParams } from "@/lib/routing";
  import { MESSAGE_QUERY_PARAM } from "@/lib/messageDeepLink";
@@ -1666,9 +1698,10 @@ index 7edf764b94ccfcd106305625224321b2b5f3fef1..cb97e50d8f9387f1ccf24dc3f61de26e
  import { useUserMessageNav } from "@/hooks/useUserMessageNav";
  import { ChatPlanAccordion } from "@/shell/ChatPlanAccordion";
 +import { OpenItemsPanel } from "@/components/chat/OpenItemsPanel";
- import { RunnerStartingIndicator, McpStartupIndicator } from "@/pages/ChatIndicators";
- import { CHAT_COLUMN_WIDTH } from "@/pages/chatLayout";
  import {
+   RunnerStartingIndicator,
+   McpStartupIndicator,
+@@ -44,6 +46,7 @@ import {
    type ConversationScroller,
    BubbleView,
    ConversationScrollRefBridge,
@@ -1676,7 +1709,7 @@ index 7edf764b94ccfcd106305625224321b2b5f3fef1..cb97e50d8f9387f1ccf24dc3f61de26e
    HistoryAutoLoader,
    HistoryLoadingIndicator,
    JumpToTopButton,
-@@ -316,14 +319,26 @@ function TranscriptImpl({
+@@ -320,14 +323,26 @@ function TranscriptImpl({
    const showWorkingIndicator = shouldShowWorkingIndicator(display.showsWorking, display.bubbles);
    const arcaWarning = useArcaShutdownBanner();
    const showArcaBanner = arcaWarning.showForHost(hostId);
@@ -1706,7 +1739,7 @@ index 7edf764b94ccfcd106305625224321b2b5f3fef1..cb97e50d8f9387f1ccf24dc3f61de26e
        {/* Wrapper div gives us a ref to scope the SelectionPopup to the
        conversation area without requiring Conversation to forward refs. */}
        <div
-@@ -450,7 +465,7 @@ function TranscriptImpl({
+@@ -455,7 +470,7 @@ function TranscriptImpl({
            />
          )}
        </div>
@@ -1716,7 +1749,7 @@ index 7edf764b94ccfcd106305625224321b2b5f3fef1..cb97e50d8f9387f1ccf24dc3f61de26e
  }
  
 diff --git a/web/src/components/chat/chatBubbleParts.tsx b/web/src/components/chat/chatBubbleParts.tsx
-index 1a54a900a84bcfdef437aa6728ddc08eb9fa3c65..7da2d56e15392b5b4bdbf4c5a3c7942487afbc03 100644
+index 06e8a0e51f636c1254e303a1b4737e4ad79befae..a5a1ac147235ad04351229765a86702acd19f85d 100644
 --- a/web/src/components/chat/chatBubbleParts.tsx
 +++ b/web/src/components/chat/chatBubbleParts.tsx
 @@ -81,6 +81,15 @@ import { useForkDialog } from "@/shell/ForkDialogContext";

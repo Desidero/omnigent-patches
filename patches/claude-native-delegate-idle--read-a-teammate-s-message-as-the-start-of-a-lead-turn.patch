@@ -25,10 +25,10 @@ Signed-off-by: mhavant <matthew.hoelting@avant.com>
  4 files changed, 157 insertions(+), 1 deletion(-)
 
 diff --git a/omnigent/harnesses/claude_native/bridge.py b/omnigent/harnesses/claude_native/bridge.py
-index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf54472ef45e5 100644
+index ef48e7d6d58eaf4c2df25df2b3053da4f0221e09..7d523696b78f6af1e92113ca769b21b8fdca1026 100644
 --- a/omnigent/harnesses/claude_native/bridge.py
 +++ b/omnigent/harnesses/claude_native/bridge.py
-@@ -940,6 +940,9 @@ class TranscriptReadResult:
+@@ -943,6 +943,9 @@ class TranscriptReadResult:
      :param record_items: Parsed items grouped by their complete source JSONL
          record, with the byte offset immediately after each record. Native
          child-transcript batching uses these boundaries for partial checkpoints.
@@ -38,7 +38,7 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
      """
  
      line_cursor: int
-@@ -950,6 +953,7 @@ class TranscriptReadResult:
+@@ -953,6 +956,7 @@ class TranscriptReadResult:
      latest_model: str | None = None
      latest_custom_title: str | None = None
      record_items: tuple[TranscriptRecordItems, ...] = ()
@@ -46,7 +46,7 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
  
  
  @dataclass(frozen=True)
-@@ -3089,7 +3093,8 @@ def read_prompt_submitted_at(bridge_dir: Path) -> float | None:
+@@ -3092,7 +3096,8 @@ def read_prompt_submitted_at(bridge_dir: Path) -> float | None:
  
      Set by :func:`record_hook_event` from the session's own
      ``UserPromptSubmit`` hook, whether the prompt was typed in the pane,
@@ -56,7 +56,7 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
  
      :param bridge_dir: Bridge directory path.
      :returns: The hook's recorded time in epoch seconds, e.g.
-@@ -3102,6 +3107,32 @@ def read_prompt_submitted_at(bridge_dir: Path) -> float | None:
+@@ -3105,6 +3110,32 @@ def read_prompt_submitted_at(bridge_dir: Path) -> float | None:
      return float(raw)
  
  
@@ -89,7 +89,7 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
  def read_seen_claude_session_ids(bridge_dir: Path) -> set[str]:
      """
      Return Claude session ids already observed by this bridge.
-@@ -3526,6 +3557,7 @@ def read_transcript_items_from_offset(
+@@ -3529,6 +3560,7 @@ def read_transcript_items_from_offset(
      latest_usage: dict[str, int] | None = None
      latest_model: str | None = None
      latest_custom_title: str | None = None
@@ -97,7 +97,7 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
      record_items: list[TranscriptRecordItems] = []
      for record in read_result.records:
          parsed: list[ClaudeTranscriptItem] = []
-@@ -3573,6 +3605,9 @@ def read_transcript_items_from_offset(
+@@ -3576,6 +3608,9 @@ def read_transcript_items_from_offset(
          custom_title = _custom_title_from_transcript_entry(entry)
          if custom_title is not None:
              latest_custom_title = custom_title
@@ -107,7 +107,7 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
          record_items.append(
              TranscriptRecordItems(
                  next_byte_offset=record.next_byte_offset,
-@@ -3597,9 +3632,41 @@ def read_transcript_items_from_offset(
+@@ -3600,9 +3635,41 @@ def read_transcript_items_from_offset(
          latest_model=latest_model,
          latest_custom_title=latest_custom_title,
          record_items=tuple(record_items),
@@ -150,10 +150,10 @@ index 161fab63ae154bd07bac3e5425be43d769b12b98..496e6a4f862b24070b8d1a43737cf544
  # lookup is paired with the provider-config digest that produced it, so a
  # config change replaces stale pricing. ``None`` is never cached, allowing a
 diff --git a/omnigent/harnesses/claude_native/forwarder.py b/omnigent/harnesses/claude_native/forwarder.py
-index d4357778bc8f3b057b92a2e18f0177fe3fe58e86..e637962ae97f29348c09172ce1aec69d58dd580a 100644
+index 6dc7f5842b010e3bf2848900be82d32f1f0c7e73..2a389769741ba60e7445999339f529fe382852da 100644
 --- a/omnigent/harnesses/claude_native/forwarder.py
 +++ b/omnigent/harnesses/claude_native/forwarder.py
-@@ -47,6 +47,7 @@ from omnigent.harnesses.claude_native.bridge import (
+@@ -48,6 +48,7 @@ from omnigent.harnesses.claude_native.bridge import (
      read_transcript_items_from_offset,
      read_transcript_items_since_with_position,
      read_transcript_path,
@@ -161,7 +161,7 @@ index d4357778bc8f3b057b92a2e18f0177fe3fe58e86..e637962ae97f29348c09172ce1aec69d
      transcript_has_forked_from_marker,
      transcript_has_recent_local_command,
      url_component,
-@@ -5139,6 +5140,9 @@ async def _forward_available_items(
+@@ -5219,6 +5220,9 @@ async def _forward_available_items(
      result = await asyncio.to_thread(
          _read_transcript_items_for_state, state, agent_name, dedupe.settled_response_id
      )
@@ -233,10 +233,10 @@ index 7cd4b69026e8fc0a004affee32ca43cb29510858..d0eded47bdfd00ab404322e09003200b
  async def test_forwarder_does_not_leave_running_open_for_slash_command_only_turn(
      tmp_path: Path,
 diff --git a/tests/harnesses/claude_native/test_claude_native_bridge.py b/tests/harnesses/claude_native/test_claude_native_bridge.py
-index 6dd27f9c35ffce07e722bd90695b5653a540f288..f0a117f220caf069712b1285b4566925d0efaf11 100644
+index 765972ee115daf76e9a25b72b8d65ce99ac2bc00..7b6360b1d439ffd5185f6f0a2fe55697e0f62df1 100644
 --- a/tests/harnesses/claude_native/test_claude_native_bridge.py
 +++ b/tests/harnesses/claude_native/test_claude_native_bridge.py
-@@ -68,6 +68,7 @@ from omnigent.harnesses.claude_native.bridge import (
+@@ -69,6 +69,7 @@ from omnigent.harnesses.claude_native.bridge import (
      read_transcript_items_since,
      read_transcript_path,
      record_hook_event,
@@ -244,7 +244,7 @@ index 6dd27f9c35ffce07e722bd90695b5653a540f288..f0a117f220caf069712b1285b4566925
      start_tool_relay,
      stop_hook_seen_since,
      write_tmux_target,
-@@ -821,6 +822,20 @@ def test_record_hook_event_keeps_the_pinned_session_prompt_time(tmp_path: Path)
+@@ -822,6 +823,20 @@ def test_record_hook_event_keeps_the_pinned_session_prompt_time(tmp_path: Path)
      assert read_prompt_submitted_at(bridge_dir) == hooks[-1].recorded_at
  
  
@@ -265,7 +265,7 @@ index 6dd27f9c35ffce07e722bd90695b5653a540f288..f0a117f220caf069712b1285b4566925
  @pytest.mark.parametrize("updated_file", ["hook_identity", "model_vocabulary"])
  def test_bridge_writers_preserve_concurrent_identity_and_model_updates(
      tmp_path: Path, monkeypatch: pytest.MonkeyPatch, updated_file: str
-@@ -1475,6 +1490,33 @@ def test_claude_framed_delivery_without_origin_is_internal(
+@@ -1476,6 +1491,33 @@ def test_claude_framed_delivery_without_origin_is_internal(
          assert "is_meta" not in item.data
  
  

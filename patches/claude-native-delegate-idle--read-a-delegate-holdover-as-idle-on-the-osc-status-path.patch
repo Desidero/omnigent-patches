@@ -25,13 +25,13 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 ---
- .../harnesses/claude_native/program_status.py | 113 ++++++++++++++--
+ .../harnesses/claude_native/program_status.py | 119 ++++++++++++++--
  omnigent/runner/resource_registry.py          |   8 +-
  .../test_claude_native_program_status.py      | 127 ++++++++++++++++++
- 3 files changed, 235 insertions(+), 13 deletions(-)
+ 3 files changed, 243 insertions(+), 11 deletions(-)
 
 diff --git a/omnigent/harnesses/claude_native/program_status.py b/omnigent/harnesses/claude_native/program_status.py
-index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b93812eaaaea 100644
+index dfa44bd906e492e75cba968aedb885b223df89f2..142d34a9a966de3c2c0c135c5b0ca1933efe5ed0 100644
 --- a/omnigent/harnesses/claude_native/program_status.py
 +++ b/omnigent/harnesses/claude_native/program_status.py
 @@ -2,6 +2,7 @@
@@ -107,7 +107,7 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b938
      def tick(self) -> None:
          """Publish changed reports; never interpret silence as completion."""
          if self._retired:
-@@ -54,23 +87,24 @@ class ClaudeProgramStatusPoller:
+@@ -54,20 +87,26 @@ class ClaudeProgramStatusPoller:
          if requested:
              self._last = None
          report = self._reader.status
@@ -117,21 +117,21 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b938
              self._using_osc = True
 -            if report != self._last:
 -                self._last = report
--                status = (
--                    "running"
--                    if report.state in {"working", "blocked"}
--                    else "failed"
--                    if report.state == "error"
--                    else "idle"
--                )
+-                # The StopFailure hook owns the failed edge and carries the API
+-                # error text; an error report here would fail the turn first, bare.
+-                if report.state != "error":
+-                    status = "running" if report.state in {"working", "blocked"} else "idle"
+-                    self._on_status(status, blocked_reason(report))
 +            changed = report != self._last
 +            if not changed and not self._holding:
 +                return
 +            self._last = report
 +            status = self._osc_status(report)
++            if status is None:
++                return
 +            if changed or status != self._published:
 +                self._published = status
-                 self._on_status(status, blocked_reason(report))
++                self._on_status(status, blocked_reason(report))
          else:
              if self._using_osc:
                  self._fallback.resync()
@@ -141,7 +141,7 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b938
              self._fallback.tick()
  
      def resync(self) -> None:
-@@ -79,7 +113,66 @@ class ClaudeProgramStatusPoller:
+@@ -76,7 +115,71 @@ class ClaudeProgramStatusPoller:
              self._resync_requested = True
          self._fallback.resync()
  
@@ -181,12 +181,17 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b938
 +        if report is None or self._held_report is None or report.state != self._held_report.state:
 +            self._released = True
 +
-+    def _osc_status(self, report: ProgramStatus) -> str:
-+        """Map a report to the runner vocabulary, reading a delegate holdover as idle."""
++    def _osc_status(self, report: ProgramStatus) -> str | None:
++        """Map a report to the runner vocabulary, reading a delegate holdover as idle.
++
++        An error report maps to nothing: the StopFailure hook owns the failed
++        edge and carries the API error text, so publishing here would fail the
++        turn first, bare.
++        """
 +        self._holding = self._holds()
 +        if self._holding or report.state not in {"working", "blocked", "error"}:
 +            return "idle"
-+        return "failed" if report.state == "error" else "running"
++        return None if report.state == "error" else "running"
 +
 +    def _holds(self) -> bool:
 +        """Whether the held ``working`` report is the leftover of a turn that already ended."""
@@ -205,11 +210,11 @@ index b91667caecf58fe6eb17bb3ff397a773c8e349bd..e944617ace04f00050410ed7cbc0b938
 +            return None
 +        try:
 +            return self._prompt_submitted_at_getter()
-+        except Exception:  # noqa: BLE001 - a best-effort read must not stop the watcher.
++        except Exception:
 +            _logger.debug("claude prompt time read failed", exc_info=True)
 +            return None
 diff --git a/omnigent/runner/resource_registry.py b/omnigent/runner/resource_registry.py
-index 26a6fcef88a7560a89b8498fdcf155088e66ca58..327809ed5839a0d15e9c197979946efb62228395 100644
+index 2b3c74514f0d4762795328fe13d46395f548f26a..22c45f34c6685066180228b4118d02aff25977f7 100644
 --- a/omnigent/runner/resource_registry.py
 +++ b/omnigent/runner/resource_registry.py
 @@ -688,10 +688,10 @@ class SessionResourceRegistry:
@@ -237,10 +242,10 @@ index 26a6fcef88a7560a89b8498fdcf155088e66ca58..327809ed5839a0d15e9c197979946efb
  
      async def _handle_terminal_exit(
 diff --git a/tests/harnesses/claude_native/test_claude_native_program_status.py b/tests/harnesses/claude_native/test_claude_native_program_status.py
-index f0f48afc06548f46f40ed0d6ebee538ef642c2ed..d84055dab4c532a3475a2bdf033865db41b1dbdb 100644
+index 6c9412fe2dbcf46405d1c9b9021c4d384f5bd426..d996ebdaca392adfa42f5d35998d136ed7e20efb 100644
 --- a/tests/harnesses/claude_native/test_claude_native_program_status.py
 +++ b/tests/harnesses/claude_native/test_claude_native_program_status.py
-@@ -62,3 +62,130 @@ def test_resync_during_tick_survives_the_in_flight_read(tmp_path: Path, monkeypa
+@@ -98,3 +98,130 @@ def test_resync_during_tick_survives_the_in_flight_read(tmp_path: Path, monkeypa
      assert published == ["idle", "running", "running"]
      poller.tick()
      assert published == ["idle", "running", "running"]

@@ -163,7 +163,7 @@ index 8b27e392d84c8a55783c5da7e92353f836deea40..abb352d7343c834fbc011b307d696d1e
      # we say so, since the standalone login may persist (and be re-detected).
      _remove_credential(provider)
 diff --git a/omnigent/harnesses/claude_native/main.py b/omnigent/harnesses/claude_native/main.py
-index 8826c847ec00cfe93904828e879345f38063f1db..5249235a9477e196800782760c47dd57a73927b1 100644
+index 67bfc2e974b464dc943a87b6f4b91e8a7678cbd8..272387ada848d5e1cfbbc342789e591503b2da65 100644
 --- a/omnigent/harnesses/claude_native/main.py
 +++ b/omnigent/harnesses/claude_native/main.py
 @@ -1664,6 +1664,10 @@ def run_claude_native(
@@ -202,10 +202,10 @@ index 8826c847ec00cfe93904828e879345f38063f1db..5249235a9477e196800782760c47dd57
              return _native_claude_config_from_entry(entry, refresh_models=refresh_models)
          ucode_config = _ucode_config_for_profile(
 diff --git a/omnigent/harnesses/codex_native/app_server.py b/omnigent/harnesses/codex_native/app_server.py
-index 5d5b5d225315065d52ebc15411fe8b8a39ab3668..5b2b2df7ffc7718fd4055a4c960d23f4c4720c26 100644
+index a9b9786220cf45dba842bc8ef10d37a4d11edaff..59cd2134dafc2a4404d81baa8498f370f1c4b577 100644
 --- a/omnigent/harnesses/codex_native/app_server.py
 +++ b/omnigent/harnesses/codex_native/app_server.py
-@@ -3932,6 +3932,15 @@ def _ambient_builtin_codex_provider(config_profile: str | None) -> str | None:
+@@ -4050,6 +4050,15 @@ def _ambient_builtin_codex_provider(config_profile: str | None) -> str | None:
      return effective_self_sufficient_builtin_provider(config)
  
  
@@ -221,7 +221,7 @@ index 5d5b5d225315065d52ebc15411fe8b8a39ab3668..5b2b2df7ffc7718fd4055a4c960d23f4
  def _resolve_subscription_launch(
      entry: ProviderEntry, model: str | None, explicit: dict[str, object]
  ) -> NativeCodexLaunch:
-@@ -3958,7 +3967,7 @@ def _resolve_subscription_launch(
+@@ -4076,7 +4085,7 @@ def _resolve_subscription_launch(
      # Gateway), which would silently hijack a Subscription selection. A
      # no-op when the user's config sets no custom default.
      subscription_overrides = ['model_provider="openai"']
@@ -230,7 +230,7 @@ index 5d5b5d225315065d52ebc15411fe8b8a39ab3668..5b2b2df7ffc7718fd4055a4c960d23f4
          log_info_once(
              _logger,
              "native-codex routing: Codex CLI login (subscription provider %r; Codex is logged in)",
-@@ -3970,7 +3979,14 @@ def _resolve_subscription_launch(
+@@ -4088,7 +4097,14 @@ def _resolve_subscription_launch(
              profile=None,
              summary=f"Codex CLI login (subscription provider {entry.name!r}; Codex is logged in)",
          )
@@ -246,7 +246,7 @@ index 5d5b5d225315065d52ebc15411fe8b8a39ab3668..5b2b2df7ffc7718fd4055a4c960d23f4
      if fallback is not None:
          return fallback
      log_info_once(
-@@ -4104,6 +4120,11 @@ def resolve_native_codex_launch(
+@@ -4222,6 +4238,11 @@ def resolve_native_codex_launch(
          )
          if spec_entry is not None:
              if spec_entry.kind == SUBSCRIPTION_KIND:
@@ -259,7 +259,7 @@ index 5d5b5d225315065d52ebc15411fe8b8a39ab3668..5b2b2df7ffc7718fd4055a4c960d23f4
                  # logged in or not. The machine-default path would substitute
                  # the first OTHER routable provider on a logged-out Codex
 diff --git a/omnigent/harnesses/codex_native/main.py b/omnigent/harnesses/codex_native/main.py
-index 2b1599d677d879b5de3bd5505ae701cc962b16a1..0554f7b76c13a5a95ffc452c1c48cc6e63900925 100644
+index 60a36a8a85c130f78f97f45c8bc495ddb223b724..17294a88ff5095de32af6e9bde05fd6b8b9eed90 100644
 --- a/omnigent/harnesses/codex_native/main.py
 +++ b/omnigent/harnesses/codex_native/main.py
 @@ -458,6 +458,9 @@ def run_codex_native(
@@ -273,10 +273,10 @@ index 2b1599d677d879b5de3bd5505ae701cc962b16a1..0554f7b76c13a5a95ffc452c1c48cc6e
          raise click.ClickException(
              "Codex requires a resolved Omnigent server URL. The CLI should call "
 diff --git a/omnigent/host/connect.py b/omnigent/host/connect.py
-index 3860359d738a850b95f9598dd7d1154861995a62..361865fdf71d652c25de51826b8c1f92869895d6 100644
+index a31dded8aa511e8bcef284da4b29ceb9179262c1..5eff22acab77e08a50a59acaca9c6e613712bbf0 100644
 --- a/omnigent/host/connect.py
 +++ b/omnigent/host/connect.py
-@@ -1994,6 +1994,13 @@ class HostProcess:
+@@ -2000,6 +2000,13 @@ class HostProcess:
                      frame, f"Cannot install session inference config: {exc}"
                  )
              env["OMNIGENT_INFERENCE_CONFIG"] = str(inference_path)

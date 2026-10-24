@@ -28,10 +28,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  web/src/pages/ChatPage.composer.test.tsx   | 138 +++++++++++++++++++++
  web/src/pages/ChatPage.mention.test.tsx    |   1 +
  web/src/pages/ChatPage.statusLine.test.tsx |   1 +
- web/src/pages/ChatPage.tsx                 |  89 +++++++++----
+ web/src/pages/ChatPage.tsx                 |  93 ++++++++++----
  web/src/store/chatStore.test.ts            |  47 +++++++
  web/src/store/chatStore.ts                 |  18 +++
- 8 files changed, 305 insertions(+), 21 deletions(-)
+ 8 files changed, 307 insertions(+), 23 deletions(-)
 
 diff --git a/web/src/lib/sessionsApi.ts b/web/src/lib/sessionsApi.ts
 index f413fe08e9fd4a97b7ec787192cd921df817bd1a..bad2fdb0f521dc9ebd13b1522ccb1e2b2b764efb 100644
@@ -86,7 +86,7 @@ index f413fe08e9fd4a97b7ec787192cd921df817bd1a..bad2fdb0f521dc9ebd13b1522ccb1e2b
    runner_id: string;
    online: boolean;
 diff --git a/web/src/lib/types.ts b/web/src/lib/types.ts
-index 24e11339e8c54ecad00a88b60120774225e62f5f..f10fca0d19af0ac209604cb7ab41b903b72fc51a 100644
+index 23e15f09c6f072d63a852dc7a1c8c9875804d411..bb0add0ac895ad663279529239eba5d11966549c 100644
 --- a/web/src/lib/types.ts
 +++ b/web/src/lib/types.ts
 @@ -378,6 +378,11 @@ export interface Session {
@@ -102,10 +102,10 @@ index 24e11339e8c54ecad00a88b60120774225e62f5f..f10fca0d19af0ac209604cb7ab41b903
     * Per-session cost-control switch: `"on"` activates the spec's
     * configured cost-control mode, `"off"` disables cost control for
 diff --git a/web/src/pages/ChatPage.composer.test.tsx b/web/src/pages/ChatPage.composer.test.tsx
-index 6b3725e871d1345c78977017561a530bd18b0463..c5559b5a3a2fd18478eaef8adb2bee63dbe3829e 100644
+index 1881b3f8862c26b68a3efca4cd2326b24b5ca04e..23b97c454ad6629b3419f661fcacab6c18bac1ce 100644
 --- a/web/src/pages/ChatPage.composer.test.tsx
 +++ b/web/src/pages/ChatPage.composer.test.tsx
-@@ -9,6 +9,7 @@ import type * as AgentLabelsModule from "@/lib/agentLabels";
+@@ -10,6 +10,7 @@ import type * as AgentLabelsModule from "@/lib/agentLabels";
  import type * as GoalApiModule from "@/lib/goalApi";
  import type * as UseChildSessionsModule from "@/hooks/useChildSessions";
  import type { ChildSessionInfo } from "@/hooks/useChildSessions";
@@ -113,7 +113,7 @@ index 6b3725e871d1345c78977017561a530bd18b0463..c5559b5a3a2fd18478eaef8adb2bee63
  import type * as FileViewerContextModule from "@/shell/FileViewerContext";
  
  import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-@@ -133,6 +134,7 @@ const { composerSessionSnapshot } = vi.hoisted(() => ({
+@@ -143,6 +144,7 @@ const { composerSessionSnapshot } = vi.hoisted(() => ({
      workspace: null as string | null,
      labels: {} as Record<string, string>,
      gitBranch: null as string | null,
@@ -121,7 +121,7 @@ index 6b3725e871d1345c78977017561a530bd18b0463..c5559b5a3a2fd18478eaef8adb2bee63
    },
  }));
  vi.mock("@/hooks/useSession", async (importOriginal) => ({
-@@ -143,6 +145,12 @@ vi.mock("@/hooks/useSession", async (importOriginal) => ({
+@@ -153,6 +155,12 @@ vi.mock("@/hooks/useSession", async (importOriginal) => ({
      error: null,
    }),
  }));
@@ -134,7 +134,7 @@ index 6b3725e871d1345c78977017561a530bd18b0463..c5559b5a3a2fd18478eaef8adb2bee63
  vi.mock("@/hooks/useHosts", async (importOriginal) => ({
    ...(await importOriginal<typeof UseHostsModule>()),
    useHosts: () => ({ data: [] }),
-@@ -6250,3 +6258,133 @@ describe("saved sandbox inference policy", () => {
+@@ -7306,3 +7314,133 @@ describe("saved sandbox inference policy", () => {
      },
    );
  });
@@ -269,10 +269,10 @@ index 6b3725e871d1345c78977017561a530bd18b0463..c5559b5a3a2fd18478eaef8adb2bee63
 +  });
 +});
 diff --git a/web/src/pages/ChatPage.mention.test.tsx b/web/src/pages/ChatPage.mention.test.tsx
-index 9e51debafaa532324712ea4f73a24429b7cb09f8..b7ef8da14cc864d92a53aff4688b354c3b50a4a6 100644
+index 06f602c2b8421166a06eda0831597daf2ebf2f0e..3d0ed9f740ecc6dcea5a5b596f8ce409ef885d21 100644
 --- a/web/src/pages/ChatPage.mention.test.tsx
 +++ b/web/src/pages/ChatPage.mention.test.tsx
-@@ -81,6 +81,7 @@ vi.mock("@/hooks/useHosts", async (importOriginal) => ({
+@@ -86,6 +86,7 @@ vi.mock("@/hooks/useHosts", async (importOriginal) => ({
    ...(await importOriginal<typeof UseHostsModule>()),
    useHosts: () => ({ data: [] }),
  }));
@@ -281,10 +281,10 @@ index 9e51debafaa532324712ea4f73a24429b7cb09f8..b7ef8da14cc864d92a53aff4688b354c
    ...(await importOriginal<typeof RunnerHealthProviderModule>()),
    useSessionHostOnline: () => undefined,
 diff --git a/web/src/pages/ChatPage.statusLine.test.tsx b/web/src/pages/ChatPage.statusLine.test.tsx
-index a98139ef14c712d00e6c0dbeda4d7e92fc26652f..04e16e5bd887a28ec2ea5a70a42f796d0a89a879 100644
+index e8d44c6fcc703f06b9fb8ae40a95ed87a32abdc3..ff60f56d187665c19779d0c980b0a73398887a0c 100644
 --- a/web/src/pages/ChatPage.statusLine.test.tsx
 +++ b/web/src/pages/ChatPage.statusLine.test.tsx
-@@ -94,6 +94,7 @@ vi.mock("@/hooks/useHosts", async (importOriginal) => ({
+@@ -99,6 +99,7 @@ vi.mock("@/hooks/useHosts", async (importOriginal) => ({
    ...(await importOriginal<typeof UseHostsModule>()),
    useHosts: (opts: unknown) => useHostsMock(opts),
  }));
@@ -293,10 +293,10 @@ index a98139ef14c712d00e6c0dbeda4d7e92fc26652f..04e16e5bd887a28ec2ea5a70a42f796d
    ...(await importOriginal<typeof RunnerHealthProviderModule>()),
    useSessionHostOnline: (id: string | undefined) => useSessionHostOnlineMock(id),
 diff --git a/web/src/pages/ChatPage.tsx b/web/src/pages/ChatPage.tsx
-index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b4088c8e06c 100644
+index 577c13c686c334b23570e5244bd965e5d08b71a5..7b95d5e7782b1c3481253fda6136f28cd50cef98 100644
 --- a/web/src/pages/ChatPage.tsx
 +++ b/web/src/pages/ChatPage.tsx
-@@ -183,6 +183,12 @@ import {
+@@ -185,6 +185,12 @@ import {
    computeIsWorking,
  } from "@/components/chat/chatBubbleParts";
  import { useSession } from "@/hooks/useSession";
@@ -309,7 +309,7 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
  import { useOpenGithubTab } from "@/shell/FileViewerContext";
  import { useSessionHostOnline, useSessionRunnerOnline } from "@/hooks/RunnerHealthProvider";
  import { useReleaseHostHeldSends } from "@/hooks/useReleaseHostHeldSends";
-@@ -4512,6 +4518,9 @@ export function shouldShowPollyCodexGoalControl(
+@@ -4810,6 +4816,9 @@ export function shouldShowPollyCodexGoalControl(
    );
  }
  
@@ -319,7 +319,7 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
  /**
   * Whether the session surfaces any run-config the gear modal can edit. Shared
   * render guard for the config gear and click-to-open gate for the model/effort
-@@ -4612,10 +4621,60 @@ function SessionHarnessPicker({
+@@ -4914,10 +4923,62 @@ function SessionHarnessPicker({
      modelLabel: modelSummary,
      costRoutingEligible,
    });
@@ -327,10 +327,11 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
 -    showModels,
 -    showEffort,
 -  });
-+  const apply = async (change: () => Promise<unknown>) => {
++  const apply = async (change: () => Promise<unknown>, wakesSession = false) => {
 +    if (disabled || busyRef.current || pendingModelChange !== null) return;
 +    busyRef.current = true;
 +    setBusy(true);
++    setStartingSession(wakesSession);
 +    try {
 +      await change();
 +    } catch {
@@ -338,6 +339,7 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
 +    } finally {
 +      busyRef.current = false;
 +      setBusy(false);
++      setStartingSession(false);
 +    }
 +  };
 +  const { session } = useSession(conversationId);
@@ -384,14 +386,15 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
    const effortLabel = showEffort && !routingOn ? formatStatusEffortLabel(selectedEffort) : null;
    const label = routingOn
      ? SMART_ROUTING_LABEL
-@@ -4640,19 +4699,6 @@ function SessionHarnessPicker({
+@@ -4942,21 +5003,6 @@ function SessionHarnessPicker({
      setMenuOpen(false);
      setConfigOpen(false);
    }, [conversationId]);
--  const apply = async (change: () => Promise<unknown>) => {
+-  const apply = async (change: () => Promise<unknown>, wakesSession = false) => {
 -    if (disabled || busyRef.current || pendingModelChange !== null) return;
 -    busyRef.current = true;
 -    setBusy(true);
+-    setStartingSession(wakesSession);
 -    try {
 -      await change();
 -    } catch {
@@ -399,12 +402,13 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
 -    } finally {
 -      busyRef.current = false;
 -      setBusy(false);
+-      setStartingSession(false);
 -    }
 -  };
    const selectModel = (modelId: string | null) =>
      void apply(async () => {
        const store = useChatStore.getState();
-@@ -4785,8 +4831,8 @@ function SessionHarnessPicker({
+@@ -5098,8 +5144,8 @@ function SessionHarnessPicker({
                }
              : undefined
          }
@@ -415,7 +419,7 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
              ? buildFusionSections({
                  descriptor: composerFusion,
                  modelUid: pickerSelectedModel ?? composerFusion.default,
-@@ -4794,8 +4840,9 @@ function SessionHarnessPicker({
+@@ -5107,8 +5153,9 @@ function SessionHarnessPicker({
                  onChange: selectFusionModel,
                  disabled: busy || pendingModelChange !== null,
                })
@@ -428,10 +432,10 @@ index 8f8c7a294a870b131a23a51a234da6052c951c67..cb3e9707a6e24d279f3a3a8959513b40
      </>
    );
 diff --git a/web/src/store/chatStore.test.ts b/web/src/store/chatStore.test.ts
-index 1f83eb9813d402eae59ddd940316aca0d72d116e..e4645652190a634cdcc6e79a25c588a9133770b6 100644
+index 7f419b5b28128ee75f1e5a883a3a5afd2d1142ed..6e5b0792dd5a514d6dbfb8c454c129c86aeeaa70 100644
 --- a/web/src/store/chatStore.test.ts
 +++ b/web/src/store/chatStore.test.ts
-@@ -16764,6 +16764,53 @@ describe("chatStore — setSubagentRouting", () => {
+@@ -16856,6 +16856,53 @@ describe("chatStore — setSubagentRouting", () => {
    });
  });
  
@@ -486,10 +490,10 @@ index 1f83eb9813d402eae59ddd940316aca0d72d116e..e4645652190a634cdcc6e79a25c588a9
  // ever read the bind-time snapshot would keep showing a stale value (the
  // "Default shown while 'on' is stored" mismatch). These pin the re-read.
 diff --git a/web/src/store/chatStore.ts b/web/src/store/chatStore.ts
-index 999451bdf870558c8caa6ad7fee470c239747d67..e9c90e5269e0cfc856531bbeaa89c49887001e8e 100644
+index 19d73d393da62a281cd0f532b22f6a3cb9bf97c7..bc98c2c403242c191b862c68020b53416103c39a 100644
 --- a/web/src/store/chatStore.ts
 +++ b/web/src/store/chatStore.ts
-@@ -73,7 +73,9 @@ import {
+@@ -74,7 +74,9 @@ import {
    interrupt as interruptSession,
    openSessionStream,
    postEvent,
@@ -499,7 +503,7 @@ index 999451bdf870558c8caa6ad7fee470c239747d67..e9c90e5269e0cfc856531bbeaa89c498
    updateSession,
  } from "@/lib/sessionsApi";
  import { isStaleCursorError } from "@/lib/staleCursor";
-@@ -1301,6 +1303,12 @@ export interface ChatActions {
+@@ -1308,6 +1310,12 @@ export interface ChatActions {
     * whose chip renders the reported model (claude-/codex-native).
     */
    setModel: (model: string | null, opts?: { expectConfirmation?: boolean }) => Promise<void>;
@@ -512,7 +516,7 @@ index 999451bdf870558c8caa6ad7fee470c239747d67..e9c90e5269e0cfc856531bbeaa89c498
    /**
     * Set the active session's cost-control switch — optimistic local
     * flip, then PATCH; the server's canonical value (or a rollback on
-@@ -3486,6 +3494,16 @@ export const useChatStore = create<ChatState>((_rootSet, get) => ({
+@@ -3505,6 +3513,16 @@ export const useChatStore = create<ChatState>((_rootSet, get) => ({
      }
    },
  

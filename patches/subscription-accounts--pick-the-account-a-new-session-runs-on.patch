@@ -488,7 +488,7 @@ index 0000000000000000000000000000000000000000..aa77a81add58d561bad0df8e369c7d7c
 +  return { override: match.default ? null : match.name, projectFallback: null };
 +}
 diff --git a/web/src/shell/NewChatDialog.flow.test.tsx b/web/src/shell/NewChatDialog.flow.test.tsx
-index 3a2bec43956d8479d9b944d51199b50b009aa748..5ba349a284c6b597f3016928e4ae4e118e1abfd5 100644
+index 968c4784a9195f30be1fe542f12c8c9be9724327..d8a1aa8bf4d2560a539a0e672c0d36b19e7c6840 100644
 --- a/web/src/shell/NewChatDialog.flow.test.tsx
 +++ b/web/src/shell/NewChatDialog.flow.test.tsx
 @@ -46,6 +46,7 @@ vi.mock("@/lib/mcpRegistry", () => ({
@@ -499,7 +499,7 @@ index 3a2bec43956d8479d9b944d51199b50b009aa748..5ba349a284c6b597f3016928e4ae4e11
  import { composerContextToLabels } from "@/lib/composerContextAdapters";
  import { clearOptimisticTitles, getOptimisticTitle } from "@/lib/optimisticTitles";
  import { clearSessionDrafts, setSessionDraft } from "@/lib/sessionDrafts";
-@@ -131,6 +132,9 @@ vi.mock("@/lib/identity", () => ({
+@@ -132,6 +133,9 @@ vi.mock("@/lib/identity", () => ({
    getCurrentUserId: vi.fn(() => null),
    resolveIdentity: vi.fn(async () => null),
  }));
@@ -509,7 +509,7 @@ index 3a2bec43956d8479d9b944d51199b50b009aa748..5ba349a284c6b597f3016928e4ae4e11
  vi.mock("@/hooks/useHosts", () => ({
    useHosts: vi.fn(),
    useHostModelOptions: vi.fn(() => ({
-@@ -807,6 +811,37 @@ describe("NewChatLandingScreen create flow", () => {
+@@ -808,6 +812,37 @@ describe("NewChatLandingScreen create flow", () => {
      await waitFor(() => expect(navigateMock).toHaveBeenCalledWith("/c/conv_new"));
    });
  
@@ -548,10 +548,10 @@ index 3a2bec43956d8479d9b944d51199b50b009aa748..5ba349a284c6b597f3016928e4ae4e11
      let resolveCreate!: (response: Response) => void;
      vi.mocked(authenticatedFetch).mockReturnValueOnce(
 diff --git a/web/src/shell/NewChatDialog.projectCreate.test.tsx b/web/src/shell/NewChatDialog.projectCreate.test.tsx
-index 530d7c65ddc8dc6cde4c43aa4ef8a2227575e54f..bf9599ef693b64b9d9813fb9f07b73c1c2a6aee6 100644
+index 6deb15b253c328724754135f423688fe162e9ac7..b580b49ce8efeb18525b797bb019f157c31fcbb1 100644
 --- a/web/src/shell/NewChatDialog.projectCreate.test.tsx
 +++ b/web/src/shell/NewChatDialog.projectCreate.test.tsx
-@@ -87,6 +87,9 @@ vi.mock("@/components/ui/toast", async (importOriginal) => ({
+@@ -88,6 +88,9 @@ vi.mock("@/components/ui/toast", async (importOriginal) => ({
    ...(await importOriginal<typeof ToastModule>()),
    showToast: vi.fn(),
  }));
@@ -562,7 +562,7 @@ index 530d7c65ddc8dc6cde4c43aa4ef8a2227575e54f..bf9599ef693b64b9d9813fb9f07b73c1
    useHosts: vi.fn(),
    useHostModelOptions: vi.fn(() => ({ data: [] })),
 diff --git a/web/src/shell/NewChatDialog.projectPrefill.test.tsx b/web/src/shell/NewChatDialog.projectPrefill.test.tsx
-index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..73ae6eed77df9a03027a00efad46a9a65e4ef57f 100644
+index 1935046833d9b2a96c9be090efa8edf976e932f5..3b9f1fc9b5334485124764e1f7cc6817fce75b4a 100644
 --- a/web/src/shell/NewChatDialog.projectPrefill.test.tsx
 +++ b/web/src/shell/NewChatDialog.projectPrefill.test.tsx
 @@ -38,6 +38,7 @@ import type { ReactNode } from "react";
@@ -573,7 +573,7 @@ index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..73ae6eed77df9a03027a00efad46a9a6
  import type { AvailableAgent } from "@/hooks/useAvailableAgents";
  import { useAvailableAgents } from "@/hooks/useAvailableAgents";
  import type { ProjectConfig } from "@/lib/projectsApi";
-@@ -75,6 +76,9 @@ vi.mock("@/lib/identity", () => ({
+@@ -76,6 +77,9 @@ vi.mock("@/lib/identity", () => ({
    getCurrentUserId: vi.fn(() => null),
    resolveIdentity: vi.fn(async () => null),
  }));
@@ -583,7 +583,7 @@ index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..73ae6eed77df9a03027a00efad46a9a6
  vi.mock("@/hooks/useHosts", () => ({
    useHosts: vi.fn(),
    useHostModelOptions: vi.fn(() => ({ data: [] })),
-@@ -1127,3 +1131,111 @@ describe("NewChatLandingScreen global always-use-worktree default", () => {
+@@ -1128,3 +1132,111 @@ describe("NewChatLandingScreen global always-use-worktree default", () => {
      expect(body.git).toBeUndefined();
    });
  });
@@ -696,7 +696,7 @@ index f96b3a062daec8c1f7a6df49ba3224b6bc11995f..73ae6eed77df9a03027a00efad46a9a6
 +  });
 +});
 diff --git a/web/src/shell/NewChatDialog.test.tsx b/web/src/shell/NewChatDialog.test.tsx
-index b5904e2c3813cbc73359153b3332a87ee5024654..59ad6cd92bff3f4da315d4b78fbbffd2d45f08e6 100644
+index 951852a3ad05c4fa3b98b7fe35ec11f6e0d8a260..5a4853f2d2a8fe97a35ff088d5e2dc17e6505f52 100644
 --- a/web/src/shell/NewChatDialog.test.tsx
 +++ b/web/src/shell/NewChatDialog.test.tsx
 @@ -195,6 +195,9 @@ vi.mock("@/lib/nativeBridge", async (importOriginal) => ({
@@ -710,10 +710,10 @@ index b5904e2c3813cbc73359153b3332a87ee5024654..59ad6cd92bff3f4da315d4b78fbbffd2
    useHosts: vi.fn(),
    useHostModelOptions: vi.fn(),
 diff --git a/web/src/shell/NewChatDialog.tsx b/web/src/shell/NewChatDialog.tsx
-index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9df939b16 100644
+index f743bf8afdc356561f6d4743993b098e08ef5f88..0fd2c9397e68ec13e86d541f76589d54a473ee05 100644
 --- a/web/src/shell/NewChatDialog.tsx
 +++ b/web/src/shell/NewChatDialog.tsx
-@@ -263,6 +263,9 @@ import {
+@@ -271,6 +271,9 @@ import {
    useSandboxModelOptions,
    useSandboxUnsupportedAgents,
  } from "@/hooks/useSandboxModelOptions";
@@ -723,7 +723,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
  import { useSkills } from "@/hooks/useSkills";
  import { useOnboardingRunnerHost } from "@/hooks/useOnboardingRunnerHost";
  import { readArcaHostId, writeArcaHostId } from "@/lib/arcaHost";
-@@ -2224,6 +2227,7 @@ export function NewChatLandingScreen() {
+@@ -2239,6 +2242,7 @@ export function NewChatLandingScreen() {
        agentId: c.agent_id,
        useWorktree: c.use_worktree,
        model: c.model,
@@ -731,7 +731,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
      };
    }, [
      projectParam,
-@@ -3425,10 +3429,6 @@ export function NewChatLandingScreen() {
+@@ -3457,10 +3461,6 @@ export function NewChatLandingScreen() {
      const { [AUTO_HARNESS_ID]: _dropped, ...rest } = brainHarnessLabelsAll;
      return rest;
    }, [brainHarnessLabelsAll, brainRoutable]);
@@ -742,7 +742,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
    // Only an eligible harness can display active per-turn Smart Routing.
    const routingOn = smartRoutingEligible && costControlMode === "on";
    // Both fully-auto flavors own harness and model, but only top-level Smart
-@@ -3885,6 +3885,38 @@ export function NewChatLandingScreen() {
+@@ -3917,6 +3917,38 @@ export function NewChatLandingScreen() {
      setCostControlMode(null);
      rememberPickerOptions(selectedNativeHarness, { model: modelUid, effort: "", routing: "off" });
    };
@@ -781,7 +781,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
    const selectedConfigContent =
      selectedAgent && isEntryConfigurable(selectedAgent) ? (
        <>
-@@ -4066,16 +4098,17 @@ export function NewChatLandingScreen() {
+@@ -4098,16 +4130,17 @@ export function NewChatLandingScreen() {
                  }
                : undefined
            }
@@ -803,7 +803,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
          />
        </>
      ) : null;
-@@ -4798,9 +4831,6 @@ export function NewChatLandingScreen() {
+@@ -4830,9 +4863,6 @@ export function NewChatLandingScreen() {
    const sandboxRepoValid =
      sandboxRepoSelections.every((r) => isValidSandboxRepoUrl(r.url)) && !sandboxRepoOverCap;
  
@@ -813,7 +813,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
    const skillsUnavailableMessage = sandboxSelected
      ? "Host skills will be available after the sandbox starts."
      : selectedAgent?.id === PENDING_AGENT_ID
-@@ -5212,6 +5242,8 @@ export function NewChatLandingScreen() {
+@@ -5250,6 +5280,8 @@ export function NewChatLandingScreen() {
      { label: selectedAgentHasAdvancedSettings ? "Agent" : "Harness", value: agentLabel },
      ...harnessTriggerDetails,
      ...configSummary.filter((detail) => detail.label === "Connection"),
@@ -822,7 +822,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
    ];
  
    // Pick top-level Smart Routing. The create call needs a concrete agent_id, so
-@@ -5866,6 +5898,7 @@ export function NewChatLandingScreen() {
+@@ -5908,6 +5940,7 @@ export function NewChatLandingScreen() {
            harness_override: smartRoutingHarnessSelected
              ? AUTO_HARNESS_ID
              : (pickedHarness ?? undefined),
@@ -830,7 +830,7 @@ index 92b925c375f1d09d49869e80209afd191991b8d0..34535fa8050e5c265ac7af804bb9fbb9
            smart_routing_message:
              smartRoutingHarnessSelected || pinnedNativeRoutes ? initialPrompt : undefined,
          });
-@@ -7333,6 +7366,16 @@ export function NewChatLandingScreen() {
+@@ -7415,6 +7448,16 @@ export function NewChatLandingScreen() {
              />
            )}
  

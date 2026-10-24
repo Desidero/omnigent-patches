@@ -33,7 +33,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/components/blocks/terminalTouchSelection.ts
 
 diff --git a/web/src/components/blocks/TerminalSession.test.ts b/web/src/components/blocks/TerminalSession.test.ts
-index f2b6d8d9e2db8466f1139dba44268726073cad82..edcb0a4f584d2d2c4fe95e9413c270eb5acd343b 100644
+index 6631ac27850748ce325401360dd584412dd065fa..607071aa2d37ba17e17750457f7b63b39d553fc1 100644
 --- a/web/src/components/blocks/TerminalSession.test.ts
 +++ b/web/src/components/blocks/TerminalSession.test.ts
 @@ -7,6 +7,7 @@
@@ -44,7 +44,7 @@ index f2b6d8d9e2db8466f1139dba44268726073cad82..edcb0a4f584d2d2c4fe95e9413c270eb
  import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  import {
    SHIFT_ENTER_CSI_U,
-@@ -1005,6 +1006,74 @@ describe("TerminalSession", () => {
+@@ -1016,6 +1017,74 @@ describe("TerminalSession", () => {
      session.dispose();
    });
  
@@ -120,7 +120,7 @@ index f2b6d8d9e2db8466f1139dba44268726073cad82..edcb0a4f584d2d2c4fe95e9413c270eb
      // WHY: ArrayBuffer message frames are raw pane bytes — they must reach the
      // terminal through xterm's ordered public write queue and trigger the
 diff --git a/web/src/components/blocks/TerminalSession.ts b/web/src/components/blocks/TerminalSession.ts
-index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b27bd967c 100644
+index 91199a941604069cf44081038ae753e65baa970c..7d16740266cb654e927421476ee4c7d21462f4d4 100644
 --- a/web/src/components/blocks/TerminalSession.ts
 +++ b/web/src/components/blocks/TerminalSession.ts
 @@ -21,6 +21,7 @@ import { splitWorkspaceFileCitation } from "@/components/ai-elements/streamdown-
@@ -131,7 +131,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
  import { SHIFT_ENTER_CSI_U } from "./terminalExtraKeysModel";
  
  // Card background colors derived from the app's CSS palette.
-@@ -642,6 +643,8 @@ export class TerminalSession {
+@@ -644,6 +645,8 @@ export class TerminalSession {
    private readonly dataDispose: { dispose: () => void };
    private readonly osc52Dispose: { dispose: () => void };
    private readonly codexPalette: CodexTerminalPalette | null;
@@ -140,7 +140,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
    private readonly onClipboardRequest?: TerminalClipboardListener;
    /** Whether this visible, interactive attach may write the local clipboard. */
    private clipboardEnabled: boolean;
-@@ -751,6 +754,7 @@ export class TerminalSession {
+@@ -753,6 +756,7 @@ export class TerminalSession {
      // Load the GPU renderer after open() (it needs the mounted canvas).
      // Falls back to the DOM renderer when WebGL is unavailable.
      this.webgl = loadWebglRenderer(this.term);
@@ -148,7 +148,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
      try {
        this.fit.fit();
      } catch (err) {
-@@ -891,11 +895,13 @@ export class TerminalSession {
+@@ -893,11 +897,13 @@ export class TerminalSession {
          if (e.touches.length !== 1) {
            this.touchStart = null;
            this.touchScrolling = false;
@@ -162,7 +162,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
        },
        { signal },
      );
-@@ -904,6 +910,11 @@ export class TerminalSession {
+@@ -906,6 +912,11 @@ export class TerminalSession {
        (e) => {
          if (this.touchStart === null || e.touches.length !== 1) return;
          const touch = e.touches[0];
@@ -174,7 +174,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
          if (!this.touchScrolling) {
            // Slop gate: taps and long-press jitter stay with the browser.
            // Past the slop, the dominant axis decides — a mostly-horizontal
-@@ -911,6 +922,7 @@ export class TerminalSession {
+@@ -913,6 +924,7 @@ export class TerminalSession {
            const dx = Math.abs(touch.clientX - this.touchStart.x);
            const dy = Math.abs(touch.clientY - this.touchStart.y);
            if (Math.max(dx, dy) < TOUCH_SCROLL_SLOP_PX) return;
@@ -182,7 +182,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
            if (dx > dy) {
              this.touchStart = null;
              return;
-@@ -947,8 +959,28 @@ export class TerminalSession {
+@@ -949,8 +961,28 @@ export class TerminalSession {
        this.touchScrolling = false;
        this.touchPartialLines = 0;
      };
@@ -213,7 +213,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
  
      // ResizeObserver fires on any layout-affecting change (window
      // resize, font load, CSS class change). tmux deduplicates same-
-@@ -1007,6 +1039,11 @@ export class TerminalSession {
+@@ -1009,6 +1041,11 @@ export class TerminalSession {
      this.ws.send(INPUT_ENCODER.encode(data));
    }
  
@@ -225,7 +225,7 @@ index cdb9db2e72da4e215a3f437e20f83471e84fad8a..5d46a9dc449c6b10baf0a61d4e0e2b6b
    /** Whether the program enabled application cursor keys (DECCKM). */
    applicationCursorKeys(): boolean {
      return this.term.modes.applicationCursorKeysMode;
-@@ -1042,6 +1079,7 @@ export class TerminalSession {
+@@ -1044,6 +1081,7 @@ export class TerminalSession {
      this.resizeObserver.disconnect();
      this.dataDispose.dispose();
      this.osc52Dispose.dispose();
@@ -368,7 +368,7 @@ index 0000000000000000000000000000000000000000..343999737bdb7f41839754bd47ab2e92
 +  );
 +});
 diff --git a/web/src/components/blocks/TerminalView.test.tsx b/web/src/components/blocks/TerminalView.test.tsx
-index 6543118c80c038a70f9e177e38e2f9f98b670ced..b49b313356edd6c0d38b88e6fac51caf1215d529 100644
+index 397da5cddac1a7766b08af55fc34d467ea8371f4..be64af841aaf2246432213e95082be8904cbd677 100644
 --- a/web/src/components/blocks/TerminalView.test.tsx
 +++ b/web/src/components/blocks/TerminalView.test.tsx
 @@ -23,6 +23,7 @@ import {
@@ -567,7 +567,7 @@ index 6543118c80c038a70f9e177e38e2f9f98b670ced..b49b313356edd6c0d38b88e6fac51caf
    async function renderClipboardView() {
      render(<TerminalView sessionId="conv_abc" terminalId="terminal_bash_s1" />);
 diff --git a/web/src/components/blocks/TerminalView.tsx b/web/src/components/blocks/TerminalView.tsx
-index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd02cf65ff 100644
+index a1203e274d9b0879b160f3dc8a39135277e46be2..ac8e9fd3acc11a93e90ba39ba3a296ba10c2217d 100644
 --- a/web/src/components/blocks/TerminalView.tsx
 +++ b/web/src/components/blocks/TerminalView.tsx
 @@ -56,6 +56,8 @@ import {
@@ -579,7 +579,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
  
  /**
   * Backoff schedule for automatic re-attach after a transport-level
-@@ -291,6 +293,26 @@ export function TerminalView({
+@@ -294,6 +296,26 @@ export function TerminalView({
    const isDarkRef = useRef(isDark);
    isDarkRef.current = isDark;
    const sessionRef = useRef<TerminalSession | null>(null);
@@ -606,7 +606,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
    // Extra-keys row (touch devices). The row keeps its sticky-modifier rewrite
    // here so a re-dialed session inherits it; the target resolves the live
    // session at event time, so it is created once and never re-renders the row.
-@@ -381,11 +403,13 @@ export function TerminalView({
+@@ -384,11 +406,13 @@ export function TerminalView({
    );
  
    const notifyClipboardRequest = useCallback(
@@ -622,7 +622,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
          clipboardScopeRef.current.scope !== clipboardScope ||
          clipboardScopeRef.current.epoch !== clipboardScopeEpoch
        ) {
-@@ -405,7 +429,7 @@ export function TerminalView({
+@@ -408,7 +432,7 @@ export function TerminalView({
          });
          return;
        }
@@ -631,7 +631,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
        if (
          clipboardConsentRef.current.decision === "allow" &&
          copyEvent?.clipboardData &&
-@@ -420,7 +444,7 @@ export function TerminalView({
+@@ -423,7 +447,7 @@ export function TerminalView({
        }
        if (
          clipboardConsentRef.current.decision === "allow" &&
@@ -640,7 +640,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
        ) {
          setClipboardPrompt(null);
          queueSessionClipboardCopy({
-@@ -515,7 +539,55 @@ export function TerminalView({
+@@ -518,7 +542,55 @@ export function TerminalView({
    const disposeActiveSession = useCallback(() => {
      sessionRef.current?.dispose();
      sessionRef.current = null;
@@ -696,7 +696,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
  
    useLayoutEffect(() => {
      mountedRef.current = true;
-@@ -621,6 +693,7 @@ export function TerminalView({
+@@ -624,6 +696,7 @@ export function TerminalView({
          );
          sessionRef.current = terminalSession;
          terminalSession.setInputTransform(extraKeysTransformRef.current);
@@ -704,7 +704,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
          // Relay-connected with a direct URL on offer: negotiate the
          // loopback upgrade in the background. In Chrome this is what
          // raises the Local Network Access prompt; the probe socket
-@@ -652,6 +725,7 @@ export function TerminalView({
+@@ -655,6 +728,7 @@ export function TerminalView({
        notifyInput,
        notifyClipboardRequest,
        notifyFileLink,
@@ -712,7 +712,7 @@ index ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf..1e6d749c45eb13b3ef5fe11b31f6bfbd
        disposeActiveSession,
      ],
    );
-@@ -799,10 +873,25 @@ export function TerminalView({
+@@ -802,10 +876,25 @@ export function TerminalView({
          />
        )}
        <div

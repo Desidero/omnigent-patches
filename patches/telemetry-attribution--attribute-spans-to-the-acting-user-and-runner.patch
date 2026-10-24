@@ -44,10 +44,10 @@ index 6907e682d38e4541e91b307b3aec863210f273ab..e840c6170027b0f32e02e8768d244653
  Telemetry is **opt-in**: nothing is instrumented and no spans are created unless
  `OMNIGENT_TELEMETRY_ENABLED` is truthy, so a default install is never burdened with
 diff --git a/omnigent/debug_logging.py b/omnigent/debug_logging.py
-index 48b5a294b571df9dd5f4a71de76441f30c6f7604..0a0b259d7dcbb766b2690068bfc8e31fd8b91196 100644
+index 33af5d7b908e4cf0c5b01566e99ae8044343e553..4e1aa682e55ae74c19e927f2f07057da9ee2e919 100644
 --- a/omnigent/debug_logging.py
 +++ b/omnigent/debug_logging.py
-@@ -309,6 +309,11 @@ def set_current_request_id(request_id: str | None) -> None:
+@@ -311,6 +311,11 @@ def set_current_request_id(request_id: str | None) -> None:
      _request_id_var.set(request_id or None)
  
  
@@ -210,7 +210,7 @@ index eef1075354d88f7e1c6f50c3258f5f5dfafc0ebc..d353d0936b530963d8b02a91a4a72d29
      # providers below all read OTEL_SERVICE_NAME when they build their
      # Resource, so this must run before any provider is created. A
 diff --git a/omnigent/server/app.py b/omnigent/server/app.py
-index 11274567123d1fc2c24badfecafad7521ee80e59..dc19ae653d97baece1367432d08b3e06ae7eda43 100644
+index c64fccea70b6f9168f67d6843f988c52ea2ff27b..ee8ef071b6bd4d9fa627e6317c89d066f01ee799 100644
 --- a/omnigent/server/app.py
 +++ b/omnigent/server/app.py
 @@ -37,6 +37,7 @@ from omnigent.debug_logging import (
@@ -221,7 +221,7 @@ index 11274567123d1fc2c24badfecafad7521ee80e59..dc19ae653d97baece1367432d08b3e06
      debug_event,
      debug_sink_enabled,
      reset_request_audit_attrs,
-@@ -2235,6 +2236,7 @@ def create_app(
+@@ -2344,6 +2345,7 @@ def create_app(
              )
          except Exception:  # noqa: BLE001 — attribution is best-effort
              set_current_user_id(None)

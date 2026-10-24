@@ -25,10 +25,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  4 files changed, 181 insertions(+)
 
 diff --git a/feature-map/sessions.md b/feature-map/sessions.md
-index 8fb8977f59c275009ff99e2ed233809aa3bd469d..eeaf9e8a78b639193f81c34e491a5d81e0baceef 100644
+index 799ccea784fd3fdbf9a2e0af7cf480f7923fb33e..c81916a5eba60862eafd5d0a7c3674abdc8aac6a 100644
 --- a/feature-map/sessions.md
 +++ b/feature-map/sessions.md
-@@ -427,6 +427,11 @@ plain `uv run pytest`, which starts a private server for the test.
+@@ -451,6 +451,11 @@ plain `uv run pytest`, which starts a private server for the test.
  - **`delete`:**
    `tests/e2e_ui/sessions/test_sidebar_delete.py::test_delete_session_removes_row_and_from_store`,
    `tests/e2e_ui/sessions/test_sidebar_bulk_actions.py::test_bulk_delete_removes_sessions`
@@ -41,7 +41,7 @@ index 8fb8977f59c275009ff99e2ed233809aa3bd469d..eeaf9e8a78b639193f81c34e491a5d81
    `tests/e2e_ui/sessions/test_export_chat_menu.py::test_header_session_menu_offers_export`,
    `tests/e2e_ui/sessions/test_export_chat_menu.py::test_header_export_downloads_transcript`
 diff --git a/omnigent/server/routes/_sessions/orchestration.py b/omnigent/server/routes/_sessions/orchestration.py
-index 4a935df0af3516d99f0b9cc8c9bc329c899f300f..0c34f4e630402d83fc52b4ca0a83706f400e4cfe 100644
+index 7123d1ff7afa5bfa1651fa706466247821a5ebef..88f055f039d7832a2b13fcb793cb90904e6f4b9b 100644
 --- a/omnigent/server/routes/_sessions/orchestration.py
 +++ b/omnigent/server/routes/_sessions/orchestration.py
 @@ -794,6 +794,76 @@ def _cancel_runner_relays(session_ids: list[str]) -> None:
@@ -121,7 +121,7 @@ index 4a935df0af3516d99f0b9cc8c9bc329c899f300f..0c34f4e630402d83fc52b4ca0a83706f
  # Strong references to detached archive stops so the tasks can't be
  # garbage-collected mid-stop (asyncio only holds weak refs to tasks).
  # custom-lint: disable-next=workspace-scoped-cache -- set of Task objects
-@@ -13641,6 +13711,7 @@ __all__ = [
+@@ -13651,6 +13721,7 @@ __all__ = [
      "_handle_mcp_tools_call",
      "_heal_subagent_runner_binding_via_parent",
      "_hold_native_ask_gate",
@@ -129,7 +129,7 @@ index 4a935df0af3516d99f0b9cc8c9bc329c899f300f..0c34f4e630402d83fc52b4ca0a83706f
      "_is_native_terminal_session",
      "_kick_managed_relaunch",
      "_kick_managed_wake",
-@@ -13676,6 +13747,7 @@ __all__ = [
+@@ -13686,6 +13757,7 @@ __all__ = [
      "_spawn_native_approval_popup_forward",
      "_spawn_native_blocked_notice_forward",
      "_stop_host_runner_intentionally",
@@ -138,10 +138,10 @@ index 4a935df0af3516d99f0b9cc8c9bc329c899f300f..0c34f4e630402d83fc52b4ca0a83706f
      "_wait_for_host_reconnect",
      "_wake_parent_for_blocked_child",
 diff --git a/omnigent/server/routes/sessions/routes_events.py b/omnigent/server/routes/sessions/routes_events.py
-index b1055bf37da00b403f9149ee39be7f288edf4909..20fcc25b3c78afd0bf94a29ba302128e8ee9fccd 100644
+index ee8f4f0aec5de69b458caaccf16f9e015f4ca53c..34acc46abdf6016ff5b1332c2202fffb1dc24d5f 100644
 --- a/omnigent/server/routes/sessions/routes_events.py
 +++ b/omnigent/server/routes/sessions/routes_events.py
-@@ -247,6 +247,7 @@ from omnigent.server.routes._sessions.orchestration import (
+@@ -250,6 +250,7 @@ from omnigent.server.routes._sessions.orchestration import (
      _evaluate_input_policy,
      _evaluate_tool_call_policy,
      _heal_subagent_runner_binding_via_parent,
@@ -149,7 +149,7 @@ index b1055bf37da00b403f9149ee39be7f288edf4909..20fcc25b3c78afd0bf94a29ba302128e
      _is_native_terminal_session,
      _mark_dispatch_in_flight,
      _maybe_relaunch_managed_sandbox,
-@@ -265,6 +266,7 @@ from omnigent.server.routes._sessions.orchestration import (
+@@ -268,6 +269,7 @@ from omnigent.server.routes._sessions.orchestration import (
      _runner_live_on_another_replica_from_conversations,
      _side_chat_source_id,
      _stop_host_runner_intentionally,
@@ -157,7 +157,7 @@ index b1055bf37da00b403f9149ee39be7f288edf4909..20fcc25b3c78afd0bf94a29ba302128e
      _wait_for_host_bound_runner_client,
      _wait_for_host_reconnect,
      ensure_runner_connected,
-@@ -3573,6 +3575,9 @@ def register_events_routes(
+@@ -3646,6 +3648,9 @@ def register_events_routes(
              raise _session_not_found()
          # Capture relay IDs before subtree deletion removes parent links.
          descendant_ids = await _best_effort_stop(session_id, conversation_store, runner_router)
@@ -167,7 +167,7 @@ index b1055bf37da00b403f9149ee39be7f288edf4909..20fcc25b3c78afd0bf94a29ba302128e
          # Runner-side resource cleanup is best-effort: if the bound
          # runner is offline or unbound, the session must still be
          # deletable. Server-owned records (files and conversation row
-@@ -3668,6 +3673,14 @@ def register_events_routes(
+@@ -3741,6 +3746,14 @@ def register_events_routes(
          # A relay still inside an offline runner's reconnect grace must not
          # fail the deleted turns when that grace expires.
          _cancel_runner_relays([session_id, *descendant_ids])

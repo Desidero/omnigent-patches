@@ -66,19 +66,19 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/lib/terminalExtraKeysPreferences.ts
 
 diff --git a/feature-map/terminals.md b/feature-map/terminals.md
-index 6c908fe6eb3f31a0720559a09ac9af49af42aa96..c64c90a2002925ae5076e1b8856f706d07814eac 100644
+index ab6b53549f1ee23aaad13806a56adb7269eaf28a..15ac1ff3a60e7e81adef13e6570876085b0aa5ac 100644
 --- a/feature-map/terminals.md
 +++ b/feature-map/terminals.md
-@@ -27,6 +27,8 @@ reattach when the session moves to another host.
-   chat or composer.
- - `dialog-routing`: when the harness is waiting on a dialog in its terminal, chat
+@@ -29,6 +29,8 @@ reattach when the session moves to another host.
    says so and routes the user to the terminal.
+ - `split-panes`: behind `splittable_terminal_view_ui`, split the Terminal view
+   into shell panes, resize them (each side stays within 25–75%), and close them.
 +- `touch-keys`: on touch devices an extra-keys row (Esc, Tab, arrows, sticky
 +  Ctrl/Alt/Shift) under the terminal sends keys a soft keyboard can't.
  
  ## How to get to it (user POV)
  
-@@ -108,6 +110,11 @@ verify-env run -- python -m pytest <test> --ui-skip-build --video=on \
+@@ -116,6 +118,11 @@ verify-env run -- python -m pytest <test> --ui-skip-build --video=on \
  - **`scrollback`, keyboard:** no e2e coverage. In a Codex terminal with more
    output than fits, press Page Up and expect older output; then check that the
    Codex terminal's other keys still behave as before.
@@ -2179,10 +2179,10 @@ index 0000000000000000000000000000000000000000..1973ab9f53f69ecc1dbf1c78a49a57c5
 +  );
 +});
 diff --git a/web/src/components/blocks/TerminalSession.test.ts b/web/src/components/blocks/TerminalSession.test.ts
-index 7a7372be53a780f5790691b26d71453b0d16df0e..f2b6d8d9e2db8466f1139dba44268726073cad82 100644
+index 9f5a3efb109cf0a79690900597ecd6ebf42e6fe1..6631ac27850748ce325401360dd584412dd065fa 100644
 --- a/web/src/components/blocks/TerminalSession.test.ts
 +++ b/web/src/components/blocks/TerminalSession.test.ts
-@@ -1200,6 +1200,131 @@ describe("TerminalSession", () => {
+@@ -1211,6 +1211,131 @@ describe("TerminalSession", () => {
      expect(socket.closed).toBe(false);
    });
  
@@ -2315,7 +2315,7 @@ index 7a7372be53a780f5790691b26d71453b0d16df0e..f2b6d8d9e2db8466f1139dba44268726
      // WHY: layout changes (window resize, font load) must propagate a resize
      // frame, so the session must register a ResizeObserver on its container.
 diff --git a/web/src/components/blocks/TerminalSession.ts b/web/src/components/blocks/TerminalSession.ts
-index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471e84fad8a 100644
+index fdce5449db0fad77249f9731f87d93b3eca8c18e..91199a941604069cf44081038ae753e65baa970c 100644
 --- a/web/src/components/blocks/TerminalSession.ts
 +++ b/web/src/components/blocks/TerminalSession.ts
 @@ -21,6 +21,7 @@ import { splitWorkspaceFileCitation } from "@/components/ai-elements/streamdown-
@@ -2326,7 +2326,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
  
  // Card background colors derived from the app's CSS palette.
  // Light: --card: oklch(1.000 0 0) = pure white.
-@@ -232,8 +233,8 @@ export type TerminalActivityListener = () => void;
+@@ -234,8 +235,8 @@ export type TerminalActivityListener = () => void;
  /** Listener for user keyboard input sent to the terminal. */
  export type TerminalInputListener = () => void;
  
@@ -2337,7 +2337,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
  
  /** Readline line-editing bytes for the macOS Cmd key mappings below. */
  export const CMD_BACKSPACE_LINE_KILL = "\x15"; // Ctrl-U: kill to line start
-@@ -653,6 +654,13 @@ export class TerminalSession {
+@@ -655,6 +656,13 @@ export class TerminalSession {
    private focusOnConnect: boolean;
    /** ``performance.now()`` of the last keystroke; gates clipboard writes. */
    private lastUserInputAt = 0;
@@ -2351,7 +2351,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
    /** Guards {@link dispose} so calling it twice is a safe no-op. */
    private disposed = false;
    /**
-@@ -709,6 +717,7 @@ export class TerminalSession {
+@@ -711,6 +719,7 @@ export class TerminalSession {
      this.clipboardEnabled = clipboardEnabled;
      this.focusOnConnect = focusOnConnect;
      this.onClipboardRequest = onClipboardRequest;
@@ -2359,7 +2359,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
      // Read the user's code-font preference (Settings → Appearance) at
      // construction; a mid-session change is applied live via setFont(). The
      // xterm.js defaults (15px, no theme) feel out of place inside the app
-@@ -827,13 +836,11 @@ export class TerminalSession {
+@@ -829,13 +838,11 @@ export class TerminalSession {
        { signal },
      );
  
@@ -2377,7 +2377,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
      });
  
      this.term.attachCustomKeyEventHandler((e) => {
-@@ -844,11 +851,7 @@ export class TerminalSession {
+@@ -846,11 +853,7 @@ export class TerminalSession {
        // the CSI-u sequence once, on keydown.
        if (e.type === "keydown") {
          e.preventDefault();
@@ -2390,7 +2390,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
        }
        return false;
      });
-@@ -856,9 +859,9 @@ export class TerminalSession {
+@@ -858,9 +861,9 @@ export class TerminalSession {
      // Replace xterm's lossy wheel→mouse-report conversion (trackpad deltas
      // are damped and capped to one report per event, which reads as
      // "scrolling doesn't work" on macOS trackpads) with the accumulating
@@ -2403,7 +2403,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
      this.term.attachCustomWheelEventHandler((e) => {
        const result = wheelReportPayload(
          e,
-@@ -871,7 +874,7 @@ export class TerminalSession {
+@@ -873,7 +876,7 @@ export class TerminalSession {
        );
        this.wheelPartialLines = result.partial;
        if (!result.consume) return true;
@@ -2412,7 +2412,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
        e.preventDefault();
        return false;
      });
-@@ -982,6 +985,33 @@ export class TerminalSession {
+@@ -984,6 +987,33 @@ export class TerminalSession {
      this.term.focus();
    }
  
@@ -2447,7 +2447,7 @@ index 72a09dbbbb67fe1c76a0c8af31efbac492ef72ce..cdb9db2e72da4e215a3f437e20f83471
     * Update the terminal's code font without reconnecting —
     * mirrors {@link setTheme}, mutating options in place. A new glyph size
 diff --git a/web/src/components/blocks/TerminalView.test.tsx b/web/src/components/blocks/TerminalView.test.tsx
-index b6fb012b5cdb3d49ddb8b983aabbf43b64906a24..6543118c80c038a70f9e177e38e2f9f98b670ced 100644
+index 45a40e4490e143d5766c3f25d5450d5d5905d9f0..397da5cddac1a7766b08af55fc34d467ea8371f4 100644
 --- a/web/src/components/blocks/TerminalView.test.tsx
 +++ b/web/src/components/blocks/TerminalView.test.tsx
 @@ -23,6 +23,7 @@ import {
@@ -2620,7 +2620,7 @@ index b6fb012b5cdb3d49ddb8b983aabbf43b64906a24..6543118c80c038a70f9e177e38e2f9f9
    it("addresses the terminal by resource id under /v1/sessions/.../resources/terminals", () => {
      expect(buildAttachPath("conv_abc", "terminal_bash_s1", false)).toBe(
 diff --git a/web/src/components/blocks/TerminalView.tsx b/web/src/components/blocks/TerminalView.tsx
-index 3492fb3b305c520fc11633806c532e24bd306e6a..ec3fc2ae5aa789ba2bf48424e665dcd7792cf7cf 100644
+index a03c1dee791c993fd50ea77b70eda47301c04eac..a1203e274d9b0879b160f3dc8a39135277e46be2 100644
 --- a/web/src/components/blocks/TerminalView.tsx
 +++ b/web/src/components/blocks/TerminalView.tsx
 @@ -9,6 +9,7 @@
@@ -2639,7 +2639,7 @@ index 3492fb3b305c520fc11633806c532e24bd306e6a..ec3fc2ae5aa789ba2bf48424e665dcd7
  
  /**
   * Backoff schedule for automatic re-attach after a transport-level
-@@ -289,6 +291,20 @@ export function TerminalView({
+@@ -292,6 +294,20 @@ export function TerminalView({
    const isDarkRef = useRef(isDark);
    isDarkRef.current = isDark;
    const sessionRef = useRef<TerminalSession | null>(null);
@@ -2660,7 +2660,7 @@ index 3492fb3b305c520fc11633806c532e24bd306e6a..ec3fc2ae5aa789ba2bf48424e665dcd7
    // Stable refs so callback prop changes never recreate the WS session.
    const onStateChangeRef = useRef(onStateChange);
    onStateChangeRef.current = onStateChange;
-@@ -604,6 +620,7 @@ export function TerminalView({
+@@ -607,6 +623,7 @@ export function TerminalView({
            notifyFileLink,
          );
          sessionRef.current = terminalSession;
@@ -2668,7 +2668,7 @@ index 3492fb3b305c520fc11633806c532e24bd306e6a..ec3fc2ae5aa789ba2bf48424e665dcd7
          // Relay-connected with a direct URL on offer: negotiate the
          // loopback upgrade in the background. In Chrome this is what
          // raises the Local Network Access prompt; the probe socket
-@@ -797,6 +814,9 @@ export function TerminalView({
+@@ -800,6 +817,9 @@ export function TerminalView({
            />
          )}
        </div>
@@ -3398,10 +3398,10 @@ index 0000000000000000000000000000000000000000..56ce2c85cdf501993eecb467de760bc6
 +  return isIOSShell() || isAndroidShell() || coarsePointer;
 +}
 diff --git a/web/src/index.css b/web/src/index.css
-index 6b3279aea2ace57f62d7379ccfbcba1d432ff651..a6e36914a0a53e8eedfc5599a78fe8b2584695a3 100644
+index eaf736c73af7b41c2d07358b35d8efeb5eb97934..5099140cc032ae04d270a1f6b430e0963235109c 100644
 --- a/web/src/index.css
 +++ b/web/src/index.css
-@@ -1156,6 +1156,60 @@ html[data-electron-mac] .breadcrumb-folder {
+@@ -1171,6 +1171,60 @@ html[data-electron-mac] .breadcrumb-folder {
    }
  }
  

@@ -26,10 +26,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  5 files changed, 181 insertions(+), 23 deletions(-)
 
 diff --git a/web/src/components/blocks/ChatMarkdown.tsx b/web/src/components/blocks/ChatMarkdown.tsx
-index 783414f4dce5db5ef34c1ab5995cb9ef3daee569..28dcc308465a899dbcf81eb9aae9e7c41cbe3305 100644
+index e7c7ddf62606e29716eb66d2897cac71a1bf9f94..ef0bb2d49fa609ed0c3f5c5e4af1ea790608318a 100644
 --- a/web/src/components/blocks/ChatMarkdown.tsx
 +++ b/web/src/components/blocks/ChatMarkdown.tsx
-@@ -453,24 +453,35 @@ function WorkspaceFileLink({
+@@ -535,24 +535,35 @@ function citesSamePlace(
  const ITEM_LABEL_BADGE_CLASS =
    "inline-flex items-baseline rounded border border-border bg-muted px-1 font-mono text-[0.85em] leading-snug";
  const ITEM_LABEL_CLOSED_CLASS = "line-through opacity-60";

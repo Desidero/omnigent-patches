@@ -415,10 +415,10 @@ index 21d831dc5afe5428eb5dbfa6c42b283cc6cdc79f..cbd4b425cfa94fab874b3b72907cf7e4
 -        profile / "projects" / "-work-repo"
 -    )
 diff --git a/tests/harnesses/claude_native/test_claude_native_bridge.py b/tests/harnesses/claude_native/test_claude_native_bridge.py
-index 29d64b77ede993263ec5eafee836ba0a31b934d8..4d9ce7ea437832a391fd754b7022b8da8bbfd5b5 100644
+index 8c4632bcc988fcd81ef11be08651ab22125e4162..292eac59e83200ca384120d87aa1d7b6866e66a7 100644
 --- a/tests/harnesses/claude_native/test_claude_native_bridge.py
 +++ b/tests/harnesses/claude_native/test_claude_native_bridge.py
-@@ -7853,6 +7853,48 @@ def test_read_user_effort_level_returns_none_when_settings_missing(
+@@ -8114,6 +8114,48 @@ def test_read_user_effort_level_returns_none_when_settings_missing(
      assert claude_native_bridge.read_user_effort_level() is None
  
  
@@ -467,7 +467,7 @@ index 29d64b77ede993263ec5eafee836ba0a31b934d8..4d9ce7ea437832a391fd754b7022b8da
  # ---------------------------------------------------------------------------
  # launch_model storage and retrieval
  # ---------------------------------------------------------------------------
-@@ -8892,6 +8934,24 @@ def test_claude_global_config_path_normalizes_legacy_lookup_to_nfc(
+@@ -9153,6 +9195,24 @@ def test_claude_global_config_path_normalizes_legacy_lookup_to_nfc(
      assert claude_global_config_path(workspace, env) == Path(composed) / ".config.json"
  
  
@@ -492,7 +492,7 @@ index 29d64b77ede993263ec5eafee836ba0a31b934d8..4d9ce7ea437832a391fd754b7022b8da
  def test_display_cost_approval_popup_builds_detached_tmux_command(
      tmp_path: Path,
      monkeypatch: pytest.MonkeyPatch,
-@@ -14079,37 +14139,3 @@ def test_hold_approval_wait_marker_refreshes_until_released(
+@@ -14478,37 +14538,3 @@ def test_hold_approval_wait_marker_refreshes_until_released(
      settled = len(touches)
      time.sleep(0.1)
      assert len(touches) == settled, "the refresher must stop when the block exits"

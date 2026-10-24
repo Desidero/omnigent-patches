@@ -40,7 +40,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  10 files changed, 772 insertions(+), 77 deletions(-)
 
 diff --git a/omnigent/runner/tool_dispatch.py b/omnigent/runner/tool_dispatch.py
-index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f12042c5d3 100644
+index a3dcfedc277019104ed92e1b2313db277f220ceb..9b953e506decf4617ec0c5116ae24e9164679819 100644
 --- a/omnigent/runner/tool_dispatch.py
 +++ b/omnigent/runner/tool_dispatch.py
 @@ -32,6 +32,7 @@ import uuid
@@ -60,7 +60,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
  )
  from omnigent.tools.builtins.sys_terminal import (
      SysTerminalCloseTool,
-@@ -5071,20 +5074,17 @@ async def _execute_session_query_tool(
+@@ -5075,20 +5078,17 @@ async def _execute_session_query_tool(
          return json.dumps({"error": f"{tool_name}: malformed JSON arguments"})
  
      if tool_name == "sys_session_list":
@@ -86,7 +86,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
              limit=limit,
              cursor_state=cursor_state,
              continued=continued,
-@@ -6024,10 +6024,67 @@ def _project_agent_list(
+@@ -6028,10 +6028,67 @@ def _project_agent_list(
      }
  
  
@@ -155,7 +155,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
      *,
      limit: int | None,
      cursor_state: dict[str, _DiscoveryState],
-@@ -6040,15 +6097,15 @@ async def _session_list_via_rest(
+@@ -6044,15 +6101,15 @@ async def _session_list_via_rest(
      parent/siblings when the caller is itself a child) — see
      :func:`_collect_sub_agents`. ``sessions`` is the **global**,
      permission-bounded list of every session the caller can access, each
@@ -177,7 +177,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
      :param limit: Optional maximum rows returned from the global sessions view. When
          omitted, the complete legacy result is preserved while it fits.
      :param cursor_state: Opaque continuation position for the global sessions view.
-@@ -6061,7 +6118,7 @@ async def _session_list_via_rest(
+@@ -6065,7 +6122,7 @@ async def _session_list_via_rest(
          if cursor_state["sessions"][0] == _DISCOVERY_END
          else await _collect_global_sessions(
              server_client,
@@ -186,7 +186,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
              after=cursor_state["sessions"][1],
              limit=limit or _AGENT_LIST_PAGE_LIMIT,
          )
-@@ -6072,7 +6129,7 @@ async def _session_list_via_rest(
+@@ -6076,7 +6133,7 @@ async def _session_list_via_rest(
          cursor_state=cursor_state,
          continued=continued,
          tool_name="sys_session_list",
@@ -195,7 +195,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
          source_pages={"sessions": sessions_page},
          page_sections=("sessions",),
      )
-@@ -6265,7 +6322,7 @@ async def _resolve_runner_online_map(
+@@ -6293,7 +6350,7 @@ async def _resolve_runner_online_map(
  
  async def _collect_global_sessions(
      server_client: httpx.AsyncClient,
@@ -204,7 +204,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
      *,
      after: str | None,
      limit: int,
-@@ -6274,23 +6331,34 @@ async def _collect_global_sessions(
+@@ -6302,23 +6359,34 @@ async def _collect_global_sessions(
      Fetch the global session list via ``GET /v1/sessions``, with connectivity.
  
      Projects each accessible session to ``{session_id, agent_name, title,
@@ -247,7 +247,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
      if after is not None:
          params["after"] = after
      try:
-@@ -6322,6 +6390,9 @@ async def _collect_global_sessions(
+@@ -6350,6 +6418,9 @@ async def _collect_global_sessions(
                  "runner_id": r.get("runner_id"),
                  "runner_online": online.get(_optional_string(r.get("runner_id")) or ""),
                  "parent_session_id": r.get("parent_session_id"),
@@ -257,7 +257,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
              }
              for r in rows
          ],
-@@ -6384,6 +6455,19 @@ async def _session_parent_id(
+@@ -6412,6 +6483,19 @@ async def _session_parent_id(
      return parent if isinstance(parent, str) and parent else None
  
  
@@ -277,7 +277,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
  async def _session_get_history_via_rest(
      args: _JsonObject,
      server_client: httpx.AsyncClient,
-@@ -6400,8 +6484,8 @@ async def _session_get_history_via_rest(
+@@ -6428,8 +6512,8 @@ async def _session_get_history_via_rest(
      may read).
  
      :param args: Parsed tool arguments; requires ``conversation_id``,
@@ -288,7 +288,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
      :param server_client: HTTP client pointed at the Omnigent server.
      :returns: JSON peek result, or a JSON error object.
      """
-@@ -6425,44 +6509,68 @@ async def _session_get_history_via_rest(
+@@ -6453,44 +6537,68 @@ async def _session_get_history_via_rest(
      content_offset_chars = _clamp_history_offset_chars(args.get("content_offset_chars", 0))
      if isinstance(content_offset_chars, str):
          return content_offset_chars
@@ -373,7 +373,7 @@ index fbf4f3d516ef5711f29d5d8c72bccf47f9bceb57..c14088b64d3f2649dcecb1879c1b85f1
      )
  
 diff --git a/omnigent/server/routes/sessions/routes_core.py b/omnigent/server/routes/sessions/routes_core.py
-index 9d2619adcd6bf6eafac20dd49127d6a82b003f23..0fdee7d25441cb76b2772a00cadcf531b7bf73b6 100644
+index 5c82574857e5a42ec9c8b0ddaf4ce91929550273..80dcdde064171b76d61dfa012eb6d4aaa95c27b3 100644
 --- a/omnigent/server/routes/sessions/routes_core.py
 +++ b/omnigent/server/routes/sessions/routes_core.py
 @@ -1642,6 +1642,7 @@ def register_core_routes(
@@ -743,10 +743,10 @@ index 2548311b9c2b12d9ce7fbca758fdeae934eeeca5..7acd50c67c2b4a597564ab30d416121a
          )
  
 diff --git a/openapi.json b/openapi.json
-index 97b5a81a08b73d085df4f2f1b7cea5b414f78493..16ca2ace996a272607788c423019d7f9e7338a09 100644
+index 4a877bca1277a53ccfe55ab90784c1d374bb6de2..759ad12874e87fbce29d92518a11cad5709d9274 100644
 --- a/openapi.json
 +++ b/openapi.json
-@@ -13299,6 +13299,24 @@
+@@ -13449,6 +13449,24 @@
                "title": "Visibility",
                "type": "string"
              }
@@ -1048,10 +1048,10 @@ index 0054b62e906dfb85135c22488cb06fd10ef532e9..143139370bccc95ba543f3f0484b3ce8
  async def test_sys_agent_download_rejects_path_in_dest_filename(tmp_path: Path) -> None:
      """
 diff --git a/tests/server/integration/test_sessions_endpoints.py b/tests/server/integration/test_sessions_endpoints.py
-index 1afa69af95a2abf1f3968d877bed8b8913751cb7..2c39a302e468a13e86fff5b5f3ae304948a49a3e 100644
+index d314b49d12612086e1cf400e4ada442d2e365ce9..e0917e71c13758b3d5edf7606f0f78d0968745d2 100644
 --- a/tests/server/integration/test_sessions_endpoints.py
 +++ b/tests/server/integration/test_sessions_endpoints.py
-@@ -917,6 +917,28 @@ async def test_list_sessions_pagination(
+@@ -967,6 +967,28 @@ async def test_list_sessions_pagination(
      assert page2["data"][0]["id"] != page1["data"][0]["id"]
  
  

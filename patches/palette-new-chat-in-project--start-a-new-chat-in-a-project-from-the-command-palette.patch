@@ -99,7 +99,7 @@ index 68fbdcf5184244fc3c6533d45556846b4d9eb38b..ea61ebd392c59ce32fc34767e693ca38
    it("uses the sessions-first placeholder", () => {
      renderPalette();
 diff --git a/web/src/shell/CommandPalette.tsx b/web/src/shell/CommandPalette.tsx
-index c13c5e26c407b6b8d7c8c2e4d5ab090d1777f861..d629dccf65174fb2d650cbb17cf029bfe27fc42a 100644
+index d80515ff031193f4bf817fd9c8a39dd5b375fcaa..223a90a4197b8c8bec207fee3035a9828fb5b0a7 100644
 --- a/web/src/shell/CommandPalette.tsx
 +++ b/web/src/shell/CommandPalette.tsx
 @@ -11,6 +11,9 @@
@@ -160,7 +160,7 @@ index c13c5e26c407b6b8d7c8c2e4d5ab090d1777f861..d629dccf65174fb2d650cbb17cf029bf
    const goToSession = (id: string): void => {
      close();
      navigate(`/c/${id}`);
-@@ -418,6 +439,20 @@ export function CommandPalette({
+@@ -417,6 +438,20 @@ export function CommandPalette({
                  })}
                </CommandGroup>
              )}
