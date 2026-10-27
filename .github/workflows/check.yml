@@ -1,56 +1,320 @@
 name: check
 
-# Applies patches/series onto patches/BASE and compares the result with the
-# fork's custom branch. check.sh also fails a patch without usage docs or a
-# "Docs: none (...)" trailer, and a series without a section in the index
-# (docs/custom/README.md). Override the repositories with the repository
-# variables UPSTREAM_REPO, FORK_REPO and CUSTOM_BRANCH, or per manual run.
+# Builds Omnigent from patches/BASE plus patches/series and checks it.
+#
+# Pull request: apply the series and run the docs rule (job `apply`, the
+# required check), type-check the web UI, run the tests near the patches the
+# PR changes, and build the install set (wheels, constraints, host scripts,
+# manifest, notes) as a workflow artifact, plus the server image (not pushed).
+#
+# Push to main: the same, then `publish` force-updates the fork's `custom`
+# branch, tags the build custom/<date>.<n>, pushes the server image to GHCR
+# and creates a GitHub release on the fork with the install set.
+#
+# Manual run: `dry_run` (default) does everything except push, tag, release
+# and GHCR push, and prints what it would do. A real run needs main.
+#
+# Secrets: FORK_RELEASE_TOKEN (contents and workflows write on the fork) for
+# publish; GHCR_TOKEN optional (defaults to the workflow token).
+# Variables: UPSTREAM_REPO, FORK_REPO, IMAGE_NAME override the defaults.
 
 on:
-  push:
   pull_request:
+  push:
+    branches: [main]
+    paths:
+      - patches/**
+      - release/**
+      - scripts/build-custom.sh
+      - scripts/check.sh
+      - .github/workflows/check.yml
+      - .github/actions/**
   workflow_dispatch:
     inputs:
-      upstream_repo:
-        description: Upstream repository (owner/name) that has the BASE commit
-        required: false
-      fork_repo:
-        description: Repository (owner/name) with the custom branch
-        required: false
-      custom_branch:
-        description: Branch whose tree the applied series must match
-        required: false
+      dry_run:
+        description: Build and plan the release, but push, tag and release nothing
+        type: boolean
+        default: true
+      prerelease:
+        description: Mark the release as a pre-release (production picks one later)
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 concurrency:
-  group: check-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.event_name == 'pull_request' && format('check-pr-{0}', github.event.pull_request.number) || format('check-{0}', github.ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  UPSTREAM_REPO: ${{ vars.UPSTREAM_REPO || 'omnigent-ai/omnigent' }}
+  FORK_REPO: ${{ vars.FORK_REPO || 'Desidero/omnigent' }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME || 'ghcr.io/desidero/omnigent-server' }}
+  PATCHES_REPO: ${{ github.repository }}
+  PATCHES_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+  # A release run: a push to main, or a manual run (dry or not).
+  RELEASE_RUN: ${{ github.event_name != 'pull_request' }}
 
 jobs:
   apply:
+    name: apply
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      UPSTREAM_REPO: ${{ inputs.upstream_repo || vars.UPSTREAM_REPO || 'omnigent-ai/omnigent' }}
-      FORK_REPO: ${{ inputs.fork_repo || vars.FORK_REPO || 'Desidero/omnigent' }}
-      CUSTOM_BRANCH: ${{ inputs.custom_branch || vars.CUSTOM_BRANCH || 'custom' }}
+    outputs:
+      custom-commit: ${{ steps.tree.outputs.custom-commit }}
+      pytest: ${{ steps.select.outputs.pytest }}
+      vitest-run: ${{ steps.select.outputs.vitest-run }}
+      vitest-related: ${{ steps.select.outputs.vitest-related }}
     steps:
-      - name: Check out the patches
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          path: patches-repo
+          ref: ${{ env.PATCHES_COMMIT }}
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Fetch upstream at BASE and the fork's custom branch
-        run: |
-          base="$(tr -d '[:space:]' < patches-repo/patches/BASE)"
-          git init -q omnigent
-          cd omnigent
-          git fetch --no-tags --depth=1 "https://github.com/${UPSTREAM_REPO}.git" "$base"
-          git fetch --no-tags --depth=1 "https://github.com/${FORK_REPO}.git" \
-            "+refs/heads/${CUSTOM_BRANCH}:refs/remotes/fork/${CUSTOM_BRANCH}"
+      - id: tree
+        uses: ./.github/actions/build-tree
+        with:
+          upstream-repo: ${{ env.UPSTREAM_REPO }}
 
-      - name: Apply, compare and check docs
-        run: patches-repo/scripts/check.sh --repo omnigent --custom "refs/remotes/fork/${CUSTOM_BRANCH}"
+      - name: Check docs, sanity and the index
+        run: scripts/check.sh --tree tree
+
+      - name: Unit-test the release tooling
+        run: python3 -m unittest discover -s release/tests
+
+      - id: select
+        name: Select tests near the changed patches
+        env:
+          SINCE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [[ -n "$SINCE" && "$SINCE" != 0000000000000000000000000000000000000000 ]] \
+              && git cat-file -e "$SINCE^{commit}" 2>/dev/null; then
+            scripts/select-tests.py --tree tree --out selection --since "$SINCE"
+          else
+            git fetch -q origin main
+            scripts/select-tests.py --tree tree --out selection --since origin/main
+          fi
+          for kind in pytest vitest-run vitest-related; do
+            echo "$kind=$(tr '\n' ' ' < "selection/$kind.txt")" >> "$GITHUB_OUTPUT"
+          done
+          {
+            echo "### Tests selected for the changed patches"
+            for kind in pytest vitest-run vitest-related; do
+              echo "- \`$kind\`: $(wc -l < "selection/$kind.txt") files"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  web:
+    name: web (tsc -b, vitest)
+    needs: apply
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.PATCHES_COMMIT }}
+          persist-credentials: false
+      - uses: ./.github/actions/build-tree
+        with:
+          upstream-repo: ${{ env.UPSTREAM_REPO }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Install web dependencies
+        working-directory: tree
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+        run: |
+          npm install -g "$(node -p 'require("./package.json").packageManager')"
+          pnpm install --frozen-lockfile --filter web
+      - name: Type-check (tsc -b)
+        working-directory: tree
+        run: pnpm --filter web run type-check
+      - name: Run the selected web tests
+        working-directory: tree/web
+        env:
+          VITEST_RUN: ${{ needs.apply.outputs.vitest-run }}
+          VITEST_RELATED: ${{ needs.apply.outputs.vitest-related }}
+        run: |
+          # shellcheck disable=SC2086 # the lists word-split into paths
+          if [[ -n "${VITEST_RUN// }" ]]; then pnpm exec vitest run $VITEST_RUN; fi
+          # shellcheck disable=SC2086
+          if [[ -n "${VITEST_RELATED// }" ]]; then
+            pnpm exec vitest related --run --passWithNoTests $VITEST_RELATED
+          fi
+
+  python:
+    name: python (selected pytest)
+    needs: apply
+    if: needs.apply.outputs.pytest != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.PATCHES_COMMIT }}
+          persist-credentials: false
+      - uses: ./.github/actions/build-tree
+        with:
+          upstream-repo: ${{ env.UPSTREAM_REPO }}
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.4"
+          enable-cache: true
+          cache-dependency-glob: tree/uv.lock
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Install test system dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ripgrep bubblewrap tmux
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Install Python dependencies
+        working-directory: tree
+        env:
+          OMNIGENT_SKIP_WEB_UI: "true"
+        run: uv sync --locked --extra all --group test
+      - name: Run the selected tests
+        working-directory: tree
+        env:
+          PYTEST_FILES: ${{ needs.apply.outputs.pytest }}
+          PYTHONFAULTHANDLER: "1"
+          OMNIGENT_TEST_TIMEOUT_SCALE: "4"
+        run: |
+          # shellcheck disable=SC2086 # the list word-splits into paths
+          env -u OPENAI_API_KEY -u ANTHROPIC_API_KEY -u DATABRICKS_TOKEN \
+            uv run pytest $PYTEST_FILES -m "not databricks" -n 4 --dist=loadfile \
+              --timeout=300 -q -r fE
+
+  package:
+    name: package (install set and image)
+    needs: apply
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      artifact: ${{ steps.build.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.PATCHES_COMMIT }}
+          persist-credentials: false
+      - id: tree
+        uses: ./.github/actions/build-tree
+        with:
+          upstream-repo: ${{ env.UPSTREAM_REPO }}
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.4"
+          enable-cache: true
+          cache-dependency-glob: tree/uv.lock
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Set up pnpm
+        working-directory: tree
+        run: npm install -g "$(node -p 'require("./package.json").packageManager')"
+
+      - name: Plan the release tag
+        id: plan
+        if: env.RELEASE_RUN == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CUSTOM_COMMIT: ${{ steps.tree.outputs.custom-commit }}
+        run: |
+          python3 -I release/plan.py --fork "$FORK_REPO" --custom "$CUSTOM_COMMIT" \
+            --patches-commit "$PATCHES_COMMIT" --previous-manifest-out previous-manifest.json \
+            | tee plan.env
+          cat plan.env >> "$GITHUB_OUTPUT"
+
+      - name: Build the install set
+        id: build
+        env:
+          TAG: ${{ steps.plan.outputs.tag }}
+          PREVIOUS_TAG: ${{ steps.plan.outputs.previous_tag }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+        run: |
+          args=(--tree tree --out out --patches-commit "$PATCHES_COMMIT" --fork "$FORK_REPO"
+            --image "$IMAGE_NAME")
+          [[ -z "$TAG" ]] || args+=(--tag "$TAG")
+          [[ ! -s previous-manifest.json ]] || args+=(--previous-manifest previous-manifest.json)
+          if [[ -n "$PR_NUMBER" ]]; then
+            args+=(--note "**Pull request:** https://github.com/$PATCHES_REPO/pull/$PR_NUMBER (a build to try, not a release)")
+          fi
+          release/build.sh "${args[@]}"
+          cp plan.env out/ 2>/dev/null || true
+          . out/build.env
+          echo "artifact=install-set-$BUILD_ID" >> "$GITHUB_OUTPUT"
+          cat out/notes.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build and smoke-test the server image (not pushed)
+        run: |
+          release/build-image.sh out
+          . out/build.env
+          reported="$(docker run --rm --entrypoint omnigent -e OMNIGENT_NO_UPDATE_CHECK=1 "$IMAGE" --version)"
+          echo "$reported"
+          [[ "$reported" == "omnigent $VERSION (${CUSTOM_COMMIT:0:8},"* ]] \
+            || { echo "::error::the image reports '$reported', expected $VERSION"; exit 1; }
+          docker run -d --name smoke -e DATABASE_URL=sqlite:////data/smoke.db -p 127.0.0.1:18000:8000 "$IMAGE"
+          for _ in $(seq 1 45); do
+            curl -fsS 127.0.0.1:18000/health && break
+            sleep 2
+          done
+          curl -fsS 127.0.0.1:18000/health || { docker logs smoke; exit 1; }
+          docker rm -f smoke
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.build.outputs.artifact }}
+          path: out/
+          retention-days: 30
+          if-no-files-found: error
+
+  publish:
+    name: publish (custom branch, tag, image, release)
+    needs: [apply, web, python, package]
+    # python is skipped when no Python tests were selected; that still counts.
+    if: >-
+      always() && github.event_name != 'pull_request'
+      && needs.apply.result == 'success' && needs.web.result == 'success'
+      && needs.package.result == 'success'
+      && (needs.python.result == 'success' || needs.python.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || github.ref != 'refs/heads/main' }}
+      PRERELEASE: ${{ github.event_name != 'workflow_dispatch' || inputs.prerelease }}
+      FORK_TOKEN: ${{ secrets.FORK_RELEASE_TOKEN }}
+    steps:
+      - name: Require the fork token for a real run
+        if: env.DRY_RUN != 'true'
+        run: |
+          if [[ -z "$FORK_TOKEN" ]]; then
+            echo "::error::FORK_RELEASE_TOKEN is not set; see release/README.md"
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.PATCHES_COMMIT }}
+          persist-credentials: false
+      - id: tree
+        uses: ./.github/actions/build-tree
+        with:
+          upstream-repo: ${{ env.UPSTREAM_REPO }}
+          full-history: "true"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ needs.package.outputs.artifact }}
+          path: out
+      - name: Publish
+        env:
+          BUILT: ${{ steps.tree.outputs.custom-commit }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN || github.token }}
+          GHCR_USER: ${{ github.actor }}
+        run: release/publish.sh out "$BUILT"

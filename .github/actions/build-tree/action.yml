@@ -1,0 +1,40 @@
+name: Build the custom tree
+description: >-
+  Fetch upstream at patches/BASE and apply the series with
+  scripts/build-custom.sh into ./tree (clone in ./omnigent). The commit ids are
+  reproducible, so every job builds the same commits.
+
+inputs:
+  upstream-repo:
+    description: Upstream repository (owner/name) that has the BASE commit
+    default: omnigent-ai/omnigent
+  full-history:
+    description: Fetch upstream main's full history (needed to push the result)
+    default: "false"
+
+outputs:
+  custom-commit:
+    description: The built tip commit
+    value: ${{ steps.build.outputs.custom-commit }}
+
+runs:
+  using: composite
+  steps:
+    - id: build
+      shell: bash
+      env:
+        UPSTREAM_REPO: ${{ inputs.upstream-repo }}
+        FULL_HISTORY: ${{ inputs.full-history }}
+      run: |
+        base="$(tr -d '[:space:]' < patches/BASE)"
+        git init -q omnigent
+        if [[ "$FULL_HISTORY" == true ]]; then
+          git -C omnigent fetch -q --no-tags "https://github.com/${UPSTREAM_REPO}.git" \
+            "+refs/heads/main:refs/remotes/upstream/main"
+          git -C omnigent rev-parse --verify -q "$base^{commit}" >/dev/null \
+            || git -C omnigent fetch -q --no-tags "https://github.com/${UPSTREAM_REPO}.git" "$base"
+        else
+          git -C omnigent fetch -q --no-tags --depth=1 "https://github.com/${UPSTREAM_REPO}.git" "$base"
+        fi
+        tip="$(scripts/build-custom.sh --repo omnigent --worktree "$PWD/tree" | tail -n 1)"
+        echo "custom-commit=$tip" >> "$GITHUB_OUTPUT"

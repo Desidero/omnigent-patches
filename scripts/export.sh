@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Regenerate patches/BASE, patches/series and patches/*.patch from a custom branch.
+# Regenerate patches/BASE, patches/series and patches/*.patch from a working branch.
 #
-#   scripts/export.sh [--repo <omnigent-clone>] <custom-ref> [<base-ref>]
+#   scripts/export.sh [--repo <omnigent-clone>] <branch> [<base-ref>]
 #
-# <base-ref> defaults to upstream/main; BASE becomes merge-base(<custom-ref>, <base-ref>).
-# Each commit in BASE..<custom-ref> becomes patches/<series>--<subject-slug>.patch.
+# <branch> is a branch built with scripts/build-custom.sh and then edited.
+# <base-ref> defaults to upstream/main; BASE becomes merge-base(<branch>, <base-ref>).
+# Each commit in BASE..<branch> becomes patches/<series>--<subject-slug>.patch.
 # A commit's series is looked up by its subject slug in the existing patches/series;
 # a commit with an unknown slug joins the previous commit's series (with a warning),
 # so edit patches/series and re-run to file it elsewhere. Comment lines kept per
@@ -14,7 +15,7 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 repo="${OMNIGENT_REPO:-}"
 
-usage() { sed -n '2,12p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
