@@ -9,6 +9,7 @@ https://github.com/omnigent-ai/omnigent/pull/11390.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (layout fix: the toast offsets move into a tested helper; nothing to configure)
 ---
  web/src/lib/updateOverlayInset.test.ts | 12 +++++++++++-
  web/src/lib/updateOverlayInset.ts      |  9 +++++++++

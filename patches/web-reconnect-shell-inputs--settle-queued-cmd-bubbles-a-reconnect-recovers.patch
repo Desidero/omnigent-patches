@@ -24,6 +24,7 @@ merges.
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 (cherry picked from commit d7962b0eb7ce60a7160e2704472f88c045e7922e)
+Docs: none (fix: queued !cmd bubbles settle after a reconnect; no setting)
 ---
  web/src/store/chatStore.test.ts | 69 +++++++++++++++++++++++++
  web/src/store/chatStore.ts      | 92 +++++++++++++++++++++++++--------

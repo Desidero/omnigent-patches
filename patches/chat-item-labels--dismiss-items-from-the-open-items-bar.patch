@@ -24,12 +24,29 @@ tracker), which is not upstream.
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 ---
+ docs/chat-item-labels.md                      |   5 +
  .../components/chat/OpenItemsPanel.test.tsx   | 103 +++++++++++++-
  web/src/components/chat/OpenItemsPanel.tsx    | 131 +++++++++++++++---
  web/src/lib/itemLabels.test.ts                |  27 ++++
  web/src/lib/itemLabels.ts                     |  36 +++++
- 4 files changed, 274 insertions(+), 23 deletions(-)
+ 5 files changed, 279 insertions(+), 23 deletions(-)
 
+diff --git a/docs/chat-item-labels.md b/docs/chat-item-labels.md
+index 067c26d7013a56f966656297329143c6ef5c6049..58e44a58b30af3e35682ac8cdd2d71c25d6e6745 100644
+--- a/docs/chat-item-labels.md
++++ b/docs/chat-item-labels.md
+@@ -50,6 +50,11 @@ channel; labels still render when you or the agent write them.
+   mentions first, tinted, and includes an item that reply just closed, struck
+   through. Expanded, they sit under **In the latest reply**, ahead of the other
+   open items.
++- **Dismiss:** each open item in the expanded bar has a dismiss button. A
++  dismissed item leaves the bar's chips and open count; **Show dismissed (N)**
++  at the bottom lists it with **Restore**. An item the agent later closes shows
++  as closed as usual. Dismissals are stored on the session, as the
++  `omnigent.items_dismissed` label, so they follow you to other devices.
+ 
+ ## Comment on items
+ 
 diff --git a/web/src/components/chat/OpenItemsPanel.test.tsx b/web/src/components/chat/OpenItemsPanel.test.tsx
 index 95e1457a2b1592979e8cf5b64ad80eacea842f6f..12e1bf5adbd41311b6f7f62bcfca17e070fe0ef3 100644
 --- a/web/src/components/chat/OpenItemsPanel.test.tsx

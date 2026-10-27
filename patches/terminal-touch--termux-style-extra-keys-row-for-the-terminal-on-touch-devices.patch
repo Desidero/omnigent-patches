@@ -22,7 +22,7 @@ Not ours to upstream as-is: drop this commit when #6136 lands.
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 ---
- feature-map/terminals.md                      |   7 +
+ feature-map/terminals.md                      |  15 +
  tests/e2e_ui/terminal/__init__.py             |   0
  tests/e2e_ui/terminal/test_extra_keys.py      | 281 ++++++++++++
  ...terminalextrakeys--phone-armed][linux].png | Bin 0 -> 12960 bytes
@@ -47,7 +47,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  web/src/lib/terminalExtraKeysPreferences.ts   |  90 ++++
  web/src/pages/SettingsPage.test.tsx           | 156 ++++++-
  web/src/pages/SettingsPage.tsx                |  87 +++-
- 25 files changed, 2498 insertions(+), 25 deletions(-)
+ 25 files changed, 2506 insertions(+), 25 deletions(-)
  create mode 100644 tests/e2e_ui/terminal/__init__.py
  create mode 100644 tests/e2e_ui/terminal/test_extra_keys.py
  create mode 100644 tests/e2e_ui/visual/snapshots/test_storybook_snapshot/test_story_matches_baseline/test_story_matches_baseline[chromium-components-terminal-terminalextrakeys--phone-armed][linux].png
@@ -66,19 +66,34 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/lib/terminalExtraKeysPreferences.ts
 
 diff --git a/feature-map/terminals.md b/feature-map/terminals.md
-index ab6b53549f1ee23aaad13806a56adb7269eaf28a..15ac1ff3a60e7e81adef13e6570876085b0aa5ac 100644
+index ab6b53549f1ee23aaad13806a56adb7269eaf28a..0420a402f2cbbd9eb74b04c311a784716952385f 100644
 --- a/feature-map/terminals.md
 +++ b/feature-map/terminals.md
-@@ -29,6 +29,8 @@ reattach when the session moves to another host.
+@@ -29,6 +29,9 @@ reattach when the session moves to another host.
    says so and routes the user to the terminal.
  - `split-panes`: behind `splittable_terminal_view_ui`, split the Terminal view
    into shell panes, resize them (each side stays within 25–75%), and close them.
 +- `touch-keys`: on touch devices an extra-keys row (Esc, Tab, arrows, sticky
-+  Ctrl/Alt/Shift) under the terminal sends keys a soft keyboard can't.
++  Ctrl/Alt/Shift) under the terminal sends keys a soft keyboard can't. A
++  setting shows it on touch devices (default), always, or never.
  
  ## How to get to it (user POV)
  
-@@ -116,6 +118,11 @@ verify-env run -- python -m pytest <test> --ui-skip-build --video=on \
+@@ -61,6 +64,13 @@ with their own terminal retain the switcher.
+   still being created, and it yields to a focused terminal or editor.
+ - Select an open shell from the rail's shell list; close it from its tab.
+ 
++**Touch devices:** the extra-keys row sits under the agent terminal and user
++shells on phones, tablets and the iOS and Android apps; read-only attaches
++don't get it. Tap Ctrl, Alt or Shift to apply it to the next key, hold it to
++lock it, and tap a locked one to release it. Settings → Appearance → Touch &
++mobile → **Extra keys row** chooses Auto (touch devices, the default), Always
++(desktop too) or Never; the choice is saved in this browser or app.
++
+ **After the session moves:** open the host badge, choose "Switch host…", pick
+ another host, then look at both the terminal strip and the agent terminal.
+ Sandbox-backed sessions, including Databricks Sandbox and Arclet, cannot switch
+@@ -116,6 +126,11 @@ verify-env run -- python -m pytest <test> --ui-skip-build --video=on \
  - **`scrollback`, keyboard:** no e2e coverage. In a Codex terminal with more
    output than fits, press Page Up and expect older output; then check that the
    Codex terminal's other keys still behave as before.

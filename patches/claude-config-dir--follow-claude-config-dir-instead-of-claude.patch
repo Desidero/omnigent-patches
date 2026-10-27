@@ -26,6 +26,7 @@ profile cannot slip past the tmp-HOME isolation the suite relies on.
 Signed-off-by: Lazar Gopcevic <lazgop@gmail.com>
 (cherry picked from commit 3b60158eab69a9d4f08a4e3b45a030985394de19)
 Signed-off-by: omni-resolve-agent[bot] <omni-resolve-agent[bot]@users.noreply.github.com>
+Docs: none (fix: Omnigent follows Claude Code's own CLAUDE_CONFIG_DIR, as the CLI does; no new setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    | 15 ++--
  omnigent/harnesses/claude_native/main.py      | 20 +++--

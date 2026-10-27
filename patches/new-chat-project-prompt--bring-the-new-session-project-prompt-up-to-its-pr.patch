@@ -10,6 +10,7 @@ tests. Matches https://github.com/omnigent-ai/omnigent/pull/11397.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (fix: the project step while the project list loads, fails or is empty; the feature-map entry still holds)
 ---
  web/src/hooks/useNewChatProjectPrompt.ts | 12 +--
  web/src/pages/SettingsPage.test.tsx      | 18 +++++

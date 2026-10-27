@@ -15,6 +15,8 @@ Today you have to copy each command and paste it into the composer with a `!` pr
 
 This change is carried in the omnigent-patches series until it lands upstream.
 
+Docs: new `docs/run-suggested-commands.md` (where Run appears, what it does, and how to turn it off per session or by default) and a `run-suggested-commands` entry in `feature-map/native-harnesses.md` naming the two journeys.
+
 ## Test Plan
 
 Tests added or changed:

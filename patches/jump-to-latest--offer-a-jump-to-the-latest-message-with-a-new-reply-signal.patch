@@ -32,6 +32,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 (cherry picked from commit f0bb4c17c732d0b7257a2f8eaab2573c454c33af)
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (transcript control that appears by itself when you scroll up; no setting)
 ---
  .../chat/JumpToLatestButton.test.tsx          | 257 ++++++++++++++++++
  .../components/chat/JumpToLatestButton.tsx    | 183 +++++++++++++

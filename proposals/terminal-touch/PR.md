@@ -19,6 +19,8 @@ The terminal draws to a canvas and xterm only selects with a mouse, so on touch 
 - **Handles and menu.** Drag handles adjust either end and scroll the scrollback past the edges. A tap, or xterm dropping the selection, dismisses it. The menu offers Copy (through the existing terminal clipboard consent), Paste (through xterm's paste, so bracketed paste applies; hidden on read-only terminals) and Select screen. The iOS long-press callout is disabled on the terminal surface.
 - **Native clipboard read on iOS.** In the iOS app, `navigator.clipboard.readText` makes WebKit show its own Paste bubble on every paste. The shell's bridge now exposes `readClipboardText()`, backed by `UIPasteboard`, so the app's Settings › Omnigent › Paste from Other Apps permission applies and "Allow" removes the extra tap. Shells without the method, and the web, keep the `navigator.clipboard` path.
 
+Docs: `feature-map/terminals.md` gains the Extra keys row setting, a `touch-select` entry with a manual check, and the iOS Paste permission.
+
 ## Test Plan
 
 ```sh

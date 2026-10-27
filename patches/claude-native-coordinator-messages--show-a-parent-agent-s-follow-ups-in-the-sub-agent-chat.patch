@@ -22,6 +22,7 @@ Not upstream yet: proposed from fix/claude-native-coordinator-messages; drop thi
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (fix: a parent's follow-ups show in the sub-agent chat; no setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    |   9 +-
  .../test_claude_native_bridge.py              |  25 +++++

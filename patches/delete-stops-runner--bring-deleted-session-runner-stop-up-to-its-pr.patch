@@ -8,6 +8,7 @@ runner, matching https://github.com/omnigent-ai/omnigent/pull/11391.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (test-only: route tests for the deleted-session runner stop)
 ---
  .../test_delete_released_host_runners.py      | 114 ++++++++++++++++++
  1 file changed, 114 insertions(+)

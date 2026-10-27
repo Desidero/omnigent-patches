@@ -25,6 +25,7 @@ Not upstream yet: proposed from fix/claude-native-subagent-quiet-status; drop th
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (fix: sub-agent status stays accurate during long tool calls; no setting)
 ---
  omnigent/harnesses/claude_native/forwarder.py | 116 +++++++++++++++++-
  omnigent/server/subagent_activity.py          |  19 +++

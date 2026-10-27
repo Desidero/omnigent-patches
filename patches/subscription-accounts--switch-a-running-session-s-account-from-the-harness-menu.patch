@@ -22,6 +22,7 @@ show the server's message.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (documented with its series in docs/providers.md)
 ---
  web/src/lib/sessionsApi.ts                 |  27 ++++
  web/src/lib/types.ts                       |   5 +

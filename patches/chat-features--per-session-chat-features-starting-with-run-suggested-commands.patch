@@ -58,6 +58,7 @@ that drops both its instruction and its UI.
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---
+ docs/run-suggested-commands.md                |  24 +++
  docs/shared-preferences-api.md                |  13 +-
  feature-map/preferences.md                    |  25 ++-
  omnigent/entities/conversation.py             |   5 +
@@ -133,7 +134,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  web/src/store/chatStore.ts                    |  34 +++
  web/src/store/conversationState.ts            |   3 +
  web/src/test/chatFeatureFixtures.ts           |  41 ++++
- 75 files changed, 3222 insertions(+), 86 deletions(-)
+ 76 files changed, 3246 insertions(+), 86 deletions(-)
  create mode 100644 omnigent/runtime/chat_features.py
  create mode 100644 tests/runner/test_session_init_protocol.py
  create mode 100644 tests/runtime/test_chat_features.py
@@ -150,6 +151,38 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  create mode 100644 web/src/pages/settings/ChatFeaturesSettingsGroup.tsx
  create mode 100644 web/src/test/chatFeatureFixtures.ts
 
+diff --git a/docs/run-suggested-commands.md b/docs/run-suggested-commands.md
+index 70f7f781bbcea8b147d216718fb75c695e6dd9f7..3d4d159e0c45a54371dcc0ea06528a90886cd9e0 100644
+--- a/docs/run-suggested-commands.md
++++ b/docs/run-suggested-commands.md
+@@ -33,3 +33,27 @@ thread and the chat shows each one as a terminal command.
+ 
+ A `!command` you type yourself in a codex-native session's web composer now
+ runs the same way, as a shell command rather than a prompt.
++
++## Turn it on or off
++
++Run suggested commands is a per-session chat feature (key `run_commands`). It
++pairs the Run button with an instruction asking the agent to tag shell
++commands as `bash`, one per line, so Run can find them; turning it off drops
++both. New sessions start with every chat feature on unless you save another
++default.
++
++- **One session:** the **Chat features** section of the new-session
++  composer's agent menu, or of a running session's configure menu. SDK
++  harnesses pick up a change on the next turn. claude-native and codex-native
++  read their instructions at launch, so the instruction changes after the
++  session restarts (the menu says so); the Run button follows the setting at
++  once.
++- **Your default for new sessions:** Settings → General → **Chat features**.
++  It is stored as the `chat_features` [shared preference](shared-preferences-api.md),
++  so the server needs `shared_preferences_authority_id` in its config. Without
++  it the switches are disabled with a note and new sessions get every feature.
++  Forks keep their parent's set and sub-agents inherit it.
++- **API:** `POST /v1/sessions` and `PATCH /v1/sessions/{id}` accept
++  `chat_features`, a list of keys such as `["run_commands"]` (`[]` turns every
++  feature off); `null` in a `PATCH` resets the session to your default.
++  `GET /v1/chat-features` lists the features with their titles.
 diff --git a/docs/shared-preferences-api.md b/docs/shared-preferences-api.md
 index 7ff8d69aebf8d623c1664b9736861e10e8266d83..45a6f72ab09f5c369b6b5c7163a4a3071ae18048 100644
 --- a/docs/shared-preferences-api.md

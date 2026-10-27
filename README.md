@@ -70,6 +70,7 @@ request carries it, and this repository holds a copy until it merges).
 | `delete-stops-runner` | Deleting a session stops its host-launched runner once no remaining session uses it, instead of leaving the process running until its idle timeout. | PR open ([#11391](https://github.com/omnigent-ai/omnigent/pull/11391)) |
 | `app-error-boundary` | A rendering error shows the error, its stack and a Reload button instead of a blank window. | proposed |
 | `jump-to-latest` | A labelled Jump-to-latest pill, outside the scroll fade, that counts new replies landing below a reader who scrolled up. | proposed |
+| `custom-docs-index` | `docs/custom/README.md`, the index of the series: what each changes, how to turn it on, and where its docs are. | custom only |
 
 ## Using the patches
 
@@ -139,10 +140,24 @@ patch, rebased (not merged) onto upstream.
 3. Check: `scripts/check.sh --repo <omnigent-clone> --custom custom` applies
    the series onto `BASE` in a temporary worktree with `git am -3`, runs a
    quick sanity check (no conflict markers, changed Python and JSON files
-   parse), and verifies the result has exactly the tree of `custom`.
+   parse), checks the [docs rule](#docs-rule), and verifies the result has
+   exactly the tree of `custom`.
    `--report` also posts the result as a commit status (`patches/apply`) on
    the custom commit with `gh api`.
 4. Commit the regenerated files together with any proposal updates.
+
+### Docs rule
+
+Every patch ships its own usage docs in the same commit, in upstream's places
+(`docs/`, the matching `feature-map/` recipe, or for API and telemetry details
+`omnigent/server/API.md` and `designs/`). A patch with nothing to document,
+such as an internal fix or a refactor, says why in a `Docs: none (<reason>)`
+trailer. The last commit, series `custom-docs-index`, is
+`docs/custom/README.md`: one `## <series>` section per series saying what it
+changes, how to turn it on and where its docs are; adding, changing or
+dropping a patch includes a fixup to it. `scripts/check.sh` enforces all
+three: docs or the trailer on every patch, a section for every series, and
+`custom-docs-index` last.
 
 `.github/workflows/check.yml` runs the same check on every push and pull
 request: it shallow-fetches upstream at `BASE` and the fork's `custom` branch

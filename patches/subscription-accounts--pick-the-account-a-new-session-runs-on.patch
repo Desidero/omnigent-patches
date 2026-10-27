@@ -26,6 +26,7 @@ and the composer shows why instead of switching accounts silently.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (documented with its series in docs/providers.md)
 ---
  .../composer/accountSection.test.tsx          | 123 ++++++++++++++++++
  .../components/composer/accountSection.tsx    |  89 +++++++++++++

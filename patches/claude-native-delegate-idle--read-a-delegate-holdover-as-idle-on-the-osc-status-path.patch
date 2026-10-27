@@ -24,6 +24,7 @@ Not upstream yet: extends upstream PR #10849 to the OSC status path.
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (fix: the same idle fix on the OSC status path; no setting)
 ---
  .../harnesses/claude_native/program_status.py | 119 ++++++++++++++--
  omnigent/runner/resource_registry.py          |   8 +-

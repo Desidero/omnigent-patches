@@ -21,6 +21,8 @@ Long agent sessions raise several items in one verbose reply, then refer back to
 
 If maintainers prefer, this can be split into a renderer-only PR (chips, popover, panel; no prompt change) and a separate PR that adds the instruction.
 
+Docs: new `docs/chat-item-labels.md` describes the label shape, when labels render, chips, closing and the Open items bar.
+
 ## Test Plan
 
 Tests added or changed:

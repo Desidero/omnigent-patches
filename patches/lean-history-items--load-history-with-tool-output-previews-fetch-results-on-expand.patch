@@ -25,6 +25,7 @@ Not upstream yet: proposed from feat/lean-history-items; drop this copy once it 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 (cherry picked from commit ef52e265d3cfa53f62ef01dda1f75a11608589b7)
+Docs: none (performance: history pages carry tool-output previews and expanding a tool row loads the rest; no setting)
 ---
  web/src/components/blocks/BlockRenderer.tsx |   2 +
  web/src/components/blocks/ToolCard.test.ts  |  68 +++++++++++-

@@ -26,10 +26,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  11 files changed, 461 insertions(+), 351 deletions(-)
 
 diff --git a/feature-map/sessions.md b/feature-map/sessions.md
-index c81916a5eba60862eafd5d0a7c3674abdc8aac6a..9efdfee4b3922558820ad018820c7ad35ec6c07b 100644
+index 881eb44e9e55cf23402e5b6dd306bc34c3004dd6..881820c12a84010d2327dbb4c51e6dff52007f52 100644
 --- a/feature-map/sessions.md
 +++ b/feature-map/sessions.md
-@@ -203,7 +203,7 @@ choose Rename project. Start typing as soon as the dialog opens.
+@@ -210,7 +210,7 @@ choose Rename project. Start typing as soon as the dialog opens.
  **Labels:** open a session and hover or click the header's info icon (on
  mobile, the header menu's Agent info). The Labels section offers Add label and,
  per label, edit and remove. A view-only collaborator sees the labels without

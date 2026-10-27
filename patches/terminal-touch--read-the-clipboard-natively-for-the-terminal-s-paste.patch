@@ -16,13 +16,28 @@ on a sideloaded build first; to be proposed upstream together with it.
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 ---
+ feature-map/terminals.md                      |  3 +++
  web/ios/Omnigent/OmnigentWebView.swift        | 21 ++++++++++++++++
  web/ios/Omnigent/WebViewModel.swift           |  6 +++++
  .../components/blocks/TerminalView.test.tsx   | 24 +++++++++++++++++++
  web/src/components/blocks/TerminalView.tsx    |  7 ++++++
  web/src/lib/nativeBridge.ts                   | 24 +++++++++++++++++++
- 5 files changed, 82 insertions(+)
+ 6 files changed, 85 insertions(+)
 
+diff --git a/feature-map/terminals.md b/feature-map/terminals.md
+index da8a874d5a771ad94b47e72ea84a925298e19ab2..5d52c4c2e0091f2d61b41883f4630df178954afb 100644
+--- a/feature-map/terminals.md
++++ b/feature-map/terminals.md
+@@ -192,6 +192,9 @@ verify-env run -- python -m pytest <test> --ui-skip-build --video=on \
+ - A long-press in the terminal selects instead of opening the iOS text
+   callout, and never reaches the program as a click. A quick swipe still
+   scrolls; the long-press only starts after the finger rests.
++- In the iOS app, the menu's Paste reads the clipboard natively, so iOS follows
++  its Settings → Omnigent → Paste from Other Apps choice: Allow pastes without a
++  prompt. In a browser, Safari shows its own Paste bubble on every paste.
+ - Terminal output is drawn on a canvas, so page text searches do not see it.
+   Use the tests' approach (the harness's own transcript or program input)
+   instead of reading the page.
 diff --git a/web/ios/Omnigent/OmnigentWebView.swift b/web/ios/Omnigent/OmnigentWebView.swift
 index 08ecda92efd90702f1a6e7e42cdcf3e104b3fef6..1d60490395aa5f6c86ae04fc2ec4818ae0b473eb 100644
 --- a/web/ios/Omnigent/OmnigentWebView.swift

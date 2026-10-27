@@ -12,6 +12,7 @@ claude-native-delegate-idle follows the helper's rename.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (fix: more teammate traffic stays out of the lead's chat; no setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    | 47 ++++++------
  .../test_claude_native_bridge.py              | 75 ++++++++++++++++++-

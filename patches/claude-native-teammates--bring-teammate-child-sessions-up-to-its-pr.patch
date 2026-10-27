@@ -11,6 +11,7 @@ https://github.com/omnigent-ai/omnigent/pull/11388.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (fix: a teammate's child session is named after the teammate and its task; no setting)
 ---
  omnigent/harnesses/claude_native/forwarder.py |  31 +--
  .../forwarder/test_subagent_discovery.py      | 182 +++++++++++++++++-

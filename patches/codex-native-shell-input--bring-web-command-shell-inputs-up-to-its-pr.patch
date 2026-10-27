@@ -13,6 +13,7 @@ test and the claude-native shell test stay with run-suggested-commands.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (fix: hardens the typed !command that docs/run-suggested-commands.md describes; no setting)
 ---
  omnigent/inner/codex_native_executor.py       | 44 ++++++++-
  .../messages/test_native_codex_shell_input.py | 39 ++++++++

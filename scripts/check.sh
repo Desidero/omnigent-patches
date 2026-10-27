@@ -3,6 +3,11 @@
 #
 #   scripts/check.sh [--repo <omnigent-clone>] [--custom <ref>] [--report]
 #
+# Besides applying cleanly, every patch must carry usage docs (touch a path in
+# DOC_PATHS) or a "Docs: none (<reason>)" trailer, every "# series:" needs a
+# "## <series>" section in docs/custom/README.md of the applied tree, and the
+# last series must be custom-docs-index, the commit that holds that index.
+#
 # --repo     Omnigent clone that has the BASE commit (default: $OMNIGENT_REPO).
 # --custom   Also require the applied tree to equal <ref>'s tree. Defaults to
 #            "custom" when that ref exists in the clone.
@@ -18,7 +23,7 @@ repo="${OMNIGENT_REPO:-}"
 custom_ref=""
 report=0
 
-usage() { sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,19p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -34,6 +39,12 @@ if [[ -z "$repo" ]]; then
   exit 2
 fi
 repo="$(cd "$repo" && pwd)"
+
+# Paths that count as usage docs: upstream's user and agent docs, feature-map
+# recipes, design docs (the telemetry variable table) and the server API reference.
+DOC_PATHS_RE='^(docs/|feature-map/|designs/|omnigent/server/API\.md$)'
+INDEX_SERIES=custom-docs-index
+INDEX_PATH=docs/custom/README.md
 
 base="$(tr -d '[:space:]' < "$here/patches/BASE")"
 mapfile -t patches < <(grep -v -e '^#' -e '^[[:space:]]*$' "$here/patches/series")
@@ -75,6 +86,37 @@ finish() {
   [[ "$state" == success ]]
 }
 
+# Docs rule, per patch file: it touches a doc path or says why it needs none.
+patch_message() {
+  # The commit message: after the mail headers, up to the diffstat separator.
+  awk 'body && /^---$/ {exit} body {print} !body && /^$/ {body=1}' "$1"
+}
+docs_problems=()
+for patch in "${patches[@]}"; do
+  file="$here/patches/$patch"
+  [[ -f "$file" ]] || continue
+  if grep -E '^diff --git a/' "$file" | sed -E 's|^diff --git a/(.*) b/.*$|\1|' \
+      | grep -qE "$DOC_PATHS_RE"; then
+    continue
+  fi
+  if patch_message "$file" | git interpret-trailers --parse | grep -q '^Docs: none ('; then
+    continue
+  fi
+  docs_problems+=("$patch has no usage docs and no 'Docs: none (<reason>)' trailer")
+done
+mapfile -t series_names < <(sed -nE 's/^#[[:space:]]*series:[[:space:]]*([^[:space:]]+).*$/\1/p' \
+  "$here/patches/series" | awk '!seen[$0]++')
+last_series="$(sed -nE 's/^#[[:space:]]*series:[[:space:]]*([^[:space:]]+).*$/\1/p' \
+  "$here/patches/series" | tail -n 1)"
+if [[ "$last_series" != "$INDEX_SERIES" ]]; then
+  docs_problems+=("the last series is ${last_series:-missing}, not $INDEX_SERIES")
+fi
+if [[ ${#docs_problems[@]} -gt 0 ]]; then
+  printf '%s\n' "${docs_problems[@]}" >&2
+  message="docs check failed: ${docs_problems[0]}"
+  finish || exit 1
+fi
+
 git -C "$repo" rev-parse --verify --quiet "$base^{commit}" >/dev/null || {
   message="BASE $base is not in $repo; fetch it first"
   finish || exit 1
@@ -109,6 +151,23 @@ done
 if [[ ${#problems[@]} -gt 0 ]]; then
   printf '%s\n' "${problems[@]}" >&2
   message="sanity check failed: ${problems[0]}"
+  finish || exit 1
+fi
+
+# Every series has a section in the index at the series tip.
+if [[ -f "$work/$INDEX_PATH" ]]; then
+  mapfile -t indexed < <(sed -nE 's/^##[[:space:]]+([^[:space:]]+)[[:space:]]*$/\1/p' "$work/$INDEX_PATH")
+else
+  indexed=()
+fi
+for name in "${series_names[@]}"; do
+  if ! printf '%s\n' "${indexed[@]}" | grep -qxF -- "$name"; then
+    problems+=("series $name has no '## $name' section in $INDEX_PATH")
+  fi
+done
+if [[ ${#problems[@]} -gt 0 ]]; then
+  printf '%s\n' "${problems[@]}" >&2
+  message="index check failed: ${problems[0]}"
   finish || exit 1
 fi
 

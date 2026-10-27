@@ -30,6 +30,7 @@ accounts pays, and limited to Claude harnesses for now.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (documented with its series in docs/providers.md)
 ---
  omnigent/host/frames.py                       |   8 +-
  omnigent/onboarding/subscription_accounts.py  |  31 +-

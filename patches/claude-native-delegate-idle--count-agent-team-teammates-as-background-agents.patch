@@ -13,6 +13,7 @@ Not upstream yet: proposed alongside upstream PR #10849.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
+Docs: none (fix: teammates count as background agents for the idle fix; no setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    |  5 +++-
  .../test_claude_native_bridge.py              | 26 +++++++++++++++++++

@@ -34,6 +34,7 @@ Not upstream yet: proposed from fix/history-prefetch; drop this copy once it mer
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 (cherry picked from commit efa0347afede58d67739c9b34c22a5d9b2542476)
+Docs: none (performance: older history loads ahead of the scroll, in larger pages; no setting)
 ---
  web/src/components/chat/chatBubbleParts.tsx |  52 ++++--
  web/src/hooks/useIsMobileViewport.test.ts   |  34 ++++

@@ -42,10 +42,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/lib/newChatProjectPromptPreferences.ts
 
 diff --git a/feature-map/composer.md b/feature-map/composer.md
-index 431d9b3efd2a7e3eef5939387d9f661d0fd1e5f5..685a17b175ac76d5a9373a1610ff26f13863b465 100644
+index 0414c8cf9e9c0365d1f82da8bb11f9763037b414..1cf3ed2b8895b43a0cd91618dd42360501cca6a3 100644
 --- a/feature-map/composer.md
 +++ b/feature-map/composer.md
-@@ -103,6 +103,10 @@ and steers messages while the agent is busy.
+@@ -113,6 +113,10 @@ and steers messages while the agent is busy.
  - `new-session-hotkey`: ⌘+Shift+O on macOS or Ctrl+Shift+O on Windows/Linux
    opens and focuses the new-session composer in browsers. Native shells retain
    ⌘/Ctrl+Alt+N. Embedded apps require focus inside the app.
@@ -56,7 +56,7 @@ index 431d9b3efd2a7e3eef5939387d9f661d0fd1e5f5..685a17b175ac76d5a9373a1610ff26f1
  - `queue-and-steer`: messages sent while the agent is busy wait in a queue and
    can be steered into the running turn.
  - `browser-pointer-queue`: desktop Design-mode instructions follow the same queue
-@@ -211,6 +215,12 @@ and steers messages while the agent is busy.
+@@ -230,6 +234,12 @@ and steers messages while the agent is busy.
  - With the browser app focused, press ⌘+Shift+O (macOS) or
    Ctrl+Shift+O (Windows/Linux) to open and focus a clean new-session
    composer.
@@ -694,10 +694,10 @@ index 223a90a4197b8c8bec207fee3035a9828fb5b0a7..cffb0858a02aee1875bfa7c71916f028
                  ))}
                </CommandGroup>
 diff --git a/web/src/shell/Sidebar.test.tsx b/web/src/shell/Sidebar.test.tsx
-index 02dcb89fb4318317f28d5ac1b70786e9724d79a3..ef84c4e9eb8b74e1dd9b9d57b182acdc69480652 100644
+index 03b949c48bec7d653225742d4861a175bb61c850..8d8176cd21dc0397f0e39013aa7af02e81fcd982 100644
 --- a/web/src/shell/Sidebar.test.tsx
 +++ b/web/src/shell/Sidebar.test.tsx
-@@ -244,9 +244,17 @@ function renderSidebar(
+@@ -245,9 +245,17 @@ function renderSidebar(
    extensions: ExtensionCatalogItem[] = [],
    onClose = vi.fn(),
    config: SidebarConfig = sidebarConfig,
@@ -716,7 +716,7 @@ index 02dcb89fb4318317f28d5ac1b70786e9724d79a3..ef84c4e9eb8b74e1dd9b9d57b182acdc
    return render(
      <QueryClientProvider client={qc}>
        <CapabilitiesProvider info={info ?? "loading"}>
-@@ -1893,6 +1901,22 @@ describe("Sidebar tabs", () => {
+@@ -1894,6 +1902,22 @@ describe("Sidebar tabs", () => {
      expect(screen.queryByText("conv_shared")).toBeNull();
    });
  
@@ -740,10 +740,10 @@ index 02dcb89fb4318317f28d5ac1b70786e9724d79a3..ef84c4e9eb8b74e1dd9b9d57b182acdc
      // A loopback-only server can't share sessions, so that one option is
      // meaningless there. The rest of the menu keeps working.
 diff --git a/web/src/shell/Sidebar.tsx b/web/src/shell/Sidebar.tsx
-index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d1dc62092 100644
+index 4722f9ff80688b53ca3b015904453f8676a992ed..8f3f27e42bfafb356bd8d24725d3c858cd150be2 100644
 --- a/web/src/shell/Sidebar.tsx
 +++ b/web/src/shell/Sidebar.tsx
-@@ -486,6 +486,12 @@ interface SidebarProps {
+@@ -488,6 +488,12 @@ interface SidebarProps {
     * Optional (defaults to a no-op) so the sidebar renders standalone in tests.
     */
    onOpenSearch?: () => void;
@@ -756,7 +756,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
    /**
     * Whether the sidebar is peeking.
     */
-@@ -694,6 +700,7 @@ function SidebarImpl({
+@@ -696,6 +702,7 @@ function SidebarImpl({
    onOpen,
    dragProgress = null,
    onOpenSearch,
@@ -764,7 +764,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
    peek,
  }: SidebarProps) {
    const sidebarData = useSidebarData();
-@@ -821,6 +828,13 @@ function SidebarImpl({
+@@ -823,6 +830,13 @@ function SidebarImpl({
      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
      if (isMobileViewport()) onClose();
    });
@@ -778,7 +778,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
  
    // Which top-level nav button to highlight for the current route.
    const {
-@@ -1204,6 +1218,7 @@ function SidebarImpl({
+@@ -1206,6 +1220,7 @@ function SidebarImpl({
                    onClick={(e) => {
                      switchTab("mine");
                      onNavClick(e);
@@ -786,7 +786,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
                    }}
                  >
                    <MessageCirclePlusIcon
-@@ -1368,6 +1383,7 @@ function SidebarImpl({
+@@ -1370,6 +1385,7 @@ function SidebarImpl({
                      conversationsQuery={displayQuery}
                      scrollContainerRef={scrollContainerRef}
                      onRowClick={onNavClick}
@@ -794,7 +794,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
                      searchQuery=""
                      newSessionProjectName={newSessionProjectName}
                      activeTab={availableTab}
-@@ -1695,6 +1711,8 @@ interface ConversationListProps {
+@@ -1697,6 +1713,8 @@ interface ConversationListProps {
    // The scrollable ancestor, used as the infinite-scroll observer root.
    scrollContainerRef: RefObject<HTMLElement | null>;
    onRowClick: (e: MouseEvent<HTMLAnchorElement>) => void;
@@ -803,7 +803,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
    searchQuery: string;
    /** Project selected on the new-session composer route, if any. */
    newSessionProjectName: string | null;
-@@ -1739,6 +1757,7 @@ function ConversationList({
+@@ -1741,6 +1759,7 @@ function ConversationList({
    conversationsQuery,
    scrollContainerRef,
    onRowClick,
@@ -811,7 +811,7 @@ index 0b6843a0f6eed48b65534954db1a1cb50a65c74e..d00efb0847afc5447dcc464e3713500d
    searchQuery,
    newSessionProjectName,
    activeTab,
-@@ -2650,6 +2669,7 @@ function ConversationList({
+@@ -2654,6 +2673,7 @@ function ConversationList({
                  event.stopPropagation();
                  onActiveTabChange("mine");
                  onRowClick(event);

@@ -14,6 +14,7 @@ including where .claude.json lives, so every caller shares it.
 Signed-off-by: Lazar Gopcevic <lazgop@gmail.com>
 (cherry picked from commit 4e66f92b873dbfc58da02a976d6dfa4dcc1658c2)
 Signed-off-by: omni-resolve-agent[bot] <omni-resolve-agent[bot]@users.noreply.github.com>
+Docs: none (refactor: one helper resolves Claude's config dir; no behavior change)
 ---
  omnigent/claude_paths.py                      | 34 +++++++++
  .../harnesses/claude_native/status_file.py    |  9 ++-

@@ -32,6 +32,7 @@ Not upstream yet: proposed from fix/transcript-hold-position; drop this copy onc
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 (cherry picked from commit 28e59914599d2c8794610b690a82c587f58b955e)
+Docs: none (fix: the transcript keeps the reader's place while a reply streams; no setting)
 ---
  .../chat/Transcript.scrollRestore.test.ts     |  60 ++++-
  web/src/components/chat/Transcript.tsx        | 222 ++++++++++++------

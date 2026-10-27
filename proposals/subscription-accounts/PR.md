@@ -19,7 +19,7 @@ Before this, a `kind: subscription` provider always used the CLI's single login 
 5. **Switch a running Claude session (server).** `POST /v1/sessions/{id}/provider` saves the new provider and restarts the runner: immediately when every session on it is idle, otherwise after the current turns end, so no turn or pending question is cut off. Moves are limited to providers that share a Claude config directory. The listing reports an opaque `switch_group` (a hash, never the path). Owner-only, Claude harnesses only.
 6. **Switch from the harness menu (web).** The in-session harness menu shows the same Account section with the current account checked, and disables accounts with the reason (not signed in, separate login).
 7. **Child sessions on another account.** `sys_session_create` takes an optional `provider`. A provider the parent's runner already uses keeps the child co-located. Any other provider gets the child its own runner on the same host and workspace. The provider is validated before anything is created, and a mismatch with the child's harness deletes the child before its first message. `sys_list_models` reports `host_providers`.
-8. **Docs.** New `docs/providers.md` describes the `providers:` block, both ways to add accounts, choosing and switching, and child sessions. It is linked from `docs/AGENT_YAML_SPEC.md`.
+8. **Docs.** New `docs/providers.md` describes the `providers:` block, both ways to add accounts, choosing and switching, and child sessions. It is linked from `docs/AGENT_YAML_SPEC.md`, and `feature-map/composer.md` gains an `account` entry for the Account menu.
 
 Example config:
 

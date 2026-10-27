@@ -18,6 +18,7 @@ Not upstream yet: pulled from upstream PR #10585; drop this copy once it merges.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (fix: images and PDFs load in the file viewer again; no setting)
 ---
  omnigent/server/routes/_gzip_route.py         |  29 +-
  .../routes/sessions/routes_resources.py       |  82 +++-

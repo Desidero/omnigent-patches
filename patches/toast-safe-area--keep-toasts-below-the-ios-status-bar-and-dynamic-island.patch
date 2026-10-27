@@ -15,6 +15,7 @@ sonner's default gaps.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (layout fix: toasts clear the iOS status bar and Dynamic Island; nothing to configure)
 ---
  web/src/shell/AppShell.tsx | 3 +++
  1 file changed, 3 insertions(+)

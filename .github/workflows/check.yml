@@ -1,7 +1,9 @@
 name: check
 
 # Applies patches/series onto patches/BASE and compares the result with the
-# fork's custom branch. Override the repositories with the repository
+# fork's custom branch. check.sh also fails a patch without usage docs or a
+# "Docs: none (...)" trailer, and a series without a section in the index
+# (docs/custom/README.md). Override the repositories with the repository
 # variables UPSTREAM_REPO, FORK_REPO and CUSTOM_BRANCH, or per manual run.
 
 on:
@@ -50,5 +52,5 @@ jobs:
           git fetch --no-tags --depth=1 "https://github.com/${FORK_REPO}.git" \
             "+refs/heads/${CUSTOM_BRANCH}:refs/remotes/fork/${CUSTOM_BRANCH}"
 
-      - name: Apply and compare
+      - name: Apply, compare and check docs
         run: patches-repo/scripts/check.sh --repo omnigent --custom "refs/remotes/fork/${CUSTOM_BRANCH}"

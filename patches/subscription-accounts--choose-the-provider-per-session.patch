@@ -39,6 +39,7 @@ in flight fails as soon as its host disconnects.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (documented with its series in docs/providers.md)
 ---
  omnigent/entities/conversation.py             |   5 +
  omnigent/harnesses/claude_native/bridge.py    |  18 ++

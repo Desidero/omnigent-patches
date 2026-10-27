@@ -22,6 +22,7 @@ reader and transcript lookup use the same two-profile setup; the duplicate
 single-profile variants are folded into them.
 
 Signed-off-by: omni-resolve-agent[bot] <omni-resolve-agent[bot]@users.noreply.github.com>
+Docs: none (rebase and test coverage for the CLAUDE_CONFIG_DIR fix)
 ---
  .../test_claude_native_config_dir_profile.py  | 306 ++++++++++++++++++
  .../claude_native/test_claude_native.py       |  58 ++--

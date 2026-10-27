@@ -22,6 +22,7 @@ Not upstream yet: pulled from upstream PR #10849; drop this copy once it merges.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
+Docs: none (fix: a Claude session stops showing Working when its turn ends; no setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    |  33 +++
  omnigent/harnesses/claude_native/forwarder.py |   9 +

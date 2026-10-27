@@ -36,10 +36,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 tests/server/routes/test_session_items_preview.py
 
 diff --git a/omnigent/server/API.md b/omnigent/server/API.md
-index 625c61cb835c9308db27e409c1003992197bd54a..669c22c15ada3ea9010840d9cce1f62230186808 100644
+index 407e2337fffe9e795cb3ae7ad359c45bc81f4f7e..3893c8f18080ab2bb76ba68056ac08e1ac5f5b94 100644
 --- a/omnigent/server/API.md
 +++ b/omnigent/server/API.md
-@@ -824,6 +824,41 @@ snapshot does not start a detached usage worker.
+@@ -835,6 +835,41 @@ snapshot does not start a detached usage worker.
  Older servers omit `usage_included` and ignore `include_usage`; their snapshot
  already includes usage, so clients should not issue the separate request.
  

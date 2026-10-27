@@ -40,7 +40,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 tests/spec/test_claude_sdk_native_tools.py
 
 diff --git a/docs/AGENT_YAML_SPEC.md b/docs/AGENT_YAML_SPEC.md
-index 8cdf10f20c3766bb9ab9a2b3b3c89cc9b9b50c2d..c950ed186ee90732cca3dd9a44a383edcb8d7b6d 100644
+index 7734c5c0c9ed7367a823741a5e31f10ba0e4dd77..59b5eadb581ba41a8a99c5e4fed9e836878178cc 100644
 --- a/docs/AGENT_YAML_SPEC.md
 +++ b/docs/AGENT_YAML_SPEC.md
 @@ -89,6 +89,25 @@ authoritative approval surface; supported one-time tool approvals can also be

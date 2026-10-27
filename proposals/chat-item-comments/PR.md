@@ -42,6 +42,8 @@ Answering several items in one long hand-typed reply loses the structure: the ag
 
 No server, protocol or schema change beyond the instruction text.
 
+Docs: `docs/chat-item-labels.md` gains a "Comment on items" section with the steps, the message format and where drafts are kept.
+
 ## Test Plan
 
 Tests added or changed:

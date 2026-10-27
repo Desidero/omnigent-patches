@@ -14,6 +14,8 @@ Before this, `sys_session_list` returned sessions in creation order with no time
 - **`sys_session_get_history`** gains `order='asc'` and an `after` item cursor, so an agent reads forward from the start or resumes from a saved position, using the existing `GET /v1/sessions/{id}/items` paging. Results carry `next_cursor` and `has_more`, plus `has_older` on a most-recent read. An unknown cursor returns `invalid_cursor`, distinct from `session_not_found`. Pending elicitations are appended only on the page that reaches the newest item.
 - Defaults, the `tail_items` cap and the character budget are unchanged, so existing calls behave as before. The history path imports the database layer only when a read needs it, so host startup stays free of it.
 
+Docs: `docs/AGENT_YAML_SPEC.md` describes the new `sys_session_list` and `sys_session_get_history` arguments, and `omnigent/server/API.md` the `updated_after` filter on `GET /v1/sessions`.
+
 ## Test Plan
 
 ```sh

@@ -47,7 +47,7 @@ Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---
  feature-map/README.md                         |   4 +
- feature-map/pr-watch.md                       | 102 ++
+ feature-map/pr-watch.md                       | 106 ++
  omnigent/runner/git_providers/__init__.py     |   4 +
  omnigent/runner/github_resource.py            |  35 +-
  omnigent/server/app.py                        |  11 +
@@ -78,7 +78,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  web/src/shell/PullRequestPanel.tsx            |  10 +
  web/src/shell/PullRequestWatch.test.tsx       | 107 ++
  web/src/shell/PullRequestWatch.tsx            |  56 +
- 32 files changed, 3398 insertions(+), 14 deletions(-)
+ 32 files changed, 3402 insertions(+), 14 deletions(-)
  create mode 100644 feature-map/pr-watch.md
  create mode 100644 omnigent/server/pr_watch.py
  create mode 100644 omnigent/server/routes/sessions/routes_pr_watch.py
@@ -107,10 +107,10 @@ index 9b6040c758ed279b1c13e3112c59714b75f3d74b..0eccf3077f14d59063a48350edff63ca
  The original five recipes form the seed set. Completing this set means checking
 diff --git a/feature-map/pr-watch.md b/feature-map/pr-watch.md
 new file mode 100644
-index 0000000000000000000000000000000000000000..d2d380faef61c53d9d29404658622dda07eeae2f
+index 0000000000000000000000000000000000000000..0cc84a941f18a32e911f55789b03dcbb84f6f611
 --- /dev/null
 +++ b/feature-map/pr-watch.md
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,106 @@
 +# Watch pull requests until they're green
 +
 +A user picks which of a session's pull requests to watch from **Watch PRs** in
@@ -151,7 +151,11 @@ index 0000000000000000000000000000000000000000..d2d380faef61c53d9d29404658622dda
 +  `/v1/sessions/{id}/pr-watch`; `max_wakes` sets the per-PR budget.
 +- `refused`: watching a merged or closed PR, or one whose checks the account
 +  cannot read, shows the server's reason in the popover or under the switch.
-+- `gate`: everything is absent unless the `pr_watch` feature is enabled.
++- `gate`: everything is absent unless the server runs with the `pr_watch`
++  release feature (`OMNIGENT_FEATURES=pr_watch`, off by default). On the
++  server, `OMNIGENT_PR_WATCH_INTERVAL_S` sets the seconds between polls
++  (default 90, at least 15) and `OMNIGENT_PR_WATCH_MAX_WAKES` the default
++  wake-up budget per PR (default 10, at most 50).
 +
 +## How to get to it (user POV)
 +

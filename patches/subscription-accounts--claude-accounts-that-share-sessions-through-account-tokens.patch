@@ -33,6 +33,7 @@ which subscription pays:
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Docs: none (documented with its series in docs/providers.md)
 ---
  omnigent/cli_config.py                        | 77 +++++++++++++--
  omnigent/onboarding/configure_models.py       |  6 +-

@@ -12,6 +12,7 @@ the path, with Reload and Copy details buttons.
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (error screen shown only when the web app crashes while rendering; no setting)
 ---
  web/src/App.test.tsx                         | 36 ++++++--
  web/src/App.tsx                              |  9 +-

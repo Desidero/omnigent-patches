@@ -22,6 +22,7 @@ merges.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (fix: teammate deliveries no longer render as raw markup; no setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    | 48 ++++++++++++++-----
  .../test_claude_native_bridge.py              | 44 ++++++++++++++++-

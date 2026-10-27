@@ -23,6 +23,7 @@ once an equivalent fix lands.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
+Docs: none (fix: Codex keeps its built-in Plan and Default mode instructions; no setting)
 ---
  omnigent/harnesses/codex_native/forwarder.py  |  4 +-
  omnigent/runner/native_controls.py            | 29 +------

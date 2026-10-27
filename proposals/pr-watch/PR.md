@@ -16,7 +16,7 @@ After an agent opens a pull request, someone still has to keep an eye on it and 
 - **State without a migration.** Watch state lives in server-reserved session labels (`omnigent.pr_watch.mode` for All, plus a URL and a state label per PR keyed by a hash of its URL, values capped at 256 characters), so it survives restarts. Forks drop the whole family, and clients can only change it through `GET`/`PUT`/`PATCH`/`DELETE /v1/sessions/{id}/pr-watch`, which require edit access.
 - **Provider payload.** The GitHub payload gains `mergeable`, each reviewer's `submitted_at`, and comment and review `author_association`, so conflicts, repeat reviews and trusted authors can be detected.
 - Tuning: `OMNIGENT_PR_WATCH_INTERVAL_S` (default 90) and `OMNIGENT_PR_WATCH_MAX_WAKES` (default 10).
-- `feature-map/pr-watch.md` documents the sub-features, entry points and gotchas; `openapi.json` is regenerated.
+- `feature-map/pr-watch.md` documents the sub-features, entry points and gotchas, including the `pr_watch` flag and both tuning variables with their defaults and bounds; `openapi.json` is regenerated.
 
 ## Test Plan
 

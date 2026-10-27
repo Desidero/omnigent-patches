@@ -18,13 +18,29 @@ panel and item comments), which is local-only.
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 ---
+ docs/chat-item-labels.md                      |  4 +
  web/src/components/blocks/ChatMarkdown.tsx    | 17 +++-
  .../components/chat/OpenItemsPanel.test.tsx   | 35 ++++++++
  web/src/components/chat/OpenItemsPanel.tsx    | 88 +++++++++++++++----
  web/src/lib/itemLabels.test.ts                | 37 ++++++++
  web/src/lib/itemLabels.ts                     | 27 +++++-
- 5 files changed, 181 insertions(+), 23 deletions(-)
+ 6 files changed, 185 insertions(+), 23 deletions(-)
 
+diff --git a/docs/chat-item-labels.md b/docs/chat-item-labels.md
+index 84e3c6d8471e5f560062849ca909cd5ee06c5c07..067c26d7013a56f966656297329143c6ef5c6049 100644
+--- a/docs/chat-item-labels.md
++++ b/docs/chat-item-labels.md
+@@ -46,6 +46,10 @@ channel; labels still render when you or the agent write them.
+   it. The newest mention decides, so a later plain mention reopens it.
+ - **Open items:** a bar above the thread lists the open labels as chips.
+   Expand it for every item with its title, closed ones under **Closed (N)**.
++- **Latest reply:** the Open items bar puts the items the agent's newest reply
++  mentions first, tinted, and includes an item that reply just closed, struck
++  through. Expanded, they sit under **In the latest reply**, ahead of the other
++  open items.
+ 
+ ## Comment on items
+ 
 diff --git a/web/src/components/blocks/ChatMarkdown.tsx b/web/src/components/blocks/ChatMarkdown.tsx
 index e7c7ddf62606e29716eb66d2897cac71a1bf9f94..ef0bb2d49fa609ed0c3f5c5e4af1ea790608318a 100644
 --- a/web/src/components/blocks/ChatMarkdown.tsx

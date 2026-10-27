@@ -14,6 +14,7 @@ the preference on and drives the picker's No project and project rows.
 
 Signed-off-by: Desidero <desidero@gmail.com>
 Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Docs: none (test-only: e2e setup around the project picker)
 ---
  tests/e2e_ui/conftest.py                      | 10 +++++
  tests/e2e_ui/sessions/test_command_palette.py | 44 +++++++++++++++++++

@@ -44,6 +44,7 @@ Not upstream yet: proposed from feat/chat-item-citations; drop this copy once it
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: Desidero <desidero@gmail.com>
 ---
+ docs/chat-item-labels.md                      |  48 +++
  omnigent/harnesses/claude_native/bridge.py    |  33 +-
  omnigent/harnesses/claude_native/main.py      |  20 +-
  omnigent/harnesses/codex_native/main.py       |   8 +-
@@ -68,7 +69,8 @@ Signed-off-by: Desidero <desidero@gmail.com>
  web/src/hooks/useHoverPopover.ts              |  95 +++++
  web/src/lib/itemLabels.test.ts                | 276 ++++++++++++
  web/src/lib/itemLabels.ts                     | 399 ++++++++++++++++++
- 24 files changed, 1986 insertions(+), 90 deletions(-)
+ 25 files changed, 2034 insertions(+), 90 deletions(-)
+ create mode 100644 docs/chat-item-labels.md
  create mode 100644 tests/e2e_ui/chat/test_item_label_chips.py
  create mode 100644 web/src/components/blocks/ChatMarkdown.itemLabels.test.tsx
  create mode 100644 web/src/components/chat/OpenItemsPanel.test.tsx
@@ -78,6 +80,60 @@ Signed-off-by: Desidero <desidero@gmail.com>
  create mode 100644 web/src/lib/itemLabels.test.ts
  create mode 100644 web/src/lib/itemLabels.ts
 
+diff --git a/docs/chat-item-labels.md b/docs/chat-item-labels.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..7881ca781760c7cfc9e083aca49de413028acb7b
+--- /dev/null
++++ b/docs/chat-item-labels.md
+@@ -0,0 +1,48 @@
++# Item labels in chat
++
++Long sessions often raise several questions, risks or follow-ups in one reply
++and then refer back to them across many short updates. Item labels give each
++one a short tag such as `[Q2]`, and the chat turns later mentions of the tag
++into a preview of the original item, so you don't have to scroll back or ask
++for a recap. There is nothing to turn on.
++
++## How agents label items
++
++Omnigent adds a framework instruction to every agent: tag an item that needs
++your decision or attention later once, at its start, with a bracketed label
++and a short bold title, then refer to it by the label.
++
++```markdown
++[Q2] **Docker socket access?** The build needs the host's Docker socket...
++```
++
++The instruction suggests `[Q1]`, `[Q2]` for questions, `[R1]` for risks,
++`[F1]` for findings and `[T1]` for follow-up tasks, and asks the agent to close
++a settled item by writing its label struck through (`~~[Q2]~~`) in the
++sentence that says how it ended.
++
++SDK harnesses get the instruction with every turn. claude-native and
++codex-native take instructions only at launch, so it is appended to the
++agent's own instructions there: through Claude Code's `--append-system-prompt`
++(merged with one you pass yourself, since Claude honours only the last) and
++Codex's `developer_instructions`. Other native harnesses have no instruction
++channel; labels still render when you or the agent write them.
++
++## What the chat shows
++
++- **Labels:** one to three capital letters and one to three digits in square
++  brackets, such as `[Q2]` or `[R12]`. Labels in code, task-list boxes
++  (`[x]`), numeric footnotes (`[1]`) and link text are ignored.
++- **Only once used:** labels render only when the transcript uses them, that
++  is, a label recurs in another message or one message tags several items. A
++  stray `[A4]` in an unrelated session stays plain text.
++- **Chips:** the first message carrying a label defines the item. Later
++  mentions, in your messages or the agent's, show as chips. Click one (or
++  hover it with a mouse) for a popover with the defining block (its list
++  item, heading section, table row or paragraph) and **Show in
++  conversation**, which scrolls to it.
++- **Closing:** a struck-through mention, `~~[Q2]~~`, closes the item. Its chips
++  are struck through everywhere and the popover adds the sentence that closed
++  it. The newest mention decides, so a later plain mention reopens it.
++- **Open items:** a bar above the thread lists the open labels as chips.
++  Expand it for every item with its title, closed ones under **Closed (N)**.
 diff --git a/omnigent/harnesses/claude_native/bridge.py b/omnigent/harnesses/claude_native/bridge.py
 index 3223f9a610e9e290cb4d8ad37d0b6f1cb435de36..b7dea0a5cf2787a74f7142556042c3651a677796 100644
 --- a/omnigent/harnesses/claude_native/bridge.py

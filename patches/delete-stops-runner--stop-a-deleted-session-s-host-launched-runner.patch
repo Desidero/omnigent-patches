@@ -25,10 +25,10 @@ Signed-off-by: Desidero <desidero@gmail.com>
  4 files changed, 181 insertions(+)
 
 diff --git a/feature-map/sessions.md b/feature-map/sessions.md
-index 799ccea784fd3fdbf9a2e0af7cf480f7923fb33e..c81916a5eba60862eafd5d0a7c3674abdc8aac6a 100644
+index a4cbbf08c0cda9813df81a31316214a0bc733e8c..881eb44e9e55cf23402e5b6dd306bc34c3004dd6 100644
 --- a/feature-map/sessions.md
 +++ b/feature-map/sessions.md
-@@ -451,6 +451,11 @@ plain `uv run pytest`, which starts a private server for the test.
+@@ -463,6 +463,11 @@ plain `uv run pytest`, which starts a private server for the test.
  - **`delete`:**
    `tests/e2e_ui/sessions/test_sidebar_delete.py::test_delete_session_removes_row_and_from_store`,
    `tests/e2e_ui/sessions/test_sidebar_bulk_actions.py::test_bulk_delete_removes_sessions`

@@ -27,7 +27,7 @@ session_overrides ──> runner init snapshot + every forwarded turn ──> pr
 - **Web preference client.** Reads and saves through `GET /v1/preferences/shared` and `POST /v1/preferences/shared/operations`: follows pagination (restarting if an edit lands between pages), sends `expected_version`, retries an unanswered edit with the same `operation_id`, and on conflict re-reads and retries once. Settings shows competing values from other devices with a Keep button each. The installation ID is stable per browser.
 - **Runner and harnesses.** The runner receives the set in the session init snapshot and with every forwarded turn. SDK harnesses compose instructions per turn, so a change applies on the next turn. Native Claude and Codex take instructions only at launch (including `omnigent claude` / `omnigent codex` resumes, which now read the session's set), so the web menu notes that a change reaches the agent after a restart. Claude Code honours only the last `--append-system-prompt`, so ours is merged into a user-supplied one.
 - **Web UI.** Toggles in the new-chat dialog's agent menu, the session configure menu and Settings > General > Chat features; Run is shown only when the session's set includes `run_commands`.
-- Docs: `docs/shared-preferences-api.md` and `feature-map/preferences.md`; `openapi.json` regenerated.
+- Docs: `docs/shared-preferences-api.md`, `feature-map/preferences.md`, and the "Turn it on or off" section of `docs/run-suggested-commands.md`; `openapi.json` regenerated.
 
 ## Test Plan
 

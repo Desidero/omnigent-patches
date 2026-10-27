@@ -17,6 +17,7 @@ Not upstream yet: proposed alongside upstream PR #10849.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Signed-off-by: mhavant <matthew.hoelting@avant.com>
+Docs: none (fix: a teammate-started lead turn reads as working; no setting)
 ---
  omnigent/harnesses/claude_native/bridge.py    | 69 ++++++++++++++++++-
  omnigent/harnesses/claude_native/forwarder.py |  4 ++
