@@ -130,3 +130,37 @@ app-error-boundary--show-the-error-instead-of-a-blank-page-when-rendering-crashe
 
 # series: jump-to-latest
 jump-to-latest--offer-a-jump-to-the-latest-message-with-a-new-reply-signal.patch
+
+# series: toast-safe-area (continued)
+toast-safe-area--bring-the-toast-safe-area-fix-up-to-its-pr.patch
+
+# series: telemetry-attribution (continued)
+telemetry-attribution--bring-span-attribution-up-to-its-pr.patch
+
+# series: session-telemetry
+session-telemetry--record-the-model-and-effort-a-turn-ran-with.patch
+session-telemetry--stamp-session-metadata-on-harness-turn-spans.patch
+session-telemetry--fall-back-to-the-session-s-model-and-effort.patch
+session-telemetry--use-a-neutral-credential-in-the-git-remote-fixture.patch
+
+# series: claude-native-teammates (continued)
+claude-native-teammates--bring-teammate-child-sessions-up-to-its-pr.patch
+claude-native-teammates--bring-teammate-delivery-hiding-up-to-its-pr.patch
+
+# series: codex-native-shell-input
+# needs: run-suggested-commands
+codex-native-shell-input--bring-web-command-shell-inputs-up-to-its-pr.patch
+
+# series: palette-new-chat-in-project (continued)
+palette-new-chat-in-project--bring-palette-new-chat-in-project-up-to-its-pr.patch
+
+# series: new-chat-project-prompt (continued)
+new-chat-project-prompt--bring-the-new-session-project-prompt-up-to-its-pr.patch
+new-chat-project-prompt--keep-new-session-on-the-composer-unless-testing-the-project.patch
+
+# series: session-labels-ui (continued)
+session-labels-ui--bring-session-label-deletes-and-project-defaults-up-to-its-pr.patch
+session-labels-ui--bring-session-label-editing-up-to-its-pr.patch
+
+# series: delete-stops-runner (continued)
+delete-stops-runner--bring-deleted-session-runner-stop-up-to-its-pr.patch

@@ -98,6 +98,7 @@ series:
     want: Agent-team teammates appear as child sessions and their deliveries are not raw bubbles.
     issue: 10745
     related:
+    - 11389
     - 8779
     - 7690
     - 8588
@@ -194,6 +195,7 @@ series:
     issue: 11383
     want: View and edit session labels in the web UI; default labels per project.
     related:
+    - 11399
     - 2117
     - 5194
     - 8689
@@ -272,8 +274,8 @@ series:
     related:
     - 9218
     - 10856
-    note: Split from the retired Run-button series; 1869 unit tests, 1 real-Codex e2e. Bug issue drafted,
-      then PR.
+    note: 'Split from the retired Run-button series; 1869 unit tests, 1 real-Codex e2e. On custom as a
+      follow-up on run-suggested-commands; the PR''s stray empty web/.build.lock is not carried.'
     drafts:
     - proposals/codex-native-shell-input/issue.md
     - proposals/codex-native-shell-input/PR.md
@@ -285,7 +287,8 @@ series:
     branch: 'feat/turn-model-effort @ 0a8a64418 (PR 11384); feat/session-telemetry @ 1524de2b6 (PR 11434, stacked, draft)'
     related:
     - 10794
-    note: 'Previously held back; stands alone (related to #10794, not stacked). Credential
+    - 11434
+    note: 'On custom as its own series (#11384, then #11434 stacked on it); stands alone (related to #10794, not stacked). Credential
       leak in git remote fixed, per-turn read bounded, project name cached; 371 tests. Feature issue drafted; two PRs.'
     drafts:
     - proposals/session-telemetry/issue.md
