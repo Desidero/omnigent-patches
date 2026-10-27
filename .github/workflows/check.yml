@@ -39,6 +39,10 @@ on:
         description: Mark the release as a pre-release (production picks one later)
         type: boolean
         default: true
+      all_tests:
+        description: Run the tests for every patch, not only the changed ones
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -88,8 +92,11 @@ jobs:
         name: Select tests near the changed patches
         env:
           SINCE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          ALL_TESTS: ${{ inputs.all_tests || false }}
         run: |
-          if [[ -n "$SINCE" && "$SINCE" != 0000000000000000000000000000000000000000 ]] \
+          if [[ "$ALL_TESTS" == true ]]; then
+            scripts/select-tests.py --tree tree --out selection --all
+          elif [[ -n "$SINCE" && "$SINCE" != 0000000000000000000000000000000000000000 ]] \
               && git cat-file -e "$SINCE^{commit}" 2>/dev/null; then
             scripts/select-tests.py --tree tree --out selection --since "$SINCE"
           else
